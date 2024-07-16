@@ -1,0 +1,5 @@
+#ifndef MATRIXOPERATION_H
+#define MATRIXOPERATION_H
+
+int getAB();
+#endif // ! MATRIXOPERATION_H

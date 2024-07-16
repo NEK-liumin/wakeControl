@@ -1,0 +1,183 @@
+{
+	"archive" : {},
+	"artifacts" : 
+	[
+		{
+			"path" : "/home/liumin/.vs/wakeControl/lib/libmatrixOperation.a"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"matrixOperation/CMakeLists.txt",
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 19,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 14,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 15,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 16,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 17,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 18,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 11,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 12,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 13,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 14,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 3,
+					"path" : "/home/liumin/.vs/wakeControl/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/home/liumin/.vs/wakeControl/matrixOperation"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "/home/liumin/.vs/wakeControl/model"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "/home/liumin/.vs/wakeControl/solver"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/home/liumin/.vs/wakeControl/main"
+				},
+				{
+					"backtrace" : 8,
+					"path" : "/home/liumin/.vs/wakeControl/matrixOperation/matrixOperation"
+				},
+				{
+					"backtrace" : 9,
+					"path" : "/home/liumin/.vs/wakeControl/matrixOperation/model"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "/home/liumin/.vs/wakeControl/matrixOperation/solver"
+				},
+				{
+					"backtrace" : 11,
+					"path" : "/home/liumin/.vs/wakeControl/matrixOperation/main"
+				}
+			],
+			"language" : "CXX",
+			"sourceIndexes" : 
+			[
+				0,
+				1
+			]
+		}
+	],
+	"id" : "matrixOperation::@11433a611bd5c71820c7",
+	"name" : "matrixOperation",
+	"nameOnDisk" : "libmatrixOperation.a",
+	"paths" : 
+	{
+		"build" : "matrixOperation",
+		"source" : "matrixOperation"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "main/wakeControl.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "matrixOperation/matrixOperation.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}
