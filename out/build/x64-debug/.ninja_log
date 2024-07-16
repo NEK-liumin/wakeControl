@@ -1,9 +1,15 @@
 # ninja log v5
-16	78	7427403056072001	matrixOperation/CMakeFiles/matrixOperation.dir/matrixOperation.cpp.obj	27b0b9d7209cae3e
+17	359	7428196058297907	matrixOperation/CMakeFiles/matrixOperation.dir/matrixOperation.cpp.obj	27b0b9d7209cae3e
 24	89	7427403056183053	model/CMakeFiles/model.dir/wake.cpp.obj	36d3efd0a93662b
-640	910	7427403064136026	wakeControl.exe	3e19c1d5479cb960
-19	318	7427403058459973	model/CMakeFiles/model.dir/__/main/wakeControl.cpp.obj	490098d89dcc4d54
-10	322	7427403058449977	matrixOperation/CMakeFiles/matrixOperation.dir/__/main/wakeControl.cpp.obj	424218f564ccb707
-4	327	7427403058449977	CMakeFiles/wakeControl.dir/main/wakeControl.cpp.obj	d7583a6804960571
-318	635	7427403061627329	D:/code/wakeControl/lib/model.lib	8b5dd5b61c40c9e8
-322	640	7427403061692429	D:/code/wakeControl/lib/matrixOperation.lib	1bbbdc7d1df9cb7f
+321	442	7428196657714011	wakeControl.exe	3e19c1d5479cb960
+10	283	7428196656469233	model/CMakeFiles/model.dir/__/main/wakeControl.cpp.obj	490098d89dcc4d54
+6	279	7428196656428911	matrixOperation/CMakeFiles/matrixOperation.dir/__/main/wakeControl.cpp.obj	424218f564ccb707
+2	279	7428196656428911	CMakeFiles/wakeControl.dir/main/wakeControl.cpp.obj	d7583a6804960571
+283	321	7428196656861469	D:/code/wakeControl/lib/model.lib	8b5dd5b61c40c9e8
+279	317	7428196656816225	D:/code/wakeControl/lib/matrixOperation.lib	1bbbdc7d1df9cb7f
+2	294	7428196922854449	CMakeFiles/wakeControl.dir/main/wakeControl.cpp.obj	d7583a6804960571
+8	305	7428196922954976	matrixOperation/CMakeFiles/matrixOperation.dir/__/main/wakeControl.cpp.obj	424218f564ccb707
+14	316	7428196923069215	model/CMakeFiles/model.dir/__/main/wakeControl.cpp.obj	490098d89dcc4d54
+305	344	7428196923348341	D:/code/wakeControl/lib/matrixOperation.lib	1bbbdc7d1df9cb7f
+316	354	7428196923459172	D:/code/wakeControl/lib/model.lib	8b5dd5b61c40c9e8
+354	490	7428196924421443	wakeControl.exe	3e19c1d5479cb960
