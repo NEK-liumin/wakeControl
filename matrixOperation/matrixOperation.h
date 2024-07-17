@@ -28,6 +28,8 @@ int getNormalizedA(Column& A);
 
 int getAB(Matrix& result, Matrix& A, Matrix& B);
 
+int getAB(Matrix& A, Matrix& B);
+
 int getAB(Column& result, Matrix& A, Column& B);
 
 int getATB(Matrix& result, Matrix& A, Matrix& B);
@@ -59,6 +61,12 @@ double norm(Column& A);
 int getFirstColumn(Column& result, Matrix& A);
 
 int getReducedMatrix(Matrix& result, Matrix& A);
+
+int getExtendedMatrix(Matrix& result, Matrix& A, int n);
+
+int getExtendedMatrix(Matrix& A, int n);
+
+int getExtendedColumn(Column& result, Column& A, int n);
 
 bool getIsHeadColumn(Column& A);
 

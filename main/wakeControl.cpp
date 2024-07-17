@@ -10,8 +10,10 @@ int main()
 	Column B = { 1,2,3 };
 	Matrix A1;
 	Column B1;
-
-	getH(A1, A);
-	printA(A1);
+	Matrix Q, R;
+	QR_decomposition(Q, R, A);
+	printA(Q);
+	cout << endl;
+	printA(R);
 	return 0;
 }

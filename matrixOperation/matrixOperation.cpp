@@ -138,6 +138,35 @@ int getAB(Matrix& result, Matrix& A, Matrix& B)
 	return 0;
 }
 
+int getAB(Matrix& A, Matrix& B)
+{
+	Matrix result;
+	int m1 = A.size();
+	int n1 = A[0].size();
+	int m2 = B.size();
+	int n2 = B[0].size();
+	if (n1 != m2)
+	{
+		cout << "相乘的两个矩阵不匹配" << endl;
+		return 0;
+	}
+	result.resize(m1);
+	for (int i = 0; i < m1; ++i)
+	{
+		result[i].resize(n2);
+		for (int j = 0; j < n2; ++j)
+		{
+			result[i][j] = 0;
+			for (int k = 0; k < n1; ++k)
+			{
+				result[i][j] += A[i][k] * B[k][j];
+			}
+		}
+	}
+	A = result;
+	return 0;
+}
+
 int getAB(Column& result, Matrix& A, Column& B)
 {
 	int m1 = A.size();
@@ -438,6 +467,107 @@ int getReducedMatrix(Matrix& result, Matrix& A)
 	return 0;
 }
 
+int getExtendedMatrix(Matrix& result, Matrix& A, int n)
+{
+	int m1 = A.size();
+	int n1 = A[0].size();
+	if (m1 != n1)
+	{
+		cout << "扩展函数只能扩展方阵" << endl;
+		return 0;
+	}
+	if (n < m1)
+	{
+		cout << "扩展后的方阵不能比扩展之前小" << endl;
+		return 0;
+	}
+	if (n == m1)
+	{
+		result = A;
+		return 0;
+	}
+	result.resize(n);
+	for (int i = 0; i < n; ++i)
+	{
+		result[i].resize(n);
+		for (int j = 0; j < n; ++j)
+		{
+			if (i == j && i < n - m1)
+			{
+				result[i][j] = 1;
+			}
+			else if (i < n - m1 || j < n - m1)
+			{
+				result[i][j] = 0;
+			}
+			else
+			{
+				result[i][j] = A[i - n + m1][j - n + m1];
+			}
+		}
+	}
+	return 0;
+}
+
+int getExtendedMatrix(Matrix& A, int n)
+{
+	Matrix result;
+	int m1 = A.size();
+	int n1 = A[0].size();
+	if (m1 != n1)
+	{
+		cout << "扩展函数只能扩展方阵" << endl;
+		return 0;
+	}
+	if (n < m1)
+	{
+		cout << "扩展后的方阵不能比扩展之前小" << endl;
+		return 0;
+	}
+	if (n == m1)
+	{
+		result = A;
+		return 0;
+	}
+	result.resize(n);
+	for (int i = 0; i < n; ++i)
+	{
+		result[i].resize(n);
+		for (int j = 0; j < n; ++j)
+		{
+			if (i == j && i < n - m1)
+			{
+				result[i][j] = 1;
+			}
+			else if (i < n - m1 || j < n - m1)
+			{
+				result[i][j] = 0;
+			}
+			else
+			{
+				result[i][j] = A[i - n + m1][j - n + m1];
+			}
+		}
+	}
+	A = result;
+	return 0;
+}
+
+int getExtendedColumn(Column& result, Column& A, int n)
+{
+	int m = A.size();
+	result.resize(n);
+	for (int i = 0; i < n - m; ++i)
+	{
+		result[i] = 0;
+	}
+	for (int i = n - m; i < n; ++i)
+	{
+		result[i] = A[i - n + m];
+	}
+	return 0;
+}
+
 bool getIsHeadColumn(Column& A)
 {
 	int m = A.size();
@@ -475,13 +605,32 @@ int getH(Matrix& H, Matrix& A)
 	getABT(uuT, u, u);
 	getAlphaA(uuT, 2);
 	getAMinusB(H, I, uuT);
+	return 0;
 }
 
 int QR_decomposition(Matrix& Q, Matrix& R, Matrix& A)
 {
 	int m = A.size();
 	int n = A[0].size();
-
+	if (m < n)
+	{
+		cout << "QR分解的矩阵，列数必须小于等于行数！" << endl;
+		return 0;
+	}
+	getUnitMatrix(Q, m);
+	getZeroMatrix(R, m, n);
+	Matrix Atemp = A;
+	Matrix Htemp;
+	Matrix HA;
+	for (int i = 0; i < n; ++i)
+	{
+		getH(Htemp, Atemp);
+		getAB(HA, Htemp, Atemp);
+		getExtendedColumn(R[i], HA[0], n);
+		getReducedMatrix(Atemp, HA);
+		getExtendedMatrix(Htemp, m);
+		getAB(Q, Htemp);
+	}
 	return 0;
 }
 
