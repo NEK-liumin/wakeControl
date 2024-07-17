@@ -15,8 +15,10 @@
     "",
     "\\include",
     "\\main",
-    "\\matrixOperation"
+    "\\matrixOperation",
+    "\\model",
+    "\\QP"
   ],
-  "SelectedNode": "\\CMakeLists.txt",
+  "SelectedNode": "\\main\\wakeControl.cpp",
   "PreviewInSolutionExplorer": false
 }

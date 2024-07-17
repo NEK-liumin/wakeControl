@@ -6,13 +6,12 @@ using namespace std;
 
 int main()
 {
-	Matrix A = { {1,2},{3,4} };
-	Matrix B = { {1,2},{3,4} };
-	Matrix C;
-	Column D = { 1,2 };
-	Column E;
-	Column F = { 3,4 };
-	getAMinusB(D, F);
-	printA(D);
+	Matrix A = { {1,2,0,1},{1,0,3,1},{1,0,3,2},{1,2,0,2} };
+	Column B = { 1,2,3 };
+	Matrix A1;
+	Column B1;
+
+	getH(A1, A);
+	printA(A1);
 	return 0;
 }
