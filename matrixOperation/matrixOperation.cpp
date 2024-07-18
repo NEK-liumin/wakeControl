@@ -298,6 +298,33 @@ int getABT(Matrix& result, Column& A, Column& B)
 	return 0;
 }
 
+int getABT(Matrix& result, Matrix& A, Matrix& B)
+{
+	int m1 = A.size();
+	int n1 = A[0].size();
+	int m2 = B.size();
+	int n2 = B[0].size();
+	if (n1 != n2)
+	{
+		cout << "相乘的两个矩阵不匹配" << endl;
+		return 0;
+	}
+	result.resize(m1);
+	for (int i = 0; i < m1; ++i)
+	{
+		result[i].resize(m2);
+		for (int j = 0; j < m2; ++j)
+		{
+			result[i][j] = 0;
+			for (int k = 0; k < n1; ++k)
+			{
+				result[i][j] += A[i][k] * B[j][k];
+			}
+		}
+	}
+	return 0;
+}
+
 int getAPlusB(Matrix& result, Matrix& A, Matrix& B)
 {
 	int m1 = A.size();
@@ -627,6 +654,28 @@ int getH(Matrix& H, Matrix& A)
 	getABT(uuT, u, u);
 	getAlphaA(uuT, 2);
 	getAMinusB(H, I, uuT);
+	return 0;
+}
+
+int splitMatrix(Matrix& result1, Matrix& result2, Matrix& A, int n)
+{
+	int m1 = A.size();
+	int n1 = A[0].size();
+	result1.resize(m1);
+	result2.resize(m1);
+	for (int i = 0; i < m1; ++i)
+	{
+		result1[i].resize(n);
+		result2[i].resize(n1 - n);
+		for (int j = 0; j < n; ++j)
+		{
+			result1[i][j] = A[i][j];
+		}
+		for (int j = 0; j < n1 - n; ++j)
+		{
+			result2[i][j] = A[i][j + n];
+		}
+	}
 	return 0;
 }
 

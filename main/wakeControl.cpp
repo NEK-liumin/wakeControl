@@ -11,19 +11,15 @@ int main()
 	Column x;
 	Column b = { 1,2,3 };
 	
-	int size_x = 5;
-	int size_E = 2;
-	int size_I = 8;
-	ICQP icqp = ICQP(size_x, size_I);
-	printA(icqp.x);
+	ECQP problem = ECQP(3, 3);
+	getUnitMatrix(problem.H, 3);
+	problem.p = { 2,1,-1 };
+	problem.q = 3;
+	problem.AE = { {3,-1,2},{-2,4,0},{-4,3,8} };
+	problem.bE = { 7,12,10 };
+	QR_solver(problem);
+	printA(problem.x);
 	cout << endl;
-	printA(icqp.H);
-	cout << endl;
-	printA(icqp.p);
-	cout << endl;
-	printA(icqp.cI);
-	cout << endl;
-	printA(icqp.bI);
-	printA(icqp.factorI);
+	printA(problem.factorE);
 	return 0;
 }

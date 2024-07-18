@@ -13,7 +13,7 @@ public:
 	Column p;
 	double q;
 	QP(){}
-	QP(int& size_x)
+	QP(int size_x)
 	{
 		this->size_x = size_x;
 		getZeroColumn(x, size_x);
@@ -29,11 +29,11 @@ class ICQP :public QP
 {
 public:
 	int size_I;
-	Matrix cI;
+	Matrix AI;
 	Column bI;
 	Column factorI;
 
-	ICQP(int& size_x, int& size_I)
+	ICQP(int size_x, int size_I)
 	{
 		this->size_x = size_x;
 		this->size_I = size_I;
@@ -43,7 +43,7 @@ public:
 		getZeroColumn(p, size_x);
 		q = 0;
 
-		getZeroMatrix(cI, size_I, size_x);
+		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
 		getZeroColumn(factorI, size_I);
 	}
@@ -54,11 +54,11 @@ class ECQP :public QP
 {
 public:
 	int size_E;
-	Matrix cE;
+	Matrix AE;
 	Column bE;
 	Column factorE;
 
-	ECQP(int& size_x, int& size_E)
+	ECQP(int size_x, int size_E)
 	{
 		this->size_x = size_x;
 		this->size_E = size_E;
@@ -68,7 +68,7 @@ public:
 		getZeroColumn(p, size_x);
 		q = 0;
 
-		getZeroMatrix(cE, size_E, size_x);
+		getZeroMatrix(AE, size_E, size_x);
 		getZeroColumn(bE, size_E);
 		getZeroColumn(factorE, size_E);
 	}
@@ -89,7 +89,7 @@ public:
 	Column bE;
 	Column factorE;
 
-	EICQP(int& size_x, int& size_E, int& size_I)
+	EICQP(int size_x, int size_E, int size_I)
 	{
 		this->size_x = size_x;
 		this->size_E = size_E;

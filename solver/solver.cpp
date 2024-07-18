@@ -104,3 +104,110 @@ bool Ax_b_solver(Column& x, Matrix& A, Column& b)
 	}
 	return true;
 }
+
+bool LDL_solver(QP& problem)
+{
+	bool isSolvable;
+	Column negative_p;
+	getAlphaA(negative_p, problem.p, -1);
+	isSolvable = Ax_b_solver(problem.x, problem.H, negative_p);
+	if (!isSolvable)
+	{
+		cout << "当前问题的海森矩阵存在问题，无解" << endl;
+		return false;
+	}
+
+	return true;
+}
+
+bool QR_solver(ECQP& problem)
+{
+	bool isSolvable;
+	if (problem.size_E > problem.size_x)
+	{
+		cout << "等式约束的个数不能大于变量个数" << endl;
+		return false;
+	}
+	if (problem.size_E == problem.size_x)
+	{
+		cout << "等式约束等于变量个数，仅靠约束即可确定变量" << endl;
+		Matrix Q, R;
+		QR_decomposition(Q, R, problem.AE);
+		Matrix QT;
+		Column QTb;
+		getAT(QT, Q);
+		getAB(QTb, QT, problem.bE);
+		isSolvable = LTx_b_solver(problem.x, R, QTb);
+
+		if (!isSolvable)
+		{
+			cout << "等式约束构成的方程组不可解" << endl;
+			return false;
+		}
+
+		Matrix AAT;
+		getABT(AAT, problem.AE, problem.AE);
+		Column Hx, Hxplusp, A_Hxplusp;
+		getAB(Hx, problem.H, problem.x);
+		getAPlusB(Hxplusp, Hx, problem.p);
+		getAB(A_Hxplusp, problem.AE, Hxplusp);
+		isSolvable = Ax_b_solver(problem.factorE, AAT, A_Hxplusp);
+		if (!isSolvable)
+		{
+			cout << "等式约束拉格朗日乘子不可解" << endl;
+			return false;
+		}
+		return true;
+	}
+	Matrix AT;
+	Matrix Q, R, RT;
+	Matrix Q1, Q2, Q2T;
+	getAT(AT, problem.AE);
+	QR_decomposition(Q, R, AT);
+	getAT(RT, R);
+	splitMatrix(Q1, Q2, Q, problem.size_E);
+	getAT(Q2T, Q2);
+	Matrix H_temp;
+	getAB(H_temp, Q2T, problem.H);
+	getAB(H_temp, Q2);
+
+	Column p_temp, RT_inverse_b;
+	Matrix HQ1;
+	Column HQ1RT_inverse_b;
+	isSolvable = Lx_b_solver(RT_inverse_b, RT, problem.bE);
+	if (!isSolvable)
+	{
+		cout << "等式约束存在问题" << endl;
+		return false;
+	}
+	getAB(HQ1, problem.H, Q1);
+	getAB(HQ1RT_inverse_b, HQ1, RT_inverse_b);
+	getAPlusB(HQ1RT_inverse_b, problem.p);
+	getAB(p_temp, Q2T, HQ1RT_inverse_b);
+	getAlphaA(p_temp, -1);
+	Column phi;
+	isSolvable = Ax_b_solver(phi, H_temp, p_temp);
+	if (!isSolvable)
+	{
+		cout << "当前问题不可解，可能与海森矩阵和线性约束矩阵相关" << endl;
+		return false;
+	}
+	Column Q2phi;
+	getAB(Q2phi, Q2, phi);
+	getAB(problem.x, Q1, RT_inverse_b);
+	getAPlusB(problem.x, Q2phi);
+
+	Matrix AAT;
+	getABT(AAT, problem.AE, problem.AE);
+	Column Hx, Hxplusp, A_Hxplusp;
+	getAB(Hx, problem.H, problem.x);
+	getAPlusB(Hxplusp, Hx, problem.p);
+	getAB(A_Hxplusp, problem.AE, Hxplusp);
+	isSolvable = Ax_b_solver(problem.factorE, AAT, A_Hxplusp);
+	if (!isSolvable)
+	{
+		cout << "当前问题等式约束的拉格朗日乘子不可解" << endl;
+		return false;
+	}
+	return true;
+}

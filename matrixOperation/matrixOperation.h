@@ -44,6 +44,8 @@ int getATB(double& result, Column& A, Column& B);
 
 int getABT(Matrix& result, Column& A, Column& B);
 
+int getABT(Matrix& result, Matrix& A, Matrix& B);
+
 int getAPlusB(Matrix& result, Matrix& A, Matrix& B);
 
 int getAPlusB(Column& result, Column& A, Column& B);
@@ -73,6 +75,8 @@ int getExtendedMatrix(Matrix& A, int n);
 int getExtendedColumn(Column& result, Column& A, int n);
 
 bool getIsHeadColumn(Column& A);
+
+int splitMatrix(Matrix& result1, Matrix& result2, Matrix& A, int n);
 
 int QR_decomposition(Matrix& Q, Matrix& R, Matrix& A);
 
