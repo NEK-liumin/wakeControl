@@ -47,11 +47,11 @@ cmake_ninja_workdir = D$:\code\wakeControl\out\build\x64-debug\
 #############################################
 # Order-only phony target for wakeControl
 
-build cmake_object_order_depends_target_wakeControl: phony || cmake_object_order_depends_target_matrixOperation cmake_object_order_depends_target_model
+build cmake_object_order_depends_target_wakeControl: phony || cmake_object_order_depends_target_QP cmake_object_order_depends_target_matrixOperation cmake_object_order_depends_target_model cmake_object_order_depends_target_solver
 
 build CMakeFiles\wakeControl.dir\main\wakeControl.cpp.obj: CXX_COMPILER__wakeControl_unscanned_Debug D$:\code\wakeControl\main\wakeControl.cpp || cmake_object_order_depends_target_wakeControl
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\main
+  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\QP -ID:\code\wakeControl\main
   OBJECT_DIR = CMakeFiles\wakeControl.dir
   OBJECT_FILE_DIR = CMakeFiles\wakeControl.dir\main
   TARGET_COMPILE_PDB = CMakeFiles\wakeControl.dir\
@@ -65,10 +65,10 @@ build CMakeFiles\wakeControl.dir\main\wakeControl.cpp.obj: CXX_COMPILER__wakeCon
 #############################################
 # Link the executable wakeControl.exe
 
-build wakeControl.exe: CXX_EXECUTABLE_LINKER__wakeControl_Debug CMakeFiles\wakeControl.dir\main\wakeControl.cpp.obj | D$:\code\wakeControl\lib\model.lib D$:\code\wakeControl\lib\matrixOperation.lib || D$:\code\wakeControl\lib\matrixOperation.lib D$:\code\wakeControl\lib\model.lib
+build wakeControl.exe: CXX_EXECUTABLE_LINKER__wakeControl_Debug CMakeFiles\wakeControl.dir\main\wakeControl.cpp.obj | D$:\code\wakeControl\lib\model.lib D$:\code\wakeControl\lib\matrixOperation.lib D$:\code\wakeControl\lib\solver.lib D$:\code\wakeControl\lib\QP.lib || D$:\code\wakeControl\lib\QP.lib D$:\code\wakeControl\lib\matrixOperation.lib D$:\code\wakeControl\lib\model.lib D$:\code\wakeControl\lib\solver.lib
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
-  LINK_LIBRARIES = D:\code\wakeControl\lib\model.lib  D:\code\wakeControl\lib\matrixOperation.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+  LINK_LIBRARIES = D:\code\wakeControl\lib\model.lib  D:\code\wakeControl\lib\matrixOperation.lib  D:\code\wakeControl\lib\solver.lib  D:\code\wakeControl\lib\QP.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
   LINK_PATH = -LIBPATH:D:\code\wakeControl\lib
   OBJECT_DIR = CMakeFiles\wakeControl.dir
   POST_BUILD = cd .
@@ -117,7 +117,7 @@ build cmake_object_order_depends_target_matrixOperation: phony || matrixOperatio
 
 build matrixOperation\CMakeFiles\matrixOperation.dir\__\main\wakeControl.cpp.obj: CXX_COMPILER__matrixOperation_unscanned_Debug D$:\code\wakeControl\main\wakeControl.cpp || cmake_object_order_depends_target_matrixOperation
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\main -ID:\code\wakeControl\matrixOperation\matrixOperation -ID:\code\wakeControl\matrixOperation\model -ID:\code\wakeControl\matrixOperation\solver -ID:\code\wakeControl\matrixOperation\main
+  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\QP -ID:\code\wakeControl\main -ID:\code\wakeControl\matrixOperation\matrixOperation -ID:\code\wakeControl\matrixOperation\model -ID:\code\wakeControl\matrixOperation\solver -ID:\code\wakeControl\matrixOperation\main
   OBJECT_DIR = matrixOperation\CMakeFiles\matrixOperation.dir
   OBJECT_FILE_DIR = matrixOperation\CMakeFiles\matrixOperation.dir\__\main
   TARGET_COMPILE_PDB = matrixOperation\CMakeFiles\matrixOperation.dir\matrixOperation.pdb
@@ -125,7 +125,7 @@ build matrixOperation\CMakeFiles\matrixOperation.dir\__\main\wakeControl.cpp.obj
 
 build matrixOperation\CMakeFiles\matrixOperation.dir\matrixOperation.cpp.obj: CXX_COMPILER__matrixOperation_unscanned_Debug D$:\code\wakeControl\matrixOperation\matrixOperation.cpp || cmake_object_order_depends_target_matrixOperation
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\main -ID:\code\wakeControl\matrixOperation\matrixOperation -ID:\code\wakeControl\matrixOperation\model -ID:\code\wakeControl\matrixOperation\solver -ID:\code\wakeControl\matrixOperation\main
+  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\QP -ID:\code\wakeControl\main -ID:\code\wakeControl\matrixOperation\matrixOperation -ID:\code\wakeControl\matrixOperation\model -ID:\code\wakeControl\matrixOperation\solver -ID:\code\wakeControl\matrixOperation\main
   OBJECT_DIR = matrixOperation\CMakeFiles\matrixOperation.dir
   OBJECT_FILE_DIR = matrixOperation\CMakeFiles\matrixOperation.dir
   TARGET_COMPILE_PDB = matrixOperation\CMakeFiles\matrixOperation.dir\matrixOperation.pdb
@@ -188,7 +188,7 @@ build cmake_object_order_depends_target_model: phony || model\CMakeFiles\model.d
 
 build model\CMakeFiles\model.dir\__\main\wakeControl.cpp.obj: CXX_COMPILER__model_unscanned_Debug D$:\code\wakeControl\main\wakeControl.cpp || cmake_object_order_depends_target_model
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\main -ID:\code\wakeControl\model\matrixOperation -ID:\code\wakeControl\model\model -ID:\code\wakeControl\model\solver -ID:\code\wakeControl\model\main
+  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\QP -ID:\code\wakeControl\main -ID:\code\wakeControl\model\matrixOperation -ID:\code\wakeControl\model\model -ID:\code\wakeControl\model\solver -ID:\code\wakeControl\model\main
   OBJECT_DIR = model\CMakeFiles\model.dir
   OBJECT_FILE_DIR = model\CMakeFiles\model.dir\__\main
   TARGET_COMPILE_PDB = model\CMakeFiles\model.dir\model.pdb
@@ -196,7 +196,7 @@ build model\CMakeFiles\model.dir\__\main\wakeControl.cpp.obj: CXX_COMPILER__mode
 
 build model\CMakeFiles\model.dir\wake.cpp.obj: CXX_COMPILER__model_unscanned_Debug D$:\code\wakeControl\model\wake.cpp || cmake_object_order_depends_target_model
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\main -ID:\code\wakeControl\model\matrixOperation -ID:\code\wakeControl\model\model -ID:\code\wakeControl\model\solver -ID:\code\wakeControl\model\main
+  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\QP -ID:\code\wakeControl\main -ID:\code\wakeControl\model\matrixOperation -ID:\code\wakeControl\model\model -ID:\code\wakeControl\model\solver -ID:\code\wakeControl\model\main
   OBJECT_DIR = model\CMakeFiles\model.dir
   OBJECT_FILE_DIR = model\CMakeFiles\model.dir
   TARGET_COMPILE_PDB = model\CMakeFiles\model.dir\model.pdb
@@ -259,11 +259,11 @@ build cmake_object_order_depends_target_QP: phony || QP\CMakeFiles\QP.dir
 
 build QP\CMakeFiles\QP.dir\__\main\wakeControl.cpp.obj: CXX_COMPILER__QP_unscanned_Debug D$:\code\wakeControl\main\wakeControl.cpp || cmake_object_order_depends_target_QP
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\main -ID:\code\wakeControl\QP\matrixOperation -ID:\code\wakeControl\QP\model -ID:\code\wakeControl\QP\solver -ID:\code\wakeControl\QP\main
+  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\QP -ID:\code\wakeControl\main -ID:\code\wakeControl\QP\matrixOperation -ID:\code\wakeControl\QP\model -ID:\code\wakeControl\QP\solver -ID:\code\wakeControl\QP\main
   OBJECT_DIR = QP\CMakeFiles\QP.dir
   OBJECT_FILE_DIR = QP\CMakeFiles\QP.dir\__\main
   TARGET_COMPILE_PDB = QP\CMakeFiles\QP.dir\QP.pdb
-  TARGET_PDB = QP\QP.pdb
+  TARGET_PDB = D:\code\wakeControl\lib\QP.pdb
 
 
 # =============================================================================
@@ -271,17 +271,17 @@ build QP\CMakeFiles\QP.dir\__\main\wakeControl.cpp.obj: CXX_COMPILER__QP_unscann
 
 
 #############################################
-# Link the static library QP\QP.lib
+# Link the static library D:\code\wakeControl\lib\QP.lib
 
-build QP\QP.lib: CXX_STATIC_LIBRARY_LINKER__QP_Debug QP\CMakeFiles\QP.dir\__\main\wakeControl.cpp.obj
+build D$:\code\wakeControl\lib\QP.lib: CXX_STATIC_LIBRARY_LINKER__QP_Debug QP\CMakeFiles\QP.dir\__\main\wakeControl.cpp.obj
   LANGUAGE_COMPILE_FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64
   OBJECT_DIR = QP\CMakeFiles\QP.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
   TARGET_COMPILE_PDB = QP\CMakeFiles\QP.dir\QP.pdb
-  TARGET_FILE = QP\QP.lib
-  TARGET_PDB = QP\QP.pdb
+  TARGET_FILE = D:\code\wakeControl\lib\QP.lib
+  TARGET_PDB = D:\code\wakeControl\lib\QP.pdb
 
 
 #############################################
@@ -322,11 +322,19 @@ build cmake_object_order_depends_target_solver: phony || solver\CMakeFiles\solve
 
 build solver\CMakeFiles\solver.dir\__\main\wakeControl.cpp.obj: CXX_COMPILER__solver_unscanned_Debug D$:\code\wakeControl\main\wakeControl.cpp || cmake_object_order_depends_target_solver
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\main -ID:\code\wakeControl\solver\matrixOperation -ID:\code\wakeControl\solver\model -ID:\code\wakeControl\solver\solver -ID:\code\wakeControl\solver\main
+  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\QP -ID:\code\wakeControl\main -ID:\code\wakeControl\solver\matrixOperation -ID:\code\wakeControl\solver\model -ID:\code\wakeControl\solver\solver -ID:\code\wakeControl\solver\main
   OBJECT_DIR = solver\CMakeFiles\solver.dir
   OBJECT_FILE_DIR = solver\CMakeFiles\solver.dir\__\main
   TARGET_COMPILE_PDB = solver\CMakeFiles\solver.dir\solver.pdb
-  TARGET_PDB = solver\solver.pdb
+  TARGET_PDB = D:\code\wakeControl\lib\solver.pdb
+
+build solver\CMakeFiles\solver.dir\solver.cpp.obj: CXX_COMPILER__solver_unscanned_Debug D$:\code\wakeControl\solver\solver.cpp || cmake_object_order_depends_target_solver
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
+  INCLUDES = -ID:\code\wakeControl\include -ID:\code\wakeControl\matrixOperation -ID:\code\wakeControl\model -ID:\code\wakeControl\solver -ID:\code\wakeControl\QP -ID:\code\wakeControl\main -ID:\code\wakeControl\solver\matrixOperation -ID:\code\wakeControl\solver\model -ID:\code\wakeControl\solver\solver -ID:\code\wakeControl\solver\main
+  OBJECT_DIR = solver\CMakeFiles\solver.dir
+  OBJECT_FILE_DIR = solver\CMakeFiles\solver.dir
+  TARGET_COMPILE_PDB = solver\CMakeFiles\solver.dir\solver.pdb
+  TARGET_PDB = D:\code\wakeControl\lib\solver.pdb
 
 
 # =============================================================================
@@ -334,17 +342,17 @@ build solver\CMakeFiles\solver.dir\__\main\wakeControl.cpp.obj: CXX_COMPILER__so
 
 
 #############################################
-# Link the static library solver\solver.lib
+# Link the static library D:\code\wakeControl\lib\solver.lib
 
-build solver\solver.lib: CXX_STATIC_LIBRARY_LINKER__solver_Debug solver\CMakeFiles\solver.dir\__\main\wakeControl.cpp.obj
+build D$:\code\wakeControl\lib\solver.lib: CXX_STATIC_LIBRARY_LINKER__solver_Debug solver\CMakeFiles\solver.dir\__\main\wakeControl.cpp.obj solver\CMakeFiles\solver.dir\solver.cpp.obj
   LANGUAGE_COMPILE_FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64
   OBJECT_DIR = solver\CMakeFiles\solver.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
   TARGET_COMPILE_PDB = solver\CMakeFiles\solver.dir\solver.pdb
-  TARGET_FILE = solver\solver.lib
-  TARGET_PDB = solver\solver.pdb
+  TARGET_FILE = D:\code\wakeControl\lib\solver.lib
+  TARGET_PDB = D:\code\wakeControl\lib\solver.pdb
 
 
 #############################################
@@ -372,9 +380,9 @@ build solver\rebuild_cache: phony solver\CMakeFiles\rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
-build QP: phony QP\QP.lib
+build QP: phony D$:\code\wakeControl\lib\QP.lib
 
-build QP.lib: phony QP\QP.lib
+build QP.lib: phony D$:\code\wakeControl\lib\QP.lib
 
 build matrixOperation: phony D$:\code\wakeControl\lib\matrixOperation.lib
 
@@ -384,9 +392,9 @@ build model: phony D$:\code\wakeControl\lib\model.lib
 
 build model.lib: phony D$:\code\wakeControl\lib\model.lib
 
-build solver: phony solver\solver.lib
+build solver: phony D$:\code\wakeControl\lib\solver.lib
 
-build solver.lib: phony solver\solver.lib
+build solver.lib: phony D$:\code\wakeControl\lib\solver.lib
 
 build wakeControl: phony wakeControl.exe
 
@@ -405,7 +413,7 @@ build all: phony wakeControl.exe matrixOperation\all model\all QP\all solver\all
 #############################################
 # Folder: D:/code/wakeControl/out/build/x64-debug/QP
 
-build QP\all: phony QP\QP.lib
+build QP\all: phony D$:\code\wakeControl\lib\QP.lib
 
 # =============================================================================
 
@@ -426,7 +434,7 @@ build model\all: phony D$:\code\wakeControl\lib\model.lib
 #############################################
 # Folder: D:/code/wakeControl/out/build/x64-debug/solver
 
-build solver\all: phony solver\solver.lib
+build solver\all: phony D$:\code\wakeControl\lib\solver.lib
 
 # =============================================================================
 # Built-in targets

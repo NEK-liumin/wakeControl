@@ -3,7 +3,6 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-# 如果支持，请为 MSVC 编译器启用热重载。
 
 project ("model")
 aux_source_directory(./ SRC)

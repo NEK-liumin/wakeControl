@@ -10,6 +10,8 @@ const double LARGE = 1e200;
 
 int getZeroMatrix(Matrix& result, int m, int n);
 
+int getZeroColumn(Column& result, int m);
+
 int getUnitMatrix(Matrix& result, int m);
 
 int getUnitColumn(Column& result, int m, int i);
@@ -25,6 +27,8 @@ int getAlphaA(Column& A, double alpha);
 int getNormalizedA(Column& result, Column& A);
 
 int getNormalizedA(Column& A);
+
+int getAT(Matrix& result, Matrix& A);
 
 int getAB(Matrix& result, Matrix& A, Matrix& B);
 
@@ -70,9 +74,9 @@ int getExtendedColumn(Column& result, Column& A, int n);
 
 bool getIsHeadColumn(Column& A);
 
-int getH(Matrix& H, Matrix& A);
-
 int QR_decomposition(Matrix& Q, Matrix& R, Matrix& A);
+
+bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A);
 
 int printA(Matrix& A);
 

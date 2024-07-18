@@ -12,6 +12,12 @@ int getZeroMatrix(Matrix& result, int m, int n)
 	return 0;
 }
 
+int getZeroColumn(Column& result, int m)
+{
+	result = Column(m, 0);
+	return 0;
+}
+
 int getUnitMatrix(Matrix& result, int m)
 {
 	result = Matrix(m, vector<double>(m, 0));
@@ -107,6 +113,22 @@ int getNormalizedA(Column& A)
 	for (int i = 0; i < m; ++i)
 	{
 		A[i] /= normal;
+	}
+	return 0;
+}
+
+int getAT(Matrix& result, Matrix& A)
+{
+	int m = A.size();
+	int n = A[0].size();
+	result.resize(n);
+	for (int i = 0; i < n; ++i)
+	{
+		result[i].resize(m);
+		for (int j = 0; j < m; ++j)
+		{
+			result[i][j] = A[j][i];
+		}
 	}
 	return 0;
 }
@@ -631,7 +653,51 @@ int QR_decomposition(Matrix& Q, Matrix& R, Matrix& A)
 		getExtendedMatrix(Htemp, m);
 		getAB(Q, Htemp);
 	}
+	if (m > n)
+	{
+		Column zeroColumn;
+		getZeroColumn(zeroColumn, n);
+		for (int i = n; i < m; ++i)
+		{
+			R[i] = zeroColumn;
+		}
+	}
 	return 0;
+}
+
+bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A)
+{
+	int m = A.size();
+	int n = A[0].size();
+	if (m != n)
+	{
+		cout << "LDL分解的矩阵必须是方阵" << endl;
+		return false;
+	}
+	getUnitMatrix(L, m);
+	getZeroMatrix(D, m, n);
+
+	for (int j = 0; j < n; ++j) {
+		D[j][j] = A[j][j];
+		for (int k = 0; k < j; ++k) {
+			D[j][j] -= L[j][k] * L[j][k] * D[k][k];
+		}
+
+		// 处理D[j][j]为零的情况
+		if (D[j][j] == 0) {
+			cout << "Matrix has a zero pivot at " << j+1 << ". LDL decomposition may not be possible." << endl;
+			return false;
+		}
+
+		for (int i = j + 1; i < n; ++i) {
+			L[i][j] = A[i][j];
+			for (int k = 0; k < j; ++k) {
+				L[i][j] -= L[i][k] * L[j][k] * D[k][k];
+			}
+			L[i][j] /= D[j][j];
+		}
+	}
+	return true;
 }
 
 int printA(Matrix& A)

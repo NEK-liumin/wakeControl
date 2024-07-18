@@ -1,4 +1,5 @@
 {
+  "DevContainersInfoBarHidden": true,
   "OutputFoldersPerTargetSystem": {
     "\u672C\u5730\u8BA1\u7B97\u673A": [
       "out\\build\\x64-debug",
@@ -9,16 +10,31 @@
       "out\\install\\x86-debug",
       "out\\build\\x86-release",
       "out\\install\\x86-release"
+    ],
+    "WSL: Ubuntu": [
+      "out\\Ubuntu\\build\\linux-debug",
+      "out\\Ubuntu\\install\\linux-debug"
     ]
+  },
+  "ActiveTargetSystem": "\u672C\u5730\u8BA1\u7B97\u673A",
+  "MRUPresetsPerTargetSystem": {
+    "\u672C\u5730\u8BA1\u7B97\u673A": {
+      "configure": "x64-debug"
+    },
+    "WSL: Ubuntu": {
+      "configure": "linux-debug"
+    }
   },
   "ExpandedNodes": [
     "",
     "\\include",
+    "\\lib",
     "\\main",
     "\\matrixOperation",
     "\\model",
-    "\\QP"
+    "\\QP",
+    "\\solver"
   ],
-  "SelectedNode": "\\matrixOperation\\matrixOperation.cpp",
+  "SelectedNode": "\\QP\\QP.h",
   "PreviewInSolutionExplorer": false
 }

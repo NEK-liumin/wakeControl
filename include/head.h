@@ -3,4 +3,6 @@
 
 #include "wake.h"
 #include "matrixOperation.h"
+#include "solver.h"
+#include "QP.h"
 #endif // !HEAD_H
