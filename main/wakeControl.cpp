@@ -11,15 +11,7 @@ int main()
 	Column x;
 	Column b = { 1,2,3 };
 	
-	ECQP problem = ECQP(3, 3);
-	getUnitMatrix(problem.H, 3);
-	problem.p = { 2,1,-1 };
-	problem.q = 3;
-	problem.AE = { {3,-1,2},{-2,4,0},{-4,3,8} };
-	problem.bE = { 7,12,10 };
-	QR_solver(problem);
-	printA(problem.x);
-	cout << endl;
-	printA(problem.factorE);
+	column2Diagnoal(L, b);
+	printA(L);
 	return 0;
 }

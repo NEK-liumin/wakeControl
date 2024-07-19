@@ -12,6 +12,12 @@ int getZeroMatrix(Matrix& result, int m, int n);
 
 int getZeroColumn(Column& result, int m);
 
+int getOneColumn(Column& result, int m);
+
+int column2Diagnoal(Matrix& result, Column& A);
+
+int diagonalInverse(Matrix& result, Matrix& A);
+
 int getUnitMatrix(Matrix& result, int m);
 
 int getUnitColumn(Column& result, int m, int i);

@@ -18,6 +18,42 @@ int getZeroColumn(Column& result, int m)
 	return 0;
 }
 
+int getOneColumn(Column& result, int m)
+{
+	result = Column(m, 1);
+	return 0;
+}
+
+int column2Diagnoal(Matrix& result, Column& A)
+{
+	int m = A.size();
+	result.resize(m);
+	for (int i = 0; i < m; ++i)
+	{
+		result[i].resize(m);
+		for (int j = 0; j < m; ++j)
+		{
+			result[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < m; ++i)
+	{
+		result[i][i] = A[i];
+	}
+	return 0;
+}
+
+int diagonalInverse(Matrix& result, Matrix& A)
+{
+	int m = A.size();
+	result = A;
+	for (int i = 0; i < m; ++i)
+	{
+		result[i][i] = 1 / A[i][i];
+	}
+	return 0;
+}
+
 int getUnitMatrix(Matrix& result, int m)
 {
 	result = Matrix(m, vector<double>(m, 0));

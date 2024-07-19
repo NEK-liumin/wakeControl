@@ -211,3 +211,130 @@ bool QR_solver(ECQP& problem)
 	}
 	return true;
 }
+
+class Nu
+{
+public:
+	Column x;
+	Column y;
+	Column factorE;
+	Column factorI;
+};
+
+class Delta
+{
+public:
+	Column x;
+	Column y;
+	Column factorE;
+	Column factorI;
+};
+
+int getNuBeforePre(Nu& nu, EICQP problem)
+{
+	Column Hx;
+	Column AETFactorE;
+	Column AITFactorI;
+	getAB(Hx, problem.H, problem.x);
+	getATB(AETFactorE, problem.AE, problem.factorE);
+	getATB(AITFactorI, problem.AI, problem.factorI);
+	getAPlusB(nu.x, Hx, problem.p);
+	getAMinusB(nu.x, AETFactorE);
+	getAMinusB(nu.x, AITFactorI);
+
+	Column AEx;
+	getAB(AEx, problem.AE, problem.x);
+	getAMinusB(nu.factorE, AEx, problem.bE);
+
+	Column AIx;
+	getAB(AIx, problem.AI, problem.x);
+	getAMinusB(nu.factorI, problem.bI, AIx);
+	getAPlusB(nu.factorI, problem.y);
+	return 0;
+}
+
+int getNuAfterPre(Nu& nu, EICQP& problem, double tau, Matrix& Yinverse)
+{
+	Column e;
+	getOneColumn(e, problem.size_I);
+	Matrix tauYInverse;
+	getAlphaA(tauYInverse, Yinverse, tau);
+	Column tauYinverse_e;
+	getAB(tauYinverse_e, tauYInverse, e);
+	getAMinusB(tauYinverse_e, problem.factorI);
+	return 0;
+}
+
+int getHk(Matrix& Hk, EICQP& problem, Matrix& Yinverse, Matrix& M)
+{
+	getATB(Hk, problem.AI, Yinverse);
+	getAB(Hk, M);
+	getAB(Hk, problem.AI);
+	getAPlusB(Hk, problem.H);
+}
+
+int getQP_pre(ECQP& QP_pre, EICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse, Matrix& M)
+{
+	QP_pre.H = Hk;
+
+	Matrix YinverseM;
+	Column YinverseMNU_factorI;
+	getAB(YinverseM, Yinverse, M);
+	getAB(YinverseMNU_factorI, YinverseM, nu.factorI);
+	Column YinverseMNU_factorIMinusFactorI;
+	getAMinusB(YinverseMNU_factorIMinusFactorI, YinverseMNU_factorI, problem.factorI);
+	getATB(QP_pre.p, problem.AI, YinverseMNU_factorIMinusFactorI);
+	getAlphaA(QP_pre.p, -1);
+	getAPlusB(QP_pre.p, nu.x);
+
+	QP_pre.AE = problem.AE;
+	QP_pre.bE = nu.factorE;
+	getAlphaA(QP_pre.bE, -1);
+	return 0;
+}
+
+int getQP_cor(ECQP& QP_cor, EICQP& problem, Matrix& Hk, Nu& nu)
+{
+	QP_cor.H = Hk;
+	getATB(QP_cor.p, problem.AI, nu.y);
+	getAlphaA(QP_cor.p, -1);
+	QP_cor.AE = problem.AE;
+	getZeroColumn(QP_cor.bE, problem.size_E);
+}
+
+int getDelta_pre(Delta& delta_pre, EICQP& problem, ECQP& QP_pre, Nu& nu, Matrix& Yinverse, Matrix& M)
+{
+	QR_solver(QP_pre);
+	delta_pre.x = QP_pre.x;
+	delta_pre.factorE = QP_pre.factorE;
+
+	Column AIdeltax;
+	getAB(AIdeltax, problem.AI, delta_pre.x);
+	getAMinusB(delta_pre.y, AIdeltax, nu.factorI);
+
+	Matrix yIM;
+	Column yIMdeltay;
+	getAB(yIM, Yinverse, M);
+	getAB(yIMdeltay, yIM, delta_pre.y);
+	getAPlusB(delta_pre.factorI, problem.factorI, yIMdeltay);
+	getAlphaA(delta_pre.factorI, -1);
+	return 0;
+}
+
+int getDelta_cor(Delta& delta_cor, EICQP& problem, ECQP& QP_cor, Nu& nu, Matrix& Yinverse, Matrix& M)
+{
+	QR_solver(QP_cor);
+	delta_cor.x = QP_cor.x;
+	delta_cor.factorE = QP_cor.factorE;
+	getAB(delta_cor.y, problem.AI, delta_cor.x);
+	Matrix YIM;
+	getAB(YIM, Yinverse, M);
+	getAB(delta_cor.factorI, YIM, delta_cor.y);
+	getAlphaA(delta_cor.factorI, -1);
+	getAPlusB(delta_cor.factorI, nu.y);
+}
+
+bool DPTPC_solver(EICQP& problem, double tol)
+{
+	return true;
+}

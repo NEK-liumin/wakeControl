@@ -24,7 +24,7 @@ public:
 	}
 };
 // min f = 1/2xHx + px +q
-// s.t.cIx = bI
+// s.t.AIx >= bI
 class ICQP :public QP
 {
 public:
@@ -32,6 +32,7 @@ public:
 	Matrix AI;
 	Column bI;
 	Column factorI;
+	Column y; // киЁз╠Да©
 
 	ICQP(int size_x, int size_I)
 	{
@@ -46,10 +47,12 @@ public:
 		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
 		getZeroColumn(factorI, size_I);
+		getOneColumn(y, size_I);
+		getAlphaA(y, 0.01);
 	}
 };
 // min f = 1/2xHx + px +q
-// s.t.cEx = bE
+// s.t.AEx = bE
 class ECQP :public QP
 {
 public:
@@ -74,18 +77,19 @@ public:
 	}
 };
 // min f = 1/2xHx + px +q
-// s.t.cIx = bI
-// s.t.cEx = bE
+// s.t.AIx >= bI
+// s.t.AEx = bE
 class EICQP :public QP
 {
 public:
 	int size_I;
-	Matrix cI;
+	Matrix AI;
 	Column bI;
 	Column factorI;
+	Column y;
 
 	int size_E;
-	Matrix cE;
+	Matrix AE;
 	Column bE;
 	Column factorE;
 
@@ -101,13 +105,15 @@ public:
 		getZeroColumn(p, size_x);
 		q = 0;
 
-		getZeroMatrix(cE, size_E, size_x);
+		getZeroMatrix(AE, size_E, size_x);
 		getZeroColumn(bE, size_E);
 		getZeroColumn(factorE, size_E);
 
-		getZeroMatrix(cI, size_I, size_x);
+		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
 		getZeroColumn(factorI, size_I);
+		getOneColumn(y, size_I);
+		getAlphaA(y, 0.01);
 	}
 };
 #endif // !QP_H
