@@ -46,7 +46,7 @@ public:
 
 		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
-		getZeroColumn(factorI, size_I);
+		getOneColumn(factorI, size_I);
 		getOneColumn(y, size_I);
 		getAlphaA(y, 0.01);
 	}
@@ -111,9 +111,9 @@ public:
 
 		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
-		getZeroColumn(factorI, size_I);
+		getOneColumn(factorI, size_I);
 		getOneColumn(y, size_I);
-		getAlphaA(y, 0.01);
+		// getAlphaA(y, 0.01);
 	}
 };
 #endif // !QP_H

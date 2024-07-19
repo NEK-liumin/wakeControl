@@ -1,7 +1,10 @@
 #include "solver.h"
 #include "iostream"
+#include "algorithm"
 using std::cout;
 using std::endl;
+using std::min;
+using std::max;
 
 bool Lx_b_solver(Column& x, Matrix& L, Column& b)
 {
@@ -261,7 +264,7 @@ int getNuAfterPre(Nu& nu, EICQP& problem, double tau, Matrix& Yinverse)
 	getAlphaA(tauYInverse, Yinverse, tau);
 	Column tauYinverse_e;
 	getAB(tauYinverse_e, tauYInverse, e);
-	getAMinusB(tauYinverse_e, problem.factorI);
+	getAMinusB(nu.y ,tauYinverse_e, problem.factorI);
 	return 0;
 }
 
@@ -271,6 +274,7 @@ int getHk(Matrix& Hk, EICQP& problem, Matrix& Yinverse, Matrix& M)
 	getAB(Hk, M);
 	getAB(Hk, problem.AI);
 	getAPlusB(Hk, problem.H);
+	return 0;
 }
 
 int getQP_pre(ECQP& QP_pre, EICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse, Matrix& M)
@@ -293,6 +297,45 @@ int getQP_pre(ECQP& QP_pre, EICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse
 	return 0;
 }
 
+int getStep(double& alpha, Delta& delta, EICQP& problem)
+{
+	double alphaP = LARGE, alphaD = LARGE;
+	double eta = 1 - 1e-3;
+	for (int i = 0; i < problem.size_I; ++i)
+	{
+		if (delta.y[i] < 0)
+		{
+			alphaP = min(alphaP, -problem.y[i] / delta.y[i]);
+		}
+		if (delta.factorI[i] < 0)
+		{
+			alphaD = min(alphaD, -problem.factorI[i] / delta.factorI[i]);
+		}
+	}
+	alpha = min(1.0, eta * alphaP);
+	alpha = min(alpha, eta * alphaD);
+	return 0;
+}
+
+int getTau(double& tau, EICQP& problem, Delta delta_pre, double& alpha_pre)
+{
+	double tauk;
+	double tau_pre;
+	getATB(tauk, problem.factorI, problem.y);
+	tauk = tauk * 1.0 / problem.size_I;
+	Column alphaDeltamu, alphaDeltay;
+	getAlphaA(alphaDeltamu, delta_pre.factorI, alpha_pre);
+	getAlphaA(alphaDeltay, delta_pre.y, alpha_pre);
+	getAPlusB(alphaDeltamu, problem.factorI);
+	getAPlusB(alphaDeltay, problem.y);
+	getATB(tau_pre, alphaDeltamu, alphaDeltay);
+	tau_pre = tau_pre * 1.0 / problem.size_I;
+	double sigma;
+	sigma = pow(tau_pre / tauk, 3);
+	tau = sigma * tauk;
+	return 0;
+}
+
 int getQP_cor(ECQP& QP_cor, EICQP& problem, Matrix& Hk, Nu& nu)
 {
 	QP_cor.H = Hk;
@@ -300,6 +343,7 @@ int getQP_cor(ECQP& QP_cor, EICQP& problem, Matrix& Hk, Nu& nu)
 	getAlphaA(QP_cor.p, -1);
 	QP_cor.AE = problem.AE;
 	getZeroColumn(QP_cor.bE, problem.size_E);
+	return 0;
 }
 
 int getDelta_pre(Delta& delta_pre, EICQP& problem, ECQP& QP_pre, Nu& nu, Matrix& Yinverse, Matrix& M)
@@ -332,9 +376,89 @@ int getDelta_cor(Delta& delta_cor, EICQP& problem, ECQP& QP_cor, Nu& nu, Matrix&
 	getAB(delta_cor.factorI, YIM, delta_cor.y);
 	getAlphaA(delta_cor.factorI, -1);
 	getAPlusB(delta_cor.factorI, nu.y);
+	return 0;
+}
+
+int getDelta(Delta& delta, Delta& delta_pre, Delta& delta_cor)
+{
+	getAPlusB(delta.x, delta_pre.x, delta_cor.x);
+	getAPlusB(delta.y, delta_pre.y, delta_cor.y);
+	getAPlusB(delta.factorE, delta_pre.factorE, delta_cor.factorE);
+	getAPlusB(delta.factorI, delta_pre.factorI, delta_cor.factorI);
+	return 0;
+}
+
+int getNewPoint(EICQP& problem, Delta delta, double& alpha)
+{
+	getAlphaA(delta.x, alpha);
+	getAlphaA(delta.y, alpha);
+	getAlphaA(delta.factorE, alpha);
+	getAlphaA(delta.factorI, alpha);
+	getAPlusB(problem.x, delta.x);
+	getAPlusB(problem.y, delta.y);
+	getAPlusB(problem.factorE, delta.factorE);
+	getAPlusB(problem.factorI, delta.factorI);
+	return 0;
+}
+
+int getNewInterval(double& interval, EICQP& problem)
+{
+	getATB(interval, problem.factorI, problem.y);
+	return 0;
 }
 
 bool DPTPC_solver(EICQP& problem, double tol)
 {
+	printA(problem.y);
+	cout << endl;
+	printA(problem.factorI);
+	cout << endl;
+	printA(problem.factorE);
+	ECQP QP_pre = ECQP(problem.size_x, problem.size_E);
+	ECQP QP_cor = ECQP(problem.size_x, problem.size_E);
+
+	Matrix Y, YInverse, M;
+	Nu nu;
+	Matrix Hk;
+	Delta delta, delta_pre, delta_cor;
+	double alpha_pre, alpha;
+	double tau;
+	double interval;
+	int k = 0;
+	do
+	{
+		k++;
+		cout << k << endl;
+		cout << "=============" << endl;
+		column2Diagnoal(Y, problem.y);
+		diagonalInverse(YInverse, Y);
+		column2Diagnoal(M, problem.factorI);
+	
+		getNuBeforePre(nu, problem);
+	
+		getHk(Hk, problem, YInverse, M);//right
+
+		getQP_pre(QP_pre, problem, Hk, nu, YInverse, M);
+
+		getDelta_pre(delta_pre, problem, QP_pre, nu, YInverse, M);//right
+		getStep(alpha_pre, delta_pre, problem);//right
+		getTau(tau, problem, delta_pre, alpha_pre);//right
+		getNuAfterPre(nu, problem, tau, YInverse);//right
+		getQP_cor(QP_cor, problem, Hk, nu);
+		
+		getDelta_cor(delta_cor, problem, QP_cor, nu, YInverse, M);
+		printA(QP_cor.x);
+		printA(delta_cor.x);
+		getDelta(delta, delta_pre, delta_cor);
+
+		getStep(alpha, delta, problem);
+
+
+		getNewPoint(problem, delta, alpha);
+		printA(problem.factorI);
+		printA(problem.y);
+		getNewInterval(interval, problem);
+		cout << interval << endl;
+	} while (interval > tol);
 	return true;
 }

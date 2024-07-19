@@ -800,6 +800,7 @@ int printA(Matrix& A)
 		}
 		cout << endl;
 	}
+	cout << endl;
 	return 0;
 }
 
@@ -812,5 +813,6 @@ int printA(Column& A)
 	{
 		cout << std::setw(width) << std::setprecision(precision) << A[i] << endl;
 	}
+	cout << endl;
 	return 0;
 }
