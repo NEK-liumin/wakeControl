@@ -1,6 +1,7 @@
 #include "solver.h"
 #include "iostream"
 #include "algorithm"
+#include <cmath>
 using std::cout;
 using std::endl;
 using std::min;
@@ -232,7 +233,10 @@ public:
 	Column factorE;
 	Column factorI;
 };
-
+// nu.x = Hx + p - AETlambda - AITmu
+// nu.y = tau * Y^-1 * e - mu
+// nu.lambda = AEx - bE
+// nu.mu = bI - AIx + y
 int getNuBeforePre(Nu& nu, EICQP problem)
 {
 	Column Hx;
@@ -388,7 +392,7 @@ int getDelta(Delta& delta, Delta& delta_pre, Delta& delta_cor)
 	return 0;
 }
 
-int getNewPoint(EICQP& problem, Delta delta, double& alpha)
+int getNewPoint(EICQP& problem, Delta& delta, double& alpha)
 {
 	getAlphaA(delta.x, alpha);
 	getAlphaA(delta.y, alpha);
@@ -435,10 +439,14 @@ bool DPTPC_solver(EICQP& problem, double tol)
 		column2Diagnoal(M, problem.factorI);
 	
 		getNuBeforePre(nu, problem);
+
+		cout << "nu before pre" << endl;
+		printA(nu.factorI);
 	
 		getHk(Hk, problem, YInverse, M);//right
 
 		getQP_pre(QP_pre, problem, Hk, nu, YInverse, M);
+		//QP_pre.QPprint();
 
 		getDelta_pre(delta_pre, problem, QP_pre, nu, YInverse, M);//right
 		getStep(alpha_pre, delta_pre, problem);//right
@@ -447,11 +455,18 @@ bool DPTPC_solver(EICQP& problem, double tol)
 		getQP_cor(QP_cor, problem, Hk, nu);
 		
 		getDelta_cor(delta_cor, problem, QP_cor, nu, YInverse, M);
-		printA(QP_cor.x);
-		printA(delta_cor.x);
+		
+		
 		getDelta(delta, delta_pre, delta_cor);
+		cout << "delta" << endl;
+		printA(delta_pre.factorI);
+		printA(delta_cor.factorI);
+		printA(delta.factorI);
+		cout << "end delta" << endl;
 
 		getStep(alpha, delta, problem);
+
+		cout << "alpha = " << alpha << endl;
 
 
 		getNewPoint(problem, delta, alpha);

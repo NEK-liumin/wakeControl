@@ -5,8 +5,8 @@ using std::vector;
 using Matrix = vector<vector<double>>;
 using Column = vector<double>;
 
-const double SMALL = 1e-12;
-const double LARGE = 1e200;
+const double SMALL = 1e-16;
+const double LARGE = 1e20;
 
 int getZeroMatrix(Matrix& result, int m, int n);
 
