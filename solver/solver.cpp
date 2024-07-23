@@ -109,7 +109,7 @@ bool Ax_b_solver(Column& x, Matrix& A, Column& b)
 	return true;
 }
 
-bool LDL_solver(QP& problem)
+bool LDL_solver(NCQP& problem)
 {
 	bool isSolvable;
 	Column negative_p;
@@ -337,7 +337,7 @@ int getQP_pre(ECQP& QP_pre, EICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse
 	getAlphaA(QP_pre.bE, -1);
 	return 0;
 }
-int getQP_pre(QP& QP_pre, ICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse, Matrix& M)
+int getQP_pre(NCQP& QP_pre, ICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse, Matrix& M)
 {
 	QP_pre.H = Hk;
 
@@ -472,7 +472,7 @@ bool getDelta_pre(Delta& delta_pre, EICQP& problem, ECQP& QP_pre, Nu& nu, Matrix
 	return true;
 }
 
-bool getDelta_pre(Delta& delta_pre, ICQP& problem, QP& QP_pre, Nu& nu, Matrix& Yinverse, Matrix& M)
+bool getDelta_pre(Delta& delta_pre, ICQP& problem, NCQP& QP_pre, Nu& nu, Matrix& Yinverse, Matrix& M)
 {
 	bool isSolvable;
 	isSolvable = LDL_solver(QP_pre);
@@ -579,8 +579,7 @@ int getNewInterval(double& interval, ICQP& problem)
 bool PCDPF_solver(ICQP& problem, double tol)
 {
 	bool isSolvable;
-	QP QP_pre = QP(problem.size_x);
-	QP QP_cor = QP(problem.size_x);
+	NCQP NCQP_pre = NCQP(problem.size_x);
 
 	Matrix Y, YInverse, M;
 	Nu nu;
@@ -599,8 +598,8 @@ bool PCDPF_solver(ICQP& problem, double tol)
 
 		getNuBeforePre(nu, problem);
 		getHk(Hk, problem, YInverse, M);
-		getQP_pre(QP_pre, problem, Hk, nu, YInverse, M);
-		isSolvable = getDelta_pre(delta_pre, problem, QP_pre, nu, YInverse, M);
+		getQP_pre(NCQP_pre, problem, Hk, nu, YInverse, M);
+		isSolvable = getDelta_pre(delta_pre, problem, NCQP_pre, nu, YInverse, M);
 
 		if (!isSolvable)
 		{

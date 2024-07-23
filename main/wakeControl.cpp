@@ -11,11 +11,12 @@ int main()
 	Column x;
 	Column b = { 1,2,3 };
 
+	getZeroMatrix(A, 5, 5);
+	LDL_decomposition(L, D, A);
+	printA(L);
+	printA(D);
 
 	ICQP problem = ICQP(3, 5);
-
-	getUnitMatrix(problem.H, 3);
-	getAlphaA(problem.H, 0.00001);
 	getZeroMatrix(problem.H, 3, 3);
 	problem.p = { -1,-1,-5 };
 	problem.q = 0;

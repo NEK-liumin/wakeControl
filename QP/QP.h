@@ -1,11 +1,12 @@
-#ifndef QP_H
-#define	QP_H
+#ifndef NCQP_H
+#define	NCQP_H
 #include "matrixOperation.h"
 #include "iostream"
 using std::cout;
 using std::endl;
+
 // min f = 1/2xHx + px +q
-class QP
+class NCQP
 {
 public:
 	int size_x;
@@ -14,8 +15,8 @@ public:
 	Matrix H;
 	Column p;
 	double q;
-	QP(){}
-	QP(int size_x)
+	NCQP(){}
+	NCQP(int size_x)
 	{
 		this->size_x = size_x;
 		getZeroColumn(x, size_x);
@@ -61,9 +62,10 @@ public:
 		return 0;
 	}
 };
+
 // min f = 1/2xHx + px +q
 // s.t.AIx >= bI
-class ICQP :public QP
+class ICQP :public NCQP
 {
 public:
 	int size_I;
@@ -141,9 +143,10 @@ public:
 		return 0;
 	}
 };
+
 // min f = 1/2xHx + px +q
 // s.t.AEx = bE
-class ECQP :public QP
+class ECQP :public NCQP
 {
 public:
 	int size_E;
@@ -214,10 +217,11 @@ public:
 		return 0;
 	}
 };
+
 // min f = 1/2xHx + px +q
 // s.t.AIx >= bI
 // s.t.AEx = bE
-class EICQP :public QP
+class EICQP :public NCQP
 {
 public:
 	int size_I;

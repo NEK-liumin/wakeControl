@@ -12,7 +12,7 @@ bool LTx_b_solver(Column& x, Matrix& LT, Column& b);
 
 bool Ax_b_solver(Column& x, Matrix& A, Column& b);
 
-bool LDL_solver(QP& problem);
+bool LDL_solver(NCQP& problem);
 
 bool QR_solver(ECQP& problem);
 
