@@ -16,7 +16,11 @@ bool LDL_solver(QP& problem);
 
 bool QR_solver(ECQP& problem);
 
-// Dual path tracking algorithm with prediction correction
+// Predictor-Corrector Dual Path-Following Algorithm
 // 带预测校正的对偶路径跟踪算法
-bool DPTPC_solver(EICQP& problem, double tol);
+bool PCDPF_solver(ICQP& problem, double tol);
+
+// Predictor-Corrector Dual Path-Following Algorithm
+// 带预测校正的对偶路径跟踪算法
+bool PCDPF_solver(EICQP& problem, double tol);
 #endif // !SOLVER_H

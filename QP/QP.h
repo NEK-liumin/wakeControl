@@ -69,7 +69,7 @@ public:
 	int size_I;
 	Matrix AI;
 	Column bI;
-	Column factorI;
+	Column mu;
 	Column y; // 松弛变量
 
 	ICQP(int size_x, int size_I)
@@ -84,7 +84,7 @@ public:
 
 		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
-		getOneColumn(factorI, size_I);
+		getOneColumn(mu, size_I);
 		getOneColumn(y, size_I);
 		getAlphaA(y, 0.01);
 	}
@@ -98,7 +98,7 @@ public:
 
 		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
-		getOneColumn(factorI, size_I);
+		getOneColumn(mu, size_I);
 		getOneColumn(y, size_I);
 		getAlphaA(y, 0.01);
 		return 0;
@@ -129,8 +129,8 @@ public:
 		printA(AI);
 		cout << "bI" << endl;
 		printA(bI);
-		cout << "factorI" << endl;
-		printA(factorI);
+		cout << "mu" << endl;
+		printA(mu);
 		cout << "y" << endl;
 		printA(y);
 		cout << "当前点" << endl;
@@ -149,7 +149,7 @@ public:
 	int size_E;
 	Matrix AE;
 	Column bE;
-	Column factorE;
+	Column lambda;
 
 	ECQP(int size_x, int size_E)
 	{
@@ -163,7 +163,7 @@ public:
 
 		getZeroMatrix(AE, size_E, size_x);
 		getZeroColumn(bE, size_E);
-		getZeroColumn(factorE, size_E);
+		getZeroColumn(lambda, size_E);
 	}
 	int init()
 	{
@@ -175,7 +175,7 @@ public:
 
 		getZeroMatrix(AE, size_E, size_x);
 		getZeroColumn(bE, size_E);
-		getZeroColumn(factorE, size_E);
+		getZeroColumn(lambda, size_E);
 		return 0;
 	}
 	int set_f()
@@ -204,8 +204,8 @@ public:
 		printA(AE);
 		cout << "bE" << endl;
 		printA(bE);
-		cout << "factorE" << endl;
-		printA(factorE);
+		cout << "lambda" << endl;
+		printA(lambda);
 		cout << "当前点" << endl;
 		printA(x);
 		set_f();
@@ -223,13 +223,13 @@ public:
 	int size_I;
 	Matrix AI;
 	Column bI;
-	Column factorI;
+	Column mu;
 	Column y;
 
 	int size_E;
 	Matrix AE;
 	Column bE;
-	Column factorE;
+	Column lambda;
 
 	EICQP(int size_x, int size_E, int size_I)
 	{
@@ -245,13 +245,15 @@ public:
 
 		getZeroMatrix(AE, size_E, size_x);
 		getZeroColumn(bE, size_E);
-		getZeroColumn(factorE, size_E);
+		getZeroColumn(lambda, size_E);
 
 		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
-		getOneColumn(factorI, size_I);
+		getOneColumn(mu, size_I);
+		//getAlphaA(mu, 0.1);
+		//getZeroColumn(factorI, size_I);
 		getOneColumn(y, size_I);
-		// getAlphaA(y, 0.01);
+		// getAlphaA(y, 10);
 	}
 	int init()
 	{
@@ -263,11 +265,11 @@ public:
 
 		getZeroMatrix(AE, size_E, size_x);
 		getZeroColumn(bE, size_E);
-		getZeroColumn(factorE, size_E);
+		getZeroColumn(lambda, size_E);
 
 		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
-		getOneColumn(factorI, size_I);
+		getOneColumn(mu, size_I);
 		getOneColumn(y, size_I);
 		return 0;
 	}
@@ -298,14 +300,14 @@ public:
 		printA(AE);
 		cout << "bE" << endl;
 		printA(bE);
-		cout << "factorE" << endl;
-		printA(factorE);
+		cout << "lambda" << endl;
+		printA(lambda);
 		cout << "AI" << endl;
 		printA(AI);
 		cout << "bI" << endl;
 		printA(bI);
-		cout << "factorI" << endl;
-		printA(factorI);
+		cout << "mu" << endl;
+		printA(mu);
 		cout << "y" << endl;
 		printA(y);
 		cout << "当前点" << endl;

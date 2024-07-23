@@ -155,7 +155,7 @@ bool QR_solver(ECQP& problem)
 		getAB(Hx, problem.H, problem.x);
 		getAPlusB(Hxplusp, Hx, problem.p);
 		getAB(A_Hxplusp, problem.AE, Hxplusp);
-		isSolvable = Ax_b_solver(problem.factorE, AAT, A_Hxplusp);
+		isSolvable = Ax_b_solver(problem.lambda, AAT, A_Hxplusp);
 		if (!isSolvable)
 		{
 			cout << "等式约束拉格朗日乘子不可解" << endl;
@@ -207,7 +207,7 @@ bool QR_solver(ECQP& problem)
 	getAB(Hx, problem.H, problem.x);
 	getAPlusB(Hxplusp, Hx, problem.p);
 	getAB(A_Hxplusp, problem.AE, Hxplusp);
-	isSolvable = Ax_b_solver(problem.factorE, AAT, A_Hxplusp);
+	isSolvable = Ax_b_solver(problem.lambda, AAT, A_Hxplusp);
 	if (!isSolvable)
 	{
 		cout << "当前问题等式约束的拉格朗日乘子不可解" << endl;
@@ -221,8 +221,8 @@ class Nu
 public:
 	Column x;
 	Column y;
-	Column factorE;
-	Column factorI;
+	Column lambda;
+	Column mu;
 };
 
 class Delta
@@ -230,8 +230,8 @@ class Delta
 public:
 	Column x;
 	Column y;
-	Column factorE;
-	Column factorI;
+	Column lambda;
+	Column mu;
 };
 // nu.x = Hx + p - AETlambda - AITmu
 // nu.y = tau * Y^-1 * e - mu
@@ -240,23 +240,23 @@ public:
 int getNuBeforePre(Nu& nu, EICQP problem)
 {
 	Column Hx;
-	Column AETFactorE;
-	Column AITFactorI;
+	Column AETlambda;
+	Column AITmu;
 	getAB(Hx, problem.H, problem.x);
-	getATB(AETFactorE, problem.AE, problem.factorE);
-	getATB(AITFactorI, problem.AI, problem.factorI);
+	getATB(AETlambda, problem.AE, problem.lambda);
+	getATB(AITmu, problem.AI, problem.mu);
 	getAPlusB(nu.x, Hx, problem.p);
-	getAMinusB(nu.x, AETFactorE);
-	getAMinusB(nu.x, AITFactorI);
+	getAMinusB(nu.x, AETlambda);
+	getAMinusB(nu.x, AITmu);
 
 	Column AEx;
 	getAB(AEx, problem.AE, problem.x);
-	getAMinusB(nu.factorE, AEx, problem.bE);
+	getAMinusB(nu.lambda, AEx, problem.bE);
 
 	Column AIx;
 	getAB(AIx, problem.AI, problem.x);
-	getAMinusB(nu.factorI, problem.bI, AIx);
-	getAPlusB(nu.factorI, problem.y);
+	getAMinusB(nu.mu, problem.bI, AIx);
+	getAPlusB(nu.mu, problem.y);
 	return 0;
 }
 
@@ -268,7 +268,7 @@ int getNuAfterPre(Nu& nu, EICQP& problem, double tau, Matrix& Yinverse)
 	getAlphaA(tauYInverse, Yinverse, tau);
 	Column tauYinverse_e;
 	getAB(tauYinverse_e, tauYInverse, e);
-	getAMinusB(nu.y ,tauYinverse_e, problem.factorI);
+	getAMinusB(nu.y ,tauYinverse_e, problem.mu);
 	return 0;
 }
 
@@ -286,24 +286,25 @@ int getQP_pre(ECQP& QP_pre, EICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse
 	QP_pre.H = Hk;
 
 	Matrix YinverseM;
-	Column YinverseMNU_factorI;
+	Column YinverseMNU_mu;
 	getAB(YinverseM, Yinverse, M);
-	getAB(YinverseMNU_factorI, YinverseM, nu.factorI);
-	Column YinverseMNU_factorIMinusFactorI;
-	getAMinusB(YinverseMNU_factorIMinusFactorI, YinverseMNU_factorI, problem.factorI);
-	getATB(QP_pre.p, problem.AI, YinverseMNU_factorIMinusFactorI);
+	getAB(YinverseMNU_mu, YinverseM, nu.mu);
+	Column YinverseMNU_muMinusmu;
+	getAMinusB(YinverseMNU_muMinusmu, YinverseMNU_mu, problem.mu);
+	getATB(QP_pre.p, problem.AI, YinverseMNU_muMinusmu);
 	getAlphaA(QP_pre.p, -1);
 	getAPlusB(QP_pre.p, nu.x);
 
 	QP_pre.AE = problem.AE;
-	QP_pre.bE = nu.factorE;
+	QP_pre.bE = nu.lambda;
 	getAlphaA(QP_pre.bE, -1);
 	return 0;
 }
 
-int getStep(double& alpha, Delta& delta, EICQP& problem)
+int getStep(double& alphaP, double& alphaD, Delta& delta, EICQP& problem)
 {
-	double alphaP = LARGE, alphaD = LARGE;
+	alphaP = LARGE;
+	alphaD = LARGE;
 	double eta = 1 - 1e-3;
 	for (int i = 0; i < problem.size_I; ++i)
 	{
@@ -311,31 +312,32 @@ int getStep(double& alpha, Delta& delta, EICQP& problem)
 		{
 			alphaP = min(alphaP, -problem.y[i] / delta.y[i]);
 		}
-		if (delta.factorI[i] < 0)
+		if (delta.mu[i] < 0)
 		{
-			alphaD = min(alphaD, -problem.factorI[i] / delta.factorI[i]);
+			alphaD = min(alphaD, -problem.mu[i] / delta.mu[i]);
 		}
 	}
-	alpha = min(1.0, eta * alphaP);
-	alpha = min(alpha, eta * alphaD);
+	alphaP = min(1.0, eta * alphaP);
+	alphaD = min(1.0, eta * alphaD);
 	return 0;
 }
 
-int getTau(double& tau, EICQP& problem, Delta delta_pre, double& alpha_pre)
+int getTau(double& tau, EICQP& problem, Delta delta_pre, double& alphaP_pre, double& alphaD_pre)
 {
 	double tauk;
 	double tau_pre;
-	getATB(tauk, problem.factorI, problem.y);
+	getATB(tauk, problem.mu, problem.y);
 	tauk = tauk * 1.0 / problem.size_I;
 	Column alphaDeltamu, alphaDeltay;
-	getAlphaA(alphaDeltamu, delta_pre.factorI, alpha_pre);
-	getAlphaA(alphaDeltay, delta_pre.y, alpha_pre);
-	getAPlusB(alphaDeltamu, problem.factorI);
+	getAlphaA(alphaDeltamu, delta_pre.mu, alphaD_pre);
+	getAlphaA(alphaDeltay, delta_pre.y, alphaP_pre);
+	getAPlusB(alphaDeltamu, problem.mu);
 	getAPlusB(alphaDeltay, problem.y);
 	getATB(tau_pre, alphaDeltamu, alphaDeltay);
 	tau_pre = tau_pre * 1.0 / problem.size_I;
 	double sigma;
 	sigma = pow(tau_pre / tauk, 3);
+
 	tau = sigma * tauk;
 	return 0;
 }
@@ -354,18 +356,18 @@ int getDelta_pre(Delta& delta_pre, EICQP& problem, ECQP& QP_pre, Nu& nu, Matrix&
 {
 	QR_solver(QP_pre);
 	delta_pre.x = QP_pre.x;
-	delta_pre.factorE = QP_pre.factorE;
+	delta_pre.lambda = QP_pre.lambda;
 
 	Column AIdeltax;
 	getAB(AIdeltax, problem.AI, delta_pre.x);
-	getAMinusB(delta_pre.y, AIdeltax, nu.factorI);
+	getAMinusB(delta_pre.y, AIdeltax, nu.mu);
 
 	Matrix yIM;
 	Column yIMdeltay;
 	getAB(yIM, Yinverse, M);
 	getAB(yIMdeltay, yIM, delta_pre.y);
-	getAPlusB(delta_pre.factorI, problem.factorI, yIMdeltay);
-	getAlphaA(delta_pre.factorI, -1);
+	getAPlusB(delta_pre.mu, problem.mu, yIMdeltay);
+	getAlphaA(delta_pre.mu, -1);
 	return 0;
 }
 
@@ -373,13 +375,13 @@ int getDelta_cor(Delta& delta_cor, EICQP& problem, ECQP& QP_cor, Nu& nu, Matrix&
 {
 	QR_solver(QP_cor);
 	delta_cor.x = QP_cor.x;
-	delta_cor.factorE = QP_cor.factorE;
+	delta_cor.lambda = QP_cor.lambda;
 	getAB(delta_cor.y, problem.AI, delta_cor.x);
 	Matrix YIM;
 	getAB(YIM, Yinverse, M);
-	getAB(delta_cor.factorI, YIM, delta_cor.y);
-	getAlphaA(delta_cor.factorI, -1);
-	getAPlusB(delta_cor.factorI, nu.y);
+	getAB(delta_cor.mu, YIM, delta_cor.y);
+	getAlphaA(delta_cor.mu, -1);
+	getAPlusB(delta_cor.mu, nu.y);
 	return 0;
 }
 
@@ -387,37 +389,32 @@ int getDelta(Delta& delta, Delta& delta_pre, Delta& delta_cor)
 {
 	getAPlusB(delta.x, delta_pre.x, delta_cor.x);
 	getAPlusB(delta.y, delta_pre.y, delta_cor.y);
-	getAPlusB(delta.factorE, delta_pre.factorE, delta_cor.factorE);
-	getAPlusB(delta.factorI, delta_pre.factorI, delta_cor.factorI);
+	getAPlusB(delta.lambda, delta_pre.lambda, delta_cor.lambda);
+	getAPlusB(delta.mu, delta_pre.mu, delta_cor.mu);
 	return 0;
 }
 
-int getNewPoint(EICQP& problem, Delta& delta, double& alpha)
+int getNewPoint(EICQP& problem, Delta& delta, double& alphaP, double& alphaD)
 {
-	getAlphaA(delta.x, alpha);
-	getAlphaA(delta.y, alpha);
-	getAlphaA(delta.factorE, alpha);
-	getAlphaA(delta.factorI, alpha);
+	getAlphaA(delta.x, alphaP);
+	getAlphaA(delta.y, alphaP);
+	getAlphaA(delta.lambda, alphaD);
+	getAlphaA(delta.mu, alphaD);
 	getAPlusB(problem.x, delta.x);
 	getAPlusB(problem.y, delta.y);
-	getAPlusB(problem.factorE, delta.factorE);
-	getAPlusB(problem.factorI, delta.factorI);
+	getAPlusB(problem.lambda, delta.lambda);
+	getAPlusB(problem.mu, delta.mu);
 	return 0;
 }
 
 int getNewInterval(double& interval, EICQP& problem)
 {
-	getATB(interval, problem.factorI, problem.y);
+	getATB(interval, problem.mu, problem.y);
 	return 0;
 }
 
-bool DPTPC_solver(EICQP& problem, double tol)
+bool PCDPF_solver(EICQP& problem, double tol)
 {
-	printA(problem.y);
-	cout << endl;
-	printA(problem.factorI);
-	cout << endl;
-	printA(problem.factorE);
 	ECQP QP_pre = ECQP(problem.size_x, problem.size_E);
 	ECQP QP_cor = ECQP(problem.size_x, problem.size_E);
 
@@ -425,55 +422,43 @@ bool DPTPC_solver(EICQP& problem, double tol)
 	Nu nu;
 	Matrix Hk;
 	Delta delta, delta_pre, delta_cor;
-	double alpha_pre, alpha;
+	double alphaP_pre, alphaP;
+	double alphaD_pre, alphaD;
 	double tau;
 	double interval;
 	int k = 0;
 	do
 	{
-		k++;
-		cout << k << endl;
-		cout << "=============" << endl;
 		column2Diagnoal(Y, problem.y);
 		diagonalInverse(YInverse, Y);
-		column2Diagnoal(M, problem.factorI);
+		column2Diagnoal(M, problem.mu);
 	
 		getNuBeforePre(nu, problem);
-
-		cout << "nu before pre" << endl;
-		printA(nu.factorI);
 	
-		getHk(Hk, problem, YInverse, M);//right
+		getHk(Hk, problem, YInverse, M);
 
 		getQP_pre(QP_pre, problem, Hk, nu, YInverse, M);
-		//QP_pre.QPprint();
 
-		getDelta_pre(delta_pre, problem, QP_pre, nu, YInverse, M);//right
-		getStep(alpha_pre, delta_pre, problem);//right
-		getTau(tau, problem, delta_pre, alpha_pre);//right
-		getNuAfterPre(nu, problem, tau, YInverse);//right
+		getDelta_pre(delta_pre, problem, QP_pre, nu, YInverse, M);
+
+		getStep(alphaP_pre, alphaD_pre, delta_pre, problem);
+	
+		getTau(tau, problem, delta_pre, alphaP_pre, alphaD_pre);
+		getNuAfterPre(nu, problem, tau, YInverse);
 		getQP_cor(QP_cor, problem, Hk, nu);
 		
 		getDelta_cor(delta_cor, problem, QP_cor, nu, YInverse, M);
 		
 		
 		getDelta(delta, delta_pre, delta_cor);
-		cout << "delta" << endl;
-		printA(delta_pre.factorI);
-		printA(delta_cor.factorI);
-		printA(delta.factorI);
-		cout << "end delta" << endl;
 
-		getStep(alpha, delta, problem);
+		getStep(alphaP, alphaD, delta, problem);
 
-		cout << "alpha = " << alpha << endl;
+		getNewPoint(problem, delta, alphaP, alphaD);
 
-
-		getNewPoint(problem, delta, alpha);
-		printA(problem.factorI);
-		printA(problem.y);
 		getNewInterval(interval, problem);
-		cout << interval << endl;
+
 	} while (interval > tol);
+
 	return true;
 }

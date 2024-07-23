@@ -11,32 +11,34 @@ int main()
 	Column x;
 	Column b = { 1,2,3 };
 
-	EICQP problem = EICQP(2, 1, 2);
-	problem.x = { 0,0 };
-	problem.H = { {1,0},{0,1} };
-
-	problem.AE = { {1,1} };
-	problem.bE = { 2 };
-	problem.AI = { {1,0},{0,1} };
-	problem.bI = { 0,0 };
-	double tol = 1e-6;
-	DPTPC_solver(problem, tol);
-	problem.QPprint();
 	
-	//EICQP problem = EICQP(4, 1, 6);
-	//problem.x = { 1,0,1,1 };
-	//problem.H = { {1,-4,2,1},{-4,16,-8,-1},{2,-8,4,2},{1,-1,2,1} };
-	//problem.p = { -1,0,7,4 };
-	//problem.q = 5;
-	//problem.AE = { {1,1,1,1} };
-	//problem.bE = { 4 };
-	//problem.AI = { {-1,-2,0,0},{0,-1,0,0},{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1} };
-	//problem.bI = { -3.5,-0.5,0,0,0,0 };
-	//double tol = 1e-30;
+	//EICQP problem = EICQP(2, 1, 2);
+	//problem.x = { 0,0 };
+	//problem.H = { {1,0},{0,1} };
 
-	//problem.QPprint();
-
+	//problem.AE = { {1,1} };
+	//problem.bE = { 2 };
+	//problem.AI = { {1,0},{0,1} };
+	//problem.bI = { 0,0 };
+	//double tol = 1e-4;
 	//DPTPC_solver(problem, tol);
+	//problem.QPprint();
+	
+	EICQP problem = EICQP(4, 1, 6);
+	problem.x = { 1,0,1,1 };
+	problem.H = { {1,-4,2,1},{-4,16,-8,-4},{2,-8,4,2},{1,-1,2,1} };
+	problem.p = { -1,0,7,4 };
+	problem.q = 5;
+	problem.AE = { {1,1,1,1} };
+	problem.bE = { 4 };
+	problem.AI = { {-1,-2,0,0},{0,-1,0,0},{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1} };
+	problem.bI = { -3.5,-0.5,0,0,0,0 };
+	double tol = 1e-4;
+
+
+
+	PCDPF_solver(problem, tol);
+	problem.QPprint();
 	//printA(problem.x);
 	//cout << endl;
 	//printA(problem.factorE);
