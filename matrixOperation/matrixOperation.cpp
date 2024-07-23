@@ -752,7 +752,13 @@ int QR_decomposition(Matrix& Q, Matrix& R, Matrix& A)
 
 bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A)
 {
+
 	int m = A.size();
+	if (m <= 0)
+	{
+		cout << "LDL分解的矩阵至少需要含有一个元素！" << endl;
+		return false;
+	}
 	int n = A[0].size();
 	if (m != n)
 	{

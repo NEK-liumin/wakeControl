@@ -11,6 +11,21 @@ int main()
 	Column x;
 	Column b = { 1,2,3 };
 
+
+	ICQP problem = ICQP(3, 5);
+
+	getUnitMatrix(problem.H, 3);
+	getAlphaA(problem.H, 0.00001);
+	getZeroMatrix(problem.H, 3, 3);
+	problem.p = { -1,-1,-5 };
+	problem.q = 0;
+	problem.AI = { {-3,-2,-0.25},{0,0,-1},{1,0,0},{0,1,0},{0,0,1} };
+	problem.bI = { -6,-4,0,0,0 };
+	problem.x = { 2.5,2.5,3 };
+	double tol = 1e-4;
+	PCDPF_solver(problem, tol);
+	problem.QPprint();
+
 	
 	//EICQP problem = EICQP(2, 1, 2);
 	//problem.x = { 0,0 };
@@ -24,21 +39,24 @@ int main()
 	//DPTPC_solver(problem, tol);
 	//problem.QPprint();
 	
-	EICQP problem = EICQP(4, 1, 6);
-	problem.x = { 1,0,1,1 };
-	problem.H = { {1,-4,2,1},{-4,16,-8,-4},{2,-8,4,2},{1,-1,2,1} };
-	problem.p = { -1,0,7,4 };
-	problem.q = 5;
-	problem.AE = { {1,1,1,1} };
-	problem.bE = { 4 };
-	problem.AI = { {-1,-2,0,0},{0,-1,0,0},{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1} };
-	problem.bI = { -3.5,-0.5,0,0,0,0 };
-	double tol = 1e-4;
+	//EICQP problem = EICQP(4, 1, 6);
+	//problem.x = { 1,0,1,1 };
+	//problem.H = { {1,-4,2,1},{-4,16,-8,-4},{2,-8,4,2},{1,-1,2,1} };
+	//problem.p = { -1,0,7,4 };
+	//problem.q = 5;
+	//problem.AE = { {1,1,1,1} };
+	//problem.bE = { 4 };
+	//problem.AI = { {-1,-2,0,0},{0,-1,0,0},{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1} };
+	//problem.bI = { -3.5,-0.5,0,0,0,0 };
+	//double tol = 1e-5;
 
 
 
-	PCDPF_solver(problem, tol);
-	problem.QPprint();
+	//PCDPF_solver(problem, tol);
+	//problem.QPprint();
+	// 
+	// 
+	// 
 	//printA(problem.x);
 	//cout << endl;
 	//printA(problem.factorE);
