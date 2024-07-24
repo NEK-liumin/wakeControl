@@ -5,7 +5,9 @@
 using std::cout;
 using std::endl;
 
-// min f = 1/2xHx + px +q
+// Non-Constrain Quadratic Programming
+// 无约束二次规划问题
+// min f = 1/2xTHx + pTx +q
 class NCQP
 {
 public:
@@ -63,7 +65,9 @@ public:
 	}
 };
 
-// min f = 1/2xHx + px +q
+// Inequality Constrain Quadratic Programming
+// 不等式约束二次规划问题
+// min f = 1/2xTHx + pTx +q
 // s.t.AIx >= bI
 class ICQP :public NCQP
 {
@@ -144,7 +148,9 @@ public:
 	}
 };
 
-// min f = 1/2xHx + px +q
+// Equality Constrain Quadratic Programming
+// 等式约束二次规划问题
+// min f = 1/2xTHx + pTx +q
 // s.t.AEx = bE
 class ECQP :public NCQP
 {
@@ -218,7 +224,9 @@ public:
 	}
 };
 
-// min f = 1/2xHx + px +q
+// Equality and Inequality Constrain Quadratic Programming
+// 等式及不等式约束二次规划问题
+// min f = 1/2xTHx + pTx +q
 // s.t.AIx >= bI
 // s.t.AEx = bE
 class EICQP :public NCQP

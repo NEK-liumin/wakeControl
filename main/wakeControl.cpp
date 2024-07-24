@@ -11,10 +11,8 @@ int main()
 	Column x;
 	Column b = { 1,2,3 };
 
-	getZeroMatrix(A, 5, 5);
-	LDL_decomposition(L, D, A);
-	printA(L);
-	printA(D);
+	Matrix Q, R;
+
 
 	ICQP problem = ICQP(3, 5);
 	getZeroMatrix(problem.H, 3, 3);
@@ -27,7 +25,10 @@ int main()
 	PCDPF_solver(problem, tol);
 	problem.QPprint();
 
-	
+	//double x0;
+	//x0 = wilkinsonShift(1,2,3);
+	//cout << x0 << endl;
+
 	//EICQP problem = EICQP(2, 1, 2);
 	//problem.x = { 0,0 };
 	//problem.H = { {1,0},{0,1} };

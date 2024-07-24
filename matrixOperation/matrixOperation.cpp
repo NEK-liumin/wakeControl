@@ -791,17 +791,69 @@ bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A)
 	return true;
 }
 
-int printA(Matrix& A)
+double wilkinsonShift(double a, double b, double c) 
 {
+	double delta = (a - c) / 2.0;
+	return c - (b * b) / (delta + ((delta >= 0) ? std::abs(delta) : -std::abs(delta)));
+}
+
+void hessenbergForm(Matrix& A) 
+{
+	int n = A.size();
+	for (int k = 0; k < n - 2; ++k) {
+		double norm = 0.0;
+		for (int i = k + 1; i < n; ++i) {
+			norm += A[i][k] * A[i][k];
+		}
+		norm = std::sqrt(norm);
+
+		if (norm == 0.0) continue;
+
+		double alpha = (A[k + 1][k] >= 0) ? -norm : norm;
+		double beta = std::sqrt(0.5 * (alpha * alpha - A[k + 1][k] * alpha));
+		std::vector<double> v(n, 0.0);
+		v[k + 1] = (A[k + 1][k] - alpha) / (2.0 * beta);
+		for (int i = k + 2; i < n; ++i) {
+			v[i] = A[i][k] / (2.0 * beta);
+		}
+
+		for (int j = k; j < n; ++j) {
+			double dotProduct = 0.0;
+			for (int i = k + 1; i < n; ++i) {
+				dotProduct += v[i] * A[i][j];
+			}
+			for (int i = k + 1; i < n; ++i) {
+				A[i][j] -= 2.0 * v[i] * dotProduct;
+			}
+		}
+
+		for (int j = 0; j < n; ++j) {
+			double dotProduct = 0.0;
+			for (int i = k + 1; i < n; ++i) {
+				dotProduct += v[i] * A[j][i];
+			}
+			for (int i = k + 1; i < n; ++i) {
+				A[j][i] -= 2.0 * v[i] * dotProduct;
+			}
+		}
+	}
+}
+
+int printA(Matrix A)
+{
+	// 为方便展示，将绝对值很小的量显示为0
 	int width = 15;
 	int precision = 5;
 
 	int m = A.size();
 	int n = A[0].size();
+	double eps = 1e-5;
 	for (int i = 0; i < m; ++i)
 	{
 		for (int j = 0; j < n; ++j)
 		{
+			if (abs(A[i][j]) < eps)
+				A[i][j] = 0;
 			cout << std::setw(width) << std::setprecision(precision) << A[i][j];
 		}
 		cout << endl;
@@ -810,13 +862,17 @@ int printA(Matrix& A)
 	return 0;
 }
 
-int printA(Column& A)
+int printA(Column A)
 {
+	// 为方便展示，将绝对值很小的量显示为0
 	int width = 15;
 	int precision = 5;
 	int m = A.size();
+	double eps = 1e-5;
 	for (int i = 0; i < m; ++i)
 	{
+		if (abs(A[i]) < eps)
+			A[i] = 0;
 		cout << std::setw(width) << std::setprecision(precision) << A[i] << endl;
 	}
 	cout << endl;

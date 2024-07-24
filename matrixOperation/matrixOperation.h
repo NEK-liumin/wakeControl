@@ -88,7 +88,11 @@ int QR_decomposition(Matrix& Q, Matrix& R, Matrix& A);
 
 bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A);
 
-int printA(Matrix& A);
+int printA(Matrix A);
 
-int printA(Column& A);
+int printA(Column A);
+
+void hessenbergForm(Matrix& A);
+
+double wilkinsonShift(double a, double b, double c);
 #endif // ! MATRIXOPERATION_H

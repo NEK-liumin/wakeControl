@@ -7,108 +7,6 @@ using std::endl;
 using std::min;
 using std::max;
 
-bool Lx_b_solver(Column& x, Matrix& L, Column& b)
-{
-	int m = L.size();
-	x.resize(m);
-	for (int i = 0; i < m; ++i)
-	{
-		if (L[i][i] == 0)
-		{
-			cout << "L矩阵的对角线上的第" << i + 1 << "个元素为0" << endl;
-			return false;
-		}
-	}
-	x[0] = b[0] / L[0][0];
-	for (int i = 1; i < m; ++i)
-	{
-		x[i] = b[i];
-		for (int j = 0; j < i; ++j)
-		{
-			x[i] -= L[i][j] * x[j];
-		}
-		x[i] /= L[i][i];
-	}
-	return true;
-}
-
-bool Dx_b_solver(Column& x, Matrix& D, Column& b)
-{
-	int m = D.size();
-	x.resize(m);
-	for (int i = 0; i < m; ++i)
-	{
-		if (D[i][i] == 0)
-		{
-			cout << "L矩阵的对角线上的第" << i + 1 << "个元素为0" << endl;
-			return false;
-		}
-	}
-	for (int i = 0; i < m; ++i)
-	{
-		x[i] = b[i] / D[i][i];
-	}
-	return true;
-}
-
-bool LTx_b_solver(Column& x, Matrix& LT, Column& b)
-{
-	int m = LT.size();
-	x.resize(m);
-	for (int i = 0; i < m; ++i)
-	{
-		if (LT[i][i] == 0)
-		{
-			cout << "LT矩阵的对角线上的第" << i + 1 << "个元素为0" << endl;
-			return false;
-		}
-	}
-	x[m - 1] = b[m - 1] / LT[m - 1][m - 1];
-	for (int i = m - 2; i >= 0; --i)
-	{
-		x[i] = b[i];
-		for (int j = m - 1; j > i; --j)
-		{
-			x[i] -= x[j] * LT[i][j];
-		}
-		x[i] /= LT[i][i];
-	}
-	return true;
-}
-
-bool Ax_b_solver(Column& x, Matrix& A, Column& b)
-{
-	Matrix L, D, LT;
-	bool isSolvable;
-	isSolvable = LDL_decomposition(L, D, A);
-	getAT(LT, L);
-	if (!isSolvable)
-	{
-		return false;
-	}
-	Column DLTx;
-
-	isSolvable = Lx_b_solver(DLTx, L, b);
-	if (!isSolvable)
-	{
-		return false;
-	}
-	Column LTx;
-
-	isSolvable = Dx_b_solver(LTx, D, DLTx);
-	if (!isSolvable)
-	{
-		return false;
-	}
-
-	isSolvable = LTx_b_solver(x, LT, LTx);
-	if (!isSolvable)
-	{
-		return false;
-	}
-	return true;
-}
-
 bool LDL_solver(NCQP& problem)
 {
 	bool isSolvable;
@@ -233,6 +131,7 @@ public:
 	Column lambda;
 	Column mu;
 };
+
 // nu.x = Hx + p - AETlambda - AITmu
 // nu.y = tau * Y^-1 * e - mu
 // nu.lambda = AEx - bE
@@ -259,6 +158,7 @@ int getNuBeforePre(Nu& nu, EICQP problem)
 	getAPlusB(nu.mu, problem.y);
 	return 0;
 }
+
 // nu.x = Hx + p - AITmu
 // nu.y = tau * Y^-1 * e - mu
 // nu.mu = bI - AIx + y
@@ -286,9 +186,10 @@ int getNuAfterPre(Nu& nu, EICQP& problem, double tau, Matrix& Yinverse)
 	getAlphaA(tauYInverse, Yinverse, tau);
 	Column tauYinverse_e;
 	getAB(tauYinverse_e, tauYInverse, e);
-	getAMinusB(nu.y ,tauYinverse_e, problem.mu);
+	getAMinusB(nu.y, tauYinverse_e, problem.mu);
 	return 0;
 }
+
 int getNuAfterPre(Nu& nu, ICQP& problem, double tau, Matrix& Yinverse)
 {
 	Column e;
@@ -309,6 +210,7 @@ int getHk(Matrix& Hk, EICQP& problem, Matrix& Yinverse, Matrix& M)
 	getAPlusB(Hk, problem.H);
 	return 0;
 }
+
 int getHk(Matrix& Hk, ICQP& problem, Matrix& Yinverse, Matrix& M)
 {
 	getATB(Hk, problem.AI, Yinverse);
@@ -337,6 +239,7 @@ int getQP_pre(ECQP& QP_pre, EICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse
 	getAlphaA(QP_pre.bE, -1);
 	return 0;
 }
+
 int getQP_pre(NCQP& QP_pre, ICQP& problem, Matrix& Hk, Nu& nu, Matrix& Yinverse, Matrix& M)
 {
 	QP_pre.H = Hk;
@@ -446,6 +349,14 @@ int getQP_cor(ECQP& QP_cor, EICQP& problem, Matrix& Hk, Nu& nu)
 	return 0;
 }
 
+int getQP_cor(NCQP& QP_cor, ICQP& problem, Matrix& Hk, Nu& nu)
+{
+	QP_cor.H = Hk;
+	getATB(QP_cor.p, problem.AI, nu.y);
+	getAlphaA(QP_cor.p, -1);
+	return 0;
+}
+
 bool getDelta_pre(Delta& delta_pre, EICQP& problem, ECQP& QP_pre, Nu& nu, Matrix& Yinverse, Matrix& M)
 {
 	bool isSolvable;
@@ -515,12 +426,23 @@ bool getDelta_cor(Delta& delta_cor, EICQP& problem, ECQP& QP_cor, Nu& nu, Matrix
 	getAPlusB(delta_cor.mu, nu.y);
 	return true;
 }
-// 对于不等式约束问题，不需要构造校正问题
-// 而且，也没有deltax,deltay,deltalambda,只有deltamu
-// 且deltamu = nu_y
-bool getDelta_cor(Delta& delta_cor, ICQP& problem, Nu& nu)
+
+bool getDelta_cor(Delta& delta_cor, ICQP& problem, NCQP& QP_cor, Nu& nu, Matrix& Yinverse, Matrix& M)
 {
-	delta_cor.mu = nu.y;
+	bool isSolvable;
+	isSolvable = LDL_solver(QP_cor);
+	if (!isSolvable)
+	{
+		cout << "构造的校正问题不可解" << endl;
+		return false;
+	}
+	delta_cor.x = QP_cor.x;
+	getAB(delta_cor.y, problem.AI, delta_cor.x);
+	Matrix YIM;
+	getAB(YIM, Yinverse, M);
+	getAB(delta_cor.mu, YIM, delta_cor.y);
+	getAlphaA(delta_cor.mu, -1);
+	getAPlusB(delta_cor.mu, nu.y);
 	return true;
 }
 
@@ -532,6 +454,7 @@ int getDelta(Delta& delta, Delta& delta_pre, Delta& delta_cor, EICQP& problem)
 	getAPlusB(delta.mu, delta_pre.mu, delta_cor.mu);
 	return 0;
 }
+
 int getDelta(Delta& delta, Delta& delta_pre, Delta& delta_cor, ICQP& problem)
 {
 	delta.x = delta_pre.x;
@@ -580,6 +503,7 @@ bool PCDPF_solver(ICQP& problem, double tol)
 {
 	bool isSolvable;
 	NCQP NCQP_pre = NCQP(problem.size_x);
+	NCQP NCQP_cor = NCQP(problem.size_x);
 
 	Matrix Y, YInverse, M;
 	Nu nu;
@@ -610,7 +534,13 @@ bool PCDPF_solver(ICQP& problem, double tol)
 
 		getTau(tau, problem, delta_pre, alphaP_pre, alphaD_pre);
 		getNuAfterPre(nu, problem, tau, YInverse);
-		getDelta_cor(delta_cor, problem, nu);
+		getQP_cor(NCQP_cor, problem, Hk, nu);
+		isSolvable = getDelta_cor(delta_cor, problem, NCQP_cor, nu, YInverse, M);
+
+		if (!isSolvable)
+		{
+			return false;
+		}
 
 		getDelta(delta, delta_pre, delta_cor, problem);
 
@@ -641,9 +571,9 @@ bool PCDPF_solver(EICQP& problem, double tol)
 		column2Diagnoal(Y, problem.y);
 		diagonalInverse(YInverse, Y);
 		column2Diagnoal(M, problem.mu);
-	
+
 		getNuBeforePre(nu, problem);
-	
+
 		getHk(Hk, problem, YInverse, M);
 
 		getQP_pre(QP_pre, problem, Hk, nu, YInverse, M);
@@ -656,13 +586,13 @@ bool PCDPF_solver(EICQP& problem, double tol)
 		}
 
 		getStep(alphaP_pre, alphaD_pre, delta_pre, problem);
-	
+
 		getTau(tau, problem, delta_pre, alphaP_pre, alphaD_pre);
 		getNuAfterPre(nu, problem, tau, YInverse);
 		getQP_cor(QP_cor, problem, Hk, nu);
-		
+
 		isSolvable = getDelta_cor(delta_cor, problem, QP_cor, nu, YInverse, M);
-		
+
 		if (!isSolvable)
 		{
 			return false;
