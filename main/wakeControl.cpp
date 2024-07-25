@@ -2,10 +2,14 @@
 //
 #include "iostream"
 #include "head.h"
+#include <chrono>
 using namespace std;
 
 int main()
 {
+
+	auto start = std::chrono::high_resolution_clock::now();
+
 	Matrix A = { {3,2,3},{2,6,5},{3,5,8} };
 	Matrix L, D, LT;
 	Column x;
@@ -67,5 +71,8 @@ int main()
 	//cout << endl;
 	//printA(problem.y);
 
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> duration = end - start;
+	cout << "程序运行时间：" << duration.count() << " 秒" << endl;
 	return 0;
 }

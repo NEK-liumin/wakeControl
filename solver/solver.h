@@ -37,6 +37,8 @@ bool PCDPF_solver(EICQP& problem, double tol);
 
 // ====================GPsolver====================
 
+// Sequential Quadratic Programming
+// 序列二次优化法
 bool SQP_solver(NCGP& problem, double tol);
 
 bool SQP_solver(ECGP& problem, double tol);

@@ -92,7 +92,4 @@ int printA(Matrix A);
 
 int printA(Column A);
 
-void hessenbergForm(Matrix& A);
-
-double wilkinsonShift(double a, double b, double c);
 #endif // ! MATRIXOPERATION_H

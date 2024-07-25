@@ -265,15 +265,96 @@ bool SQP_solver(NCGP& problem, double tol)
 
 bool SQP_solver(ECGP& problem, double tol)
 {
+	double normal;
+	ECGP problemNext = problem;
+	ECQP subProblem = ECQP(problem.size_x, problem.size_e);
+	Matrix B;
+	getUnitMatrix(B, problem.size_x);
+	problem.set_g();
+	problem.set_Je();
+	problem.get_ce();
+	do
+	{
+		subProblem.H = B;
+		subProblem.p = problem.g;
+		subProblem.AE = problem.Je;
+		getAlphaA(subProblem.bE, problem.ce, -1);
+		QR_solver(subProblem);
+		getAPlusB(problemNext.x, problem.x, subProblem.x);
+		problemNext.lambda = subProblem.lambda;
+		problemNext.set_g();
+		problemNext.set_Je();
+		problemNext.get_ce();
+		BFGS(B, problem, problemNext);
+		problem = problemNext;
+		normal = norm(subProblem.x);
+	} while (normal > tol);
 	return true;
 }
 
 bool SQP_solver(ICGP& problem, double tol)
 {
+	double normal;
+	ICGP problemNext = problem;
+	ICQP subProblem = ICQP(problem.size_x, problem.size_i);
+	Matrix B;
+	getUnitMatrix(B, problem.size_x);
+	problem.set_g();
+	problem.set_Ji();
+	problem.get_ci();
+	do
+	{
+		subProblem.init();
+		subProblem.H = B;
+		subProblem.p = problem.g;
+		subProblem.AI = problem.Ji;
+		getAlphaA(subProblem.bI, problem.ci, -1);
+		PCDPF_solver(subProblem, tol);
+		getAPlusB(problemNext.x, problem.x, subProblem.x);
+		problemNext.mu = subProblem.mu;
+		problemNext.set_g();
+		problemNext.set_Ji();
+		problemNext.get_ci();
+		BFGS(B, problem, problemNext);
+		problem = problemNext;
+		normal = norm(subProblem.x);
+	} while (normal > tol);
 	return true;
 }
 
 bool SQP_solver(EICGP& problem, double tol)
 {
+	double normal;
+	EICGP problemNext = problem;
+	EICQP subProblem = EICQP(problem.size_x, problem.size_e, problem.size_i);
+	Matrix B;
+	getUnitMatrix(B, problem.size_x);
+	problem.set_g();
+	problem.set_Je();
+	problem.get_ce();
+	problem.set_Ji();
+	problem.get_ci();
+	do
+	{
+		subProblem.init();
+		subProblem.H = B;
+		subProblem.p = problem.g;
+		subProblem.AE = problem.Je;
+		getAlphaA(subProblem.bE, problem.ce, -1);
+		subProblem.AI = problem.Ji;
+		getAlphaA(subProblem.bI, problem.ci, -1);
+		PCDPF_solver(subProblem, tol);
+		getAPlusB(problemNext.x, problem.x, subProblem.x);
+		problemNext.lambda = subProblem.lambda;
+		problemNext.mu = subProblem.mu;
+		problemNext.set_g();
+		problemNext.set_Je();
+		problemNext.get_ce();
+		problemNext.set_Ji();
+		problemNext.get_ci();
+		BFGS(B, problem, problemNext);
+		problem = problemNext;
+		normal = norm(subProblem.x);
+	} while (normal > tol);
 	return true;
 }

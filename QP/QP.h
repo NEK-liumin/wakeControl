@@ -17,7 +17,15 @@ public:
 	Matrix H;
 	Column p;
 	double q;
-	NCQP(){}
+	NCQP()
+	{
+		size_x = 1;
+		getZeroColumn(x, size_x);
+		f = 0;
+		getUnitMatrix(H, size_x);
+		getZeroColumn(p, size_x);
+		q = 0;
+	}
 	NCQP(int size_x)
 	{
 		this->size_x = size_x;
@@ -30,10 +38,6 @@ public:
 	int init()
 	{
 		getZeroColumn(x, size_x);
-		f = 0;
-		getUnitMatrix(H, size_x);
-		getZeroColumn(p, size_x);
-		q = 0;
 		return 0;
 	}
 	int set_f()
@@ -97,16 +101,8 @@ public:
 	int init()
 	{
 		getZeroColumn(x, size_x);
-		f = 0;
-		getUnitMatrix(H, size_x);
-		getZeroColumn(p, size_x);
-		q = 0;
-
-		getZeroMatrix(AI, size_I, size_x);
-		getZeroColumn(bI, size_I);
 		getOneColumn(mu, size_I);
 		getOneColumn(y, size_I);
-		getAlphaA(y, 0.01);
 		return 0;
 	}
 	int set_f()
@@ -177,13 +173,6 @@ public:
 	int init()
 	{
 		getZeroColumn(x, size_x);
-		f = 0;
-		getUnitMatrix(H, size_x);
-		getZeroColumn(p, size_x);
-		q = 0;
-
-		getZeroMatrix(AE, size_E, size_x);
-		getZeroColumn(bE, size_E);
 		getZeroColumn(lambda, size_E);
 		return 0;
 	}
@@ -262,25 +251,12 @@ public:
 		getZeroMatrix(AI, size_I, size_x);
 		getZeroColumn(bI, size_I);
 		getOneColumn(mu, size_I);
-		//getAlphaA(mu, 0.1);
-		//getZeroColumn(factorI, size_I);
 		getOneColumn(y, size_I);
-		// getAlphaA(y, 10);
 	}
 	int init()
 	{
 		getZeroColumn(x, size_x);
-		f = 0;
-		getUnitMatrix(H, size_x);
-		getZeroColumn(p, size_x);
-		q = 0;
-
-		getZeroMatrix(AE, size_E, size_x);
-		getZeroColumn(bE, size_E);
 		getZeroColumn(lambda, size_E);
-
-		getZeroMatrix(AI, size_I, size_x);
-		getZeroColumn(bI, size_I);
 		getOneColumn(mu, size_I);
 		getOneColumn(y, size_I);
 		return 0;
