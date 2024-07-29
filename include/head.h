@@ -7,4 +7,6 @@
 #include "QP.h"
 #include "GP.h"
 #include "usr.h"
+#include "turbPosition.h"
+#include "turbCloud.h"
 #endif // !HEAD_H

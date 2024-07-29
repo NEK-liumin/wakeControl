@@ -10,24 +10,37 @@ int main()
 
 	auto start = std::chrono::high_resolution_clock::now();
 
-	Matrix A = { {3,2,3},{2,6,5},{3,5,8} };
-	Matrix L, D, LT;
-	Column x;
-	Column b = { 1,2,3 };
+	Turbxyz p;
+	Column x = { 1,2,3,1,2,3,1,2,3};
+	Column y = { 1,1,1,2,2,2,3,3,3 };
+	Column z = { 0,0,0,0,0,0,0,0,0 };
+	p.init(9, x, y, z);
 
-	Matrix Q, R;
+	p.setNewPosi(30.0 / 180 * 3.1415926);
+	printA(p.x);
+	printA(p.y);
+	printA(p.z);
 
 
-	ICQP problem = ICQP(3, 5);
-	getZeroMatrix(problem.H, 3, 3);
-	problem.p = { -1,-1,-5 };
-	problem.q = 0;
-	problem.AI = { {-3,-2,-0.25},{0,0,-1},{1,0,0},{0,1,0},{0,0,1} };
-	problem.bI = { -6,-4,0,0,0 };
-	problem.x = { 2.5,2.5,3 };
-	double tol = 1e-4;
-	PCDPF_solver(problem, tol);
-	problem.QPprint();
+
+	//Matrix A = { {3,2,3},{2,6,5},{3,5,8} };
+	//Matrix L, D, LT;
+	//Column x;
+	//Column b = { 1,2,3 };
+
+	//Matrix Q, R;
+
+
+	//ICQP problem = ICQP(3, 5);
+	//getZeroMatrix(problem.H, 3, 3);
+	//problem.p = { -1,-1,-5 };
+	//problem.q = 0;
+	//problem.AI = { {-3,-2,-0.25},{0,0,-1},{1,0,0},{0,1,0},{0,0,1} };
+	//problem.bI = { -6,-4,0,0,0 };
+	//problem.x = { 2.5,2.5,3 };
+	//double tol = 1e-4;
+	//PCDPF_solver(problem, tol);
+	//problem.QPprint();
 
 	//double x0;
 	//x0 = wilkinsonShift(1,2,3);
