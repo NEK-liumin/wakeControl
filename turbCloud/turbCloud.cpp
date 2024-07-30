@@ -22,7 +22,7 @@ int TurbCloud::setPosi(int turbNum, Column& x0, Column& y0, Column& z0)
 	return 0;
 }
 
-int TurbCloud::setCp(int uNum, Matrix& uWind, Matrix& Cp)
+int TurbCloud::setCoef(int uNum, Matrix& uWind, Matrix& Cp, Matrix& Ct)
 {
 	for (int i = 0; i < turbNum; ++i)
 	{
@@ -30,13 +30,15 @@ int TurbCloud::setCp(int uNum, Matrix& uWind, Matrix& Cp)
 	}
 	this->uWind = uWind;
 	this->Cp = Cp;
+	this->Ct = Ct;
 	return 0;
 }
-int TurbCloud::setCp(vector<int> uNum, Matrix& uWind, Matrix& Cp)
+int TurbCloud::setCoef(vector<int> uNum, Matrix& uWind, Matrix& Cp, Matrix& Ct)
 {
 	this->uNum = uNum;
 	this->uWind = uWind;
 	this->Cp = Cp;
+	this->Ct = Ct;
 	return 0;
 }
 
@@ -58,5 +60,26 @@ int TurbCloud::getCp(double& cp_i, double& velo, int i)
 	double delta1 = velo - uWind[i][j];
 	double delta2 = uWind[i][j + 1] - velo;
 	cp_i = (Cp[i][j] * delta2 + Cp[i][j + 1] * delta1) / (delta1 + delta2);
+	return 0;
+}
+
+int TurbCloud::getCt(double& ct_i, double& velo, int i)
+{
+	if (velo < uWind[i][0] || velo > uWind[i][uNum[i] - 1])
+	{
+		cout << "风机无法在该风速下进行工作" << endl;
+		return 0;
+	}
+	int j;
+	for (j = 0; j < uNum[i] - 1; ++j)
+	{
+		if (velo >= uWind[i][j] && velo <= uWind[i][j + 1])
+		{
+			break;
+		}
+	}
+	double delta1 = velo - uWind[i][j];
+	double delta2 = uWind[i][j + 1] - velo;
+	ct_i = (Ct[i][j] * delta2 + Ct[i][j + 1] * delta1) / (delta1 + delta2);
 	return 0;
 }
