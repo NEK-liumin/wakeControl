@@ -256,7 +256,7 @@ public:
 	int init()
 	{
 		getZeroColumn(x, size_x);
-		getZeroColumn(lambda, size_E);
+		getOneColumn(lambda, size_E);
 		getOneColumn(mu, size_I);
 		getOneColumn(y, size_I);
 		return 0;

@@ -1,5 +1,6 @@
 #include "wake.h"
 #include <algorithm>
+#include <math.h>
 
 using std::vector;
 using std::pair;

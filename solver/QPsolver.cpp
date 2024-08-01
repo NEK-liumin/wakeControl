@@ -463,7 +463,7 @@ int getDelta(Delta& delta, Delta& delta_pre, Delta& delta_cor, ICQP& problem)
 	return 0;
 }
 
-int getNewPoint(EICQP& problem, Delta& delta, double& alphaP, double& alphaD)
+int getNewPoint(EICQP& problem, Delta delta, double& alphaP, double& alphaD)
 {
 	getAlphaA(delta.x, alphaP);
 	getAlphaA(delta.y, alphaP);

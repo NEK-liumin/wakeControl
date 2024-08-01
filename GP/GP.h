@@ -43,7 +43,7 @@ public:
 	virtual void init(int size_x, int size_e, Column& x, Column& lambda) {};
 	virtual void get_ce() {};
 	virtual void set_Je() {};
-	virtual void set_Je(Matrix& Je);
+	virtual void set_Je(Matrix& Je) {};
 };
 // Enequality Constrain General Programming
 // min f(x)
@@ -61,7 +61,7 @@ public:
 	virtual void init(int size_x, int size_i, Column& x, Column& mu) {};
 	virtual void get_ci() {};
 	virtual void set_Ji() {};
-	virtual void set_Ji(Matrix& Ji);
+	virtual void set_Ji(Matrix& Ji) {};
 };
 // Equality and Inequality Constrain General Programming
 // min f(x)

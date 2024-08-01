@@ -2,6 +2,7 @@
 #include "iostream"
 #include "algorithm"
 #include <cmath>
+#include <usr.h>
 using std::cout;
 using std::endl;
 using std::min;
@@ -239,10 +240,11 @@ int BFGS(Matrix& B, EICGP& problem, EICGP& problemNext)
 	return 0;
 }
 
-bool SQP_solver(NCGP& problem, double tol)
+template<typename T>
+bool SQPNC_solver(T& problem, double tol)
 {
 	double normal;
-	NCGP problemNext = problem;
+	T problemNext = problem;
 	NCQP subProblem = NCQP(problem.size_x);
 	Matrix B;
 	getUnitMatrix(B, problem.size_x);
@@ -259,14 +261,15 @@ bool SQP_solver(NCGP& problem, double tol)
 		problem = problemNext;
 		normal = norm(subProblem.x);
 	} while (normal >tol);
-
+	problem.get_f();
 	return true;
 }
 
-bool SQP_solver(ECGP& problem, double tol)
+template<typename T>
+bool SQPEC_solver(T& problem, double tol)
 {
 	double normal;
-	ECGP problemNext = problem;
+	T problemNext = problem;
 	ECQP subProblem = ECQP(problem.size_x, problem.size_e);
 	Matrix B;
 	getUnitMatrix(B, problem.size_x);
@@ -289,13 +292,15 @@ bool SQP_solver(ECGP& problem, double tol)
 		problem = problemNext;
 		normal = norm(subProblem.x);
 	} while (normal > tol);
+	problem.get_f();
 	return true;
 }
 
-bool SQP_solver(ICGP& problem, double tol)
+template<typename T>
+bool SQPIC_solver(T& problem, double tol)
 {
 	double normal;
-	ICGP problemNext = problem;
+	T problemNext = problem;
 	ICQP subProblem = ICQP(problem.size_x, problem.size_i);
 	Matrix B;
 	getUnitMatrix(B, problem.size_x);
@@ -319,13 +324,15 @@ bool SQP_solver(ICGP& problem, double tol)
 		problem = problemNext;
 		normal = norm(subProblem.x);
 	} while (normal > tol);
+	problem.get_f();
 	return true;
 }
-
-bool SQP_solver(EICGP& problem, double tol)
+// 这个T只能是EICGP的子类
+template<typename T>
+bool SQPEIC_solver(T& problem, double tol)
 {
 	double normal;
-	EICGP problemNext = problem;
+	T problemNext = problem;
 	EICQP subProblem = EICQP(problem.size_x, problem.size_e, problem.size_i);
 	Matrix B;
 	getUnitMatrix(B, problem.size_x);
@@ -334,6 +341,7 @@ bool SQP_solver(EICGP& problem, double tol)
 	problem.get_ce();
 	problem.set_Ji();
 	problem.get_ci();
+	int k = 0;
 	do
 	{
 		subProblem.init();
@@ -343,7 +351,11 @@ bool SQP_solver(EICGP& problem, double tol)
 		getAlphaA(subProblem.bE, problem.ce, -1);
 		subProblem.AI = problem.Ji;
 		getAlphaA(subProblem.bI, problem.ci, -1);
-		PCDPF_solver(subProblem, tol);
+		// 必须把下面的tol设置成很小的数字，例如1e-20，才能得到比较准确的拉格朗日参数lambda和mu
+		// 不知道为什么
+		// 但奇怪的是，直接利用传入的tol也能得到正确的x
+		// 可能lambda和mu的计算对初值敏感
+		PCDPF_solver(subProblem, 1e-20);
 		getAPlusB(problemNext.x, problem.x, subProblem.x);
 		problemNext.lambda = subProblem.lambda;
 		problemNext.mu = subProblem.mu;
@@ -356,5 +368,17 @@ bool SQP_solver(EICGP& problem, double tol)
 		problem = problemNext;
 		normal = norm(subProblem.x);
 	} while (normal > tol);
+	problem.get_f();
 	return true;
 }
+
+// ===================================================================
+template bool SQPNC_solver<MyNCGP>(MyNCGP& problem, double tol);
+
+template bool SQPEC_solver<MyECGP>(MyECGP& problem, double tol);
+
+template bool SQPIC_solver<MyICGP>(MyICGP& problem, double tol);
+
+template bool SQPEIC_solver<MyEICGP>(MyEICGP& problem, double tol);
+template bool SQPEIC_solver<MyEICGP2>(MyEICGP2& problem, double tol);
+template bool SQPEIC_solver<MyEICGP3>(MyEICGP3& problem, double tol);

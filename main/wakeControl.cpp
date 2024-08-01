@@ -5,84 +5,57 @@
 #include <chrono>
 using namespace std;
 
+void test0()
+{
+	double tol = 1e-4;
+	MyEICGP2 problem = MyEICGP2(2, 1, 4);
+	problem.x = { 3.5,3 };
+	SQPEIC_solver(problem, tol);
+	cout << "最小值位于" << endl;
+	printA(problem.x);
+	cout << "目标函数的最小值是：" << problem.f << endl;
+}
+
+void test1()
+{
+	double tol = 1e-6;
+	MyEICGP3 problem = MyEICGP3(2, 1, 6);
+	problem.x = { -3,-3 };
+	SQPEIC_solver(problem, tol);
+	cout << "最小值位于" << endl;
+	printA(problem.x);
+	cout << "目标函数的最小值是：" << problem.f << endl;
+}
+
+void test2()
+{
+	ICQP problem = ICQP(3, 5);
+	getZeroMatrix(problem.H, 3, 3);
+	problem.p = { -1,-1,-5 };
+	problem.q = 0;
+	problem.AI = { {-3,-2,-0.25},{0,0,-1},{1,0,0},{0,1,0},{0,0,1} };
+	problem.bI = { -6,-4,0,0,0 };
+	problem.x = { 2.5,2.5,3 };
+	double tol = 1e-4;
+	PCDPF_solver(problem, tol);
+	problem.QPprint();
+}
+
 int main()
 {
 
 	auto start = std::chrono::high_resolution_clock::now();
-
-	Turbxyz p;
-	Column x = { 1,2,3,1,2,3,1,2,3};
-	Column y = { 1,1,1,2,2,2,3,3,3 };
-	Column z = { 0,0,0,0,0,0,0,0,0 };
-	p.init(9, x, y, z);
-
-	p.setNewPosi(30.0 / 180 * 3.1415926);
-	printA(p.x);
-	printA(p.y);
-	printA(p.z);
-
-
-
-	//Matrix A = { {3,2,3},{2,6,5},{3,5,8} };
-	//Matrix L, D, LT;
-	//Column x;
-	//Column b = { 1,2,3 };
-
-	//Matrix Q, R;
-
-
-	//ICQP problem = ICQP(3, 5);
-	//getZeroMatrix(problem.H, 3, 3);
-	//problem.p = { -1,-1,-5 };
-	//problem.q = 0;
-	//problem.AI = { {-3,-2,-0.25},{0,0,-1},{1,0,0},{0,1,0},{0,0,1} };
-	//problem.bI = { -6,-4,0,0,0 };
-	//problem.x = { 2.5,2.5,3 };
-	//double tol = 1e-4;
-	//PCDPF_solver(problem, tol);
-	//problem.QPprint();
-
-	//double x0;
-	//x0 = wilkinsonShift(1,2,3);
-	//cout << x0 << endl;
-
-	//EICQP problem = EICQP(2, 1, 2);
-	//problem.x = { 0,0 };
-	//problem.H = { {1,0},{0,1} };
-
-	//problem.AE = { {1,1} };
-	//problem.bE = { 2 };
-	//problem.AI = { {1,0},{0,1} };
-	//problem.bI = { 0,0 };
-	//double tol = 1e-4;
-	//DPTPC_solver(problem, tol);
-	//problem.QPprint();
-	
-	//EICQP problem = EICQP(4, 1, 6);
-	//problem.x = { 1,0,1,1 };
-	//problem.H = { {1,-4,2,1},{-4,16,-8,-4},{2,-8,4,2},{1,-1,2,1} };
-	//problem.p = { -1,0,7,4 };
-	//problem.q = 5;
-	//problem.AE = { {1,1,1,1} };
-	//problem.bE = { 4 };
-	//problem.AI = { {-1,-2,0,0},{0,-1,0,0},{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1} };
-	//problem.bI = { -3.5,-0.5,0,0,0,0 };
-	//double tol = 1e-5;
-
-
-
-	//PCDPF_solver(problem, tol);
-	//problem.QPprint();
+	// https://www.bilibili.com/video/BV1XT411x7ig/?spm_id_from=333.788&vd_source=22351688aa00db029a949c880636bc36
+	// 例12.3
+	test0();
 	// 
+	// 例12.4
+	//test1();
 	// 
-	// 
-	//printA(problem.x);
-	//cout << endl;
-	//printA(problem.factorE);
-	//cout << endl;
-	//printA(problem.factorI);
-	//cout << endl;
-	//printA(problem.y);
+	// https://www.bilibili.com/video/BV1JK4y1z7AA/?spm_id_from=333.337.search-card.all.click&vd_source=22351688aa00db029a949c880636bc36
+	// 例9.8
+	//test2();
+
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;

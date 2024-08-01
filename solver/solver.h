@@ -39,12 +39,16 @@ bool PCDPF_solver(EICQP& problem, double tol);
 
 // Sequential Quadratic Programming
 // 序列二次优化法
-bool SQP_solver(NCGP& problem, double tol);
+template<typename T>
+bool SQPNC_solver(T& problem, double tol);
 
-bool SQP_solver(ECGP& problem, double tol);
+template<typename T>
+bool SQPEC_solver(T& problem, double tol);
 
-bool SQP_solver(ICGP& problem, double tol);
+template<typename T>
+bool SQPIC_solver(T& problem, double tol);
 
-bool SQP_solver(EICGP& problem, double tol);
+template<typename T>
+bool SQPEIC_solver(T& problem, double tol);
 
 #endif // !SOLVER_H

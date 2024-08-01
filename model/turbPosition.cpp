@@ -1,8 +1,8 @@
 #include "turbPosition.h"
-using std::min_element;
 #include <algorithm>
 #include <iostream>
-using::std::cout;
+using std::cout;
+#include <math.h>
 // 对于给定的来流风向，风向一般不是风机的x方向
 // 为了方便尾流计算，将风机坐标系进行调整
 // 使得风速的单位向量为(1,0,0)
