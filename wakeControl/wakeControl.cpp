@@ -43,11 +43,11 @@ void test2()
 
 int main()
 {
-
+	cout << "开始进行偏航矩阵计算" << endl;
 	auto start = std::chrono::high_resolution_clock::now();
 	// https://www.bilibili.com/video/BV1XT411x7ig/?spm_id_from=333.788&vd_source=22351688aa00db029a949c880636bc36
 	// 例12.3
-	test0();
+	//test0();
 	// 
 	// 例12.4
 	//test1();
@@ -56,9 +56,17 @@ int main()
 	// 例9.8
 	//test2();
 
+	TurbCloud turbines = TurbCloud(36, 3, 10, 0, 20);
+	// generateTestDate(turbines);
+	
+	Input input = Input(turbines);
+	input.readFile();
+	//turbines.turbPrint();
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;
 	cout << "程序运行时间：" << duration.count() << " 秒" << endl;
+	cout << "计算结束" << endl;
+	getchar();
 	return 0;
 }

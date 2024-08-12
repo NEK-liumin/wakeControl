@@ -240,6 +240,7 @@ int BFGS(Matrix& B, EICGP& problem, EICGP& problemNext)
 	return 0;
 }
 
+// T只能是NCGP的子类
 template<typename T>
 bool SQPNC_solver(T& problem, double tol)
 {
@@ -265,6 +266,7 @@ bool SQPNC_solver(T& problem, double tol)
 	return true;
 }
 
+// T只能是ECGP的子类
 template<typename T>
 bool SQPEC_solver(T& problem, double tol)
 {
@@ -296,6 +298,7 @@ bool SQPEC_solver(T& problem, double tol)
 	return true;
 }
 
+// T只能是ICGP的子类
 template<typename T>
 bool SQPIC_solver(T& problem, double tol)
 {

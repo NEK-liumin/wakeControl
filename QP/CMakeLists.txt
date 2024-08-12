@@ -7,7 +7,7 @@ project ("QP")
 aux_source_directory(./ SRC)
 
 # 将源代码添加到此项目的可执行文件。
-set(LIBRARY_OUTPUT_PATH ${LIBPATH})
-add_library(QP ${SRC})
+# set(LIBRARY_OUTPUT_PATH ${LIBPATH})
+# add_library(QP ${SRC})
 
 # TODO: 如有需要，请添加测试并安装目标。

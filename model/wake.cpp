@@ -1,6 +1,7 @@
 #include "wake.h"
 #include <algorithm>
 #include <math.h>
+#include "matrixOperation.h"
 
 using std::vector;
 using std::pair;
@@ -54,23 +55,18 @@ int Wake::getNewCloud()
 	}
 	newCloud.z0 = temp1;
 
-	vector<int> temp2;
-	for (int i = 0; i < turbCloud->turbNum; ++i)
-	{
-		temp2[i] = newCloud.uNum[index[i].second];
-	}
-	newCloud.uNum = temp2;
 
-	Matrix temp3;
+	Matrix temp2;
 	for (int i = 0; i < turbCloud->turbNum; ++i)
 	{
-		temp3[i] = newCloud.uWind[index[i].second];
+		temp2[i] = newCloud.Cp[index[i].second];
 	}
-	newCloud.uWind = temp3;
+	newCloud.Cp = temp2;
+
 	for (int i = 0; i < turbCloud->turbNum; ++i)
 	{
-		temp3[i] = newCloud.Cp[index[i].second];
+		temp2[i] = newCloud.Ct[index[i].second];
 	}
-	newCloud.Cp = temp3;
+	newCloud.Ct = temp2;
 	return 0;
 }

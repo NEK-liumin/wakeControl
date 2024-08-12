@@ -37,17 +37,23 @@ bool PCDPF_solver(EICQP& problem, double tol);
 
 // ====================GPsolver====================
 
-// Sequential Quadratic Programming
+// Sequential Quadratic Programming for NonConstrain
 // 序列二次优化法
 template<typename T>
 bool SQPNC_solver(T& problem, double tol);
 
+// Sequential Quadratic Programming for Equality Constrain
+// 序列二次优化法
 template<typename T>
 bool SQPEC_solver(T& problem, double tol);
 
+// Sequential Quadratic Programming for Inequality Constrain
+// 序列二次优化法
 template<typename T>
 bool SQPIC_solver(T& problem, double tol);
 
+// Sequential Quadratic Programming for Equality and Inequality Constrain
+// 序列二次优化法
 template<typename T>
 bool SQPEIC_solver(T& problem, double tol);
 
