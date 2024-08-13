@@ -1,4 +1,4 @@
-#include "solver.h"
+ï»¿#include "solver.h"
 #include "iostream"
 #include "algorithm"
 #include <cmath>
@@ -15,7 +15,7 @@ bool Lx_b_solver(Column& x, Matrix& L, Column& b)
 	{
 		if (L[i][i] == 0)
 		{
-			cout << "L¾ØÕóµÄ¶Ô½ÇÏßÉÏµÄµÚ" << i + 1 << "¸öÔªËØÎª0" << endl;
+			cout << "LçŸ©é˜µçš„å¯¹è§’çº¿ä¸Šçš„ç¬¬" << i + 1 << "ä¸ªå…ƒç´ ä¸º0" << endl;
 			return false;
 		}
 	}
@@ -40,7 +40,7 @@ bool Dx_b_solver(Column& x, Matrix& D, Column& b)
 	{
 		if (D[i][i] == 0)
 		{
-			cout << "L¾ØÕóµÄ¶Ô½ÇÏßÉÏµÄµÚ" << i + 1 << "¸öÔªËØÎª0" << endl;
+			cout << "LçŸ©é˜µçš„å¯¹è§’çº¿ä¸Šçš„ç¬¬" << i + 1 << "ä¸ªå…ƒç´ ä¸º0" << endl;
 			return false;
 		}
 	}
@@ -59,7 +59,7 @@ bool LTx_b_solver(Column& x, Matrix& LT, Column& b)
 	{
 		if (LT[i][i] == 0)
 		{
-			cout << "LT¾ØÕóµÄ¶Ô½ÇÏßÉÏµÄµÚ" << i + 1 << "¸öÔªËØÎª0" << endl;
+			cout << "LTçŸ©é˜µçš„å¯¹è§’çº¿ä¸Šçš„ç¬¬" << i + 1 << "ä¸ªå…ƒç´ ä¸º0" << endl;
 			return false;
 		}
 	}

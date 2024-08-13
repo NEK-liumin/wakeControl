@@ -1,11 +1,11 @@
-#include "input.h"
+ï»¿#include "input.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
 
-// º¯ÊıÓÃÓÚ·Ö¸î×Ö·û´®
+// å‡½æ•°ç”¨äºåˆ†å‰²å­—ç¬¦ä¸²
 std::vector<std::string> split(const std::string& s, char delimiter) {
     std::vector<std::string> tokens;
     std::string token;
@@ -16,12 +16,12 @@ std::vector<std::string> split(const std::string& s, char delimiter) {
     return tokens;
 }
 
-// º¯ÊıÓÃÓÚ½«×Ö·û´®×ª»»Îªdouble
+// å‡½æ•°ç”¨äºå°†å­—ç¬¦ä¸²è½¬æ¢ä¸ºdouble
 double stringToDouble(const std::string& s) {
     return std::stod(s);
 }
 
-// º¯ÊıÓÃÓÚ½«×Ö·û´®×ª»»Îªint
+// å‡½æ•°ç”¨äºå°†å­—ç¬¦ä¸²è½¬æ¢ä¸ºint
 int stringToInt(const std::string& s) {
     return std::stoi(s);
 }
@@ -31,25 +31,25 @@ int Input::readFile()
     std::ifstream file("turbinesInfo.csv");
     if (!file.is_open())
     {
-        std::cerr << "ÎŞ·¨´ò¿ª·ç»úÅäÖÃÎÄ¼ş" << std::endl;
+        std::cerr << "æ— æ³•æ‰“å¼€é£æœºé…ç½®æ–‡ä»¶" << std::endl;
         return 1;
     }
     std::string line;
     
-    // ¶ÁÈ¡·ç»úÊıÁ¿
+    // è¯»å–é£æœºæ•°é‡
     std::getline(file, line);
     std::getline(file, line);
     turbines->turbNum = std::stoi(line);
 
-    // ¶ÁÈ¡·ç»úÀàĞÍÊıÁ¿
+    // è¯»å–é£æœºç±»å‹æ•°é‡
     std::getline(file, line);
     std::getline(file, line);
     turbines->turbTypeNum = std::stoi(line);
-    // ¶ÁÈ¡·çËÙ½×ÌİÊıÁ¿
+    // è¯»å–é£é€Ÿé˜¶æ¢¯æ•°é‡
     std::getline(file, line);
     std::getline(file, line);
     turbines->uNum = std::stoi(line);
-    // ¶ÁÈ¡×îĞ¡¡¢×î´ó·çËÙ
+    // è¯»å–æœ€å°ã€æœ€å¤§é£é€Ÿ
     std::getline(file, line);
     std::getline(file, line);
     turbines->uMin = std::stoi(line);
@@ -57,7 +57,7 @@ int Input::readFile()
     std::getline(file, line);
     turbines->uMax = std::stoi(line);
 
-    // ½«×îĞ¡×î´óÖ®¼äµÄ·çËÙÆ½¾ù·Ö³ÉuNum-1·İ£¬²¢´æÈëuWindÊı×é
+    // å°†æœ€å°æœ€å¤§ä¹‹é—´çš„é£é€Ÿå¹³å‡åˆ†æˆuNum-1ä»½ï¼Œå¹¶å­˜å…¥uWindæ•°ç»„
     getZeroColumn(turbines->uWind, turbines->uNum);
     for (int i = 0; i < turbines->uNum; ++i)
     {
@@ -70,7 +70,7 @@ int Input::readFile()
     turbines->D.resize(turbines->turbNum);
     turbines->turbType.resize(turbines->turbNum);
 
-    // ¶ÁÈ¡Ã¿¸ö·ç»úµÄÎ»ÖÃ¡¢Ò¶ÂÖÖ±¾¶¡¢·ç»úÖÖÀà
+    // è¯»å–æ¯ä¸ªé£æœºçš„ä½ç½®ã€å¶è½®ç›´å¾„ã€é£æœºç§ç±»
     std::getline(file, line);
     for (int i = 0; i < turbines->turbNum; ++i)
     {
@@ -94,7 +94,7 @@ int Input::readFile()
         turbines->turbType[i] = std::stod(value);
     }
 
-    //¶ÁÈ¡Ã¿ÖÖ·çÁ¦·¢µç»úµÄ¹¦ÂÊÇúÏßºÍÍÆÁ¦ÇúÏß
+    //è¯»å–æ¯ç§é£åŠ›å‘ç”µæœºçš„åŠŸç‡æ›²çº¿å’Œæ¨åŠ›æ›²çº¿
     turbines->Cp.resize(turbines->turbTypeNum);
     turbines->Ct.resize(turbines->turbTypeNum);
 

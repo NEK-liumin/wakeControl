@@ -1,9 +1,9 @@
-#ifndef USR_H
+ï»¿#ifndef USR_H
 #define USR_H
 
 #include "GP.h"
 
-// ÓÃ»§×Ô¶¨ÒåÎŞÔ¼ÊøÓÅ»¯ÎÊÌâ
+// ç”¨æˆ·è‡ªå®šä¹‰æ— çº¦æŸä¼˜åŒ–é—®é¢˜
 class MyNCGP :public NCGP
 {
 public:
@@ -18,7 +18,7 @@ public:
 	void get_f();
 };
 
-// ÓÃ»§×Ô¶¨ÒåµÈÊ½Ô¼ÊøÓÅ»¯ÎÊÌâ
+// ç”¨æˆ·è‡ªå®šä¹‰ç­‰å¼çº¦æŸä¼˜åŒ–é—®é¢˜
 class MyECGP :public ECGP
 {
 public:
@@ -36,7 +36,7 @@ public:
 	void set_Je(Matrix& Je);
 };
 
-// ÓÃ»§×Ô¶¨Òå²»µÈÊ½Ô¼ÊøÓÅ»¯ÎÊÌâ
+// ç”¨æˆ·è‡ªå®šä¹‰ä¸ç­‰å¼çº¦æŸä¼˜åŒ–é—®é¢˜
 class MyICGP :public ICGP
 {
 public:
@@ -54,7 +54,7 @@ public:
 	void set_Ji(Matrix& Ji);
 };
 
-// ÓÃ»§×Ô¶¨ÒåµÈÊ½¼°²»µÈÊ½Ô¼ÊøÓÅ»¯ÎÊÌâ
+// ç”¨æˆ·è‡ªå®šä¹‰ç­‰å¼åŠä¸ç­‰å¼çº¦æŸä¼˜åŒ–é—®é¢˜
 class MyEICGP :public EICGP
 {
 public:

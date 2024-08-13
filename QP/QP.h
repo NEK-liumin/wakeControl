@@ -1,4 +1,4 @@
-#ifndef NCQP_H
+ï»¿#ifndef NCQP_H
 #define	NCQP_H
 #include "matrixOperation.h"
 #include "iostream"
@@ -6,7 +6,7 @@ using std::cout;
 using std::endl;
 
 // Non-Constrain Quadratic Programming
-// ÎŞÔ¼Êø¶ş´Î¹æ»®ÎÊÌâ
+// æ— çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜
 // min f = 1/2xTHx + pTx +q
 class NCQP
 {
@@ -53,24 +53,24 @@ public:
 	}
 	int QPprint()
 	{
-		cout << "======ÒÔÏÂÊÇµ±Ç°ÎŞÔ¼Êø¶ş´Î¹æ»®ÎÊÌâµÄÏêÏ¸ĞÅÏ¢======" << endl;
-		cout << "±äÁ¿¸öÊı£º" << size_x << endl;
-		cout << "º£É­¾ØÕó" << endl;
+		cout << "======ä»¥ä¸‹æ˜¯å½“å‰æ— çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜çš„è¯¦ç»†ä¿¡æ¯======" << endl;
+		cout << "å˜é‡ä¸ªæ•°ï¼š" << size_x << endl;
+		cout << "æµ·æ£®çŸ©é˜µ" << endl;
 		printA(H);
-		cout << "¾ØÕóp" << endl;
+		cout << "çŸ©é˜µp" << endl;
 		printA(p);
-		cout << "³£ÊıÏî" << endl;
+		cout << "å¸¸æ•°é¡¹" << endl;
 		cout << q << endl;
-		cout << "µ±Ç°µã" << endl;
+		cout << "å½“å‰ç‚¹" << endl;
 		printA(x);
 		set_f();
-		cout << "µ±Ç°µÄÄ¿±êº¯ÊıÖµ£º" << f << endl;
+		cout << "å½“å‰çš„ç›®æ ‡å‡½æ•°å€¼ï¼š" << f << endl;
 		return 0;
 	}
 };
 
 // Inequality Constrain Quadratic Programming
-// ²»µÈÊ½Ô¼Êø¶ş´Î¹æ»®ÎÊÌâ
+// ä¸ç­‰å¼çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜
 // min f = 1/2xTHx + pTx +q
 // s.t.AIx >= bI
 class ICQP :public NCQP
@@ -80,7 +80,7 @@ public:
 	Matrix AI;
 	Column bI;
 	Column mu;
-	Column y; // ËÉ³Ú±äÁ¿
+	Column y; // æ¾å¼›å˜é‡
 
 	ICQP(int size_x, int size_I)
 	{
@@ -118,14 +118,14 @@ public:
 	}
 	int QPprint()
 	{
-		cout << "======ÒÔÏÂÊÇµ±Ç°²»µÈÊ½Ô¼Êø¶ş´Î¹æ»®ÎÊÌâµÄÏêÏ¸ĞÅÏ¢======" << endl;
-		cout << "±äÁ¿¸öÊı£º" << size_x << endl;
-		cout << "²»µÈÊ½Ô¼Êø¸öÊı£º" << size_I << endl;
-		cout << "º£É­¾ØÕó" << endl;
+		cout << "======ä»¥ä¸‹æ˜¯å½“å‰ä¸ç­‰å¼çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜çš„è¯¦ç»†ä¿¡æ¯======" << endl;
+		cout << "å˜é‡ä¸ªæ•°ï¼š" << size_x << endl;
+		cout << "ä¸ç­‰å¼çº¦æŸä¸ªæ•°ï¼š" << size_I << endl;
+		cout << "æµ·æ£®çŸ©é˜µ" << endl;
 		printA(H);
-		cout << "¾ØÕóp" << endl;
+		cout << "çŸ©é˜µp" << endl;
 		printA(p);
-		cout << "³£ÊıÏî" << endl;
+		cout << "å¸¸æ•°é¡¹" << endl;
 		cout << q << endl;
 		cout << "AI" << endl;
 		printA(AI);
@@ -135,17 +135,17 @@ public:
 		printA(mu);
 		cout << "y" << endl;
 		printA(y);
-		cout << "µ±Ç°µã" << endl;
+		cout << "å½“å‰ç‚¹" << endl;
 		printA(x);
 		set_f();
-		cout << "µ±Ç°µÄÄ¿±êº¯ÊıÖµ" << endl;
+		cout << "å½“å‰çš„ç›®æ ‡å‡½æ•°å€¼" << endl;
 		cout << f << endl;
 		return 0;
 	}
 };
 
 // Equality Constrain Quadratic Programming
-// µÈÊ½Ô¼Êø¶ş´Î¹æ»®ÎÊÌâ
+// ç­‰å¼çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜
 // min f = 1/2xTHx + pTx +q
 // s.t.AEx = bE
 class ECQP :public NCQP
@@ -189,14 +189,14 @@ public:
 	}
 	int QPprint()
 	{
-		cout << "======ÒÔÏÂÊÇµ±Ç°µÈÊ½Ô¼Êø¶ş´Î¹æ»®ÎÊÌâµÄÏêÏ¸ĞÅÏ¢======" << endl;
-		cout << "±äÁ¿¸öÊı£º" << size_x << endl;
-		cout << "µÈÊ½Ô¼Êø¸öÊı£º" << size_E << endl;
-		cout << "º£É­¾ØÕó" << endl;
+		cout << "======ä»¥ä¸‹æ˜¯å½“å‰ç­‰å¼çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜çš„è¯¦ç»†ä¿¡æ¯======" << endl;
+		cout << "å˜é‡ä¸ªæ•°ï¼š" << size_x << endl;
+		cout << "ç­‰å¼çº¦æŸä¸ªæ•°ï¼š" << size_E << endl;
+		cout << "æµ·æ£®çŸ©é˜µ" << endl;
 		printA(H);
-		cout << "¾ØÕóp" << endl;
+		cout << "çŸ©é˜µp" << endl;
 		printA(p);
-		cout << "³£ÊıÏî" << endl;
+		cout << "å¸¸æ•°é¡¹" << endl;
 		cout << q << endl;
 		cout << "AE" << endl;
 		printA(AE);
@@ -204,17 +204,17 @@ public:
 		printA(bE);
 		cout << "lambda" << endl;
 		printA(lambda);
-		cout << "µ±Ç°µã" << endl;
+		cout << "å½“å‰ç‚¹" << endl;
 		printA(x);
 		set_f();
-		cout << "µ±Ç°µÄÄ¿±êº¯ÊıÖµ" << endl;
+		cout << "å½“å‰çš„ç›®æ ‡å‡½æ•°å€¼" << endl;
 		cout << f << endl;
 		return 0;
 	}
 };
 
 // Equality and Inequality Constrain Quadratic Programming
-// µÈÊ½¼°²»µÈÊ½Ô¼Êø¶ş´Î¹æ»®ÎÊÌâ
+// ç­‰å¼åŠä¸ç­‰å¼çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜
 // min f = 1/2xTHx + pTx +q
 // s.t.AIx >= bI
 // s.t.AEx = bE
@@ -274,15 +274,15 @@ public:
 	}
 	int QPprint()
 	{
-		cout << "======ÒÔÏÂÊÇµ±Ç°µÈÊ½¼°²»µÈÊ½Ô¼Êø¶ş´Î¹æ»®ÎÊÌâµÄÏêÏ¸ĞÅÏ¢======" << endl;
-		cout << "±äÁ¿¸öÊı£º" << size_x << endl;
-		cout << "µÈÊ½Ô¼Êø¸öÊı£º" << size_E << endl;
-		cout << "²»µÈÊ½Ô¼Êø¸öÊı£º" << size_I << endl;
-		cout << "º£É­¾ØÕó" << endl;
+		cout << "======ä»¥ä¸‹æ˜¯å½“å‰ç­‰å¼åŠä¸ç­‰å¼çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜çš„è¯¦ç»†ä¿¡æ¯======" << endl;
+		cout << "å˜é‡ä¸ªæ•°ï¼š" << size_x << endl;
+		cout << "ç­‰å¼çº¦æŸä¸ªæ•°ï¼š" << size_E << endl;
+		cout << "ä¸ç­‰å¼çº¦æŸä¸ªæ•°ï¼š" << size_I << endl;
+		cout << "æµ·æ£®çŸ©é˜µ" << endl;
 		printA(H);
-		cout << "¾ØÕóp" << endl;
+		cout << "çŸ©é˜µp" << endl;
 		printA(p);
-		cout << "³£ÊıÏî" << endl;
+		cout << "å¸¸æ•°é¡¹" << endl;
 		cout << q << endl;
 		cout << "AE" << endl;
 		printA(AE);
@@ -298,10 +298,10 @@ public:
 		printA(mu);
 		cout << "y" << endl;
 		printA(y);
-		cout << "µ±Ç°µã" << endl;
+		cout << "å½“å‰ç‚¹" << endl;
 		printA(x);
 		set_f();
-		cout << "µ±Ç°µÄÄ¿±êº¯ÊıÖµ" << endl;
+		cout << "å½“å‰çš„ç›®æ ‡å‡½æ•°å€¼" << endl;
 		cout << f << endl;
 		return 0;
 	}

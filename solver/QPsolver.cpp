@@ -1,4 +1,4 @@
-#include "solver.h"
+ï»¿#include "solver.h"
 #include "iostream"
 #include "algorithm"
 #include <cmath>
@@ -15,7 +15,7 @@ bool LDL_solver(NCQP& problem)
 	isSolvable = Ax_b_solver(problem.x, problem.H, negative_p);
 	if (!isSolvable)
 	{
-		cout << "µ±Ç°ÎÊÌâµÄº£É­¾ØÕó´æÔÚÎÊÌâ£¬ÎÞ½â" << endl;
+		cout << "å½“å‰é—®é¢˜çš„æµ·æ£®çŸ©é˜µå­˜åœ¨é—®é¢˜ï¼Œæ— è§£" << endl;
 		return false;
 	}
 
@@ -27,12 +27,12 @@ bool QR_solver(ECQP& problem)
 	bool isSolvable;
 	if (problem.size_E > problem.size_x)
 	{
-		cout << "µÈÊ½Ô¼ÊøµÄ¸öÊý²»ÄÜ´óÓÚ±äÁ¿¸öÊý" << endl;
+		cout << "ç­‰å¼çº¦æŸçš„ä¸ªæ•°ä¸èƒ½å¤§äºŽå˜é‡ä¸ªæ•°" << endl;
 		return false;
 	}
 	if (problem.size_E == problem.size_x)
 	{
-		cout << "µÈÊ½Ô¼ÊøµÈÓÚ±äÁ¿¸öÊý£¬½ö¿¿Ô¼Êø¼´¿ÉÈ·¶¨±äÁ¿" << endl;
+		cout << "ç­‰å¼çº¦æŸç­‰äºŽå˜é‡ä¸ªæ•°ï¼Œä»…é çº¦æŸå³å¯ç¡®å®šå˜é‡" << endl;
 		Matrix Q, R;
 		QR_decomposition(Q, R, problem.AE);
 		Matrix QT;
@@ -43,7 +43,7 @@ bool QR_solver(ECQP& problem)
 
 		if (!isSolvable)
 		{
-			cout << "µÈÊ½Ô¼Êø¹¹³ÉµÄ·½³Ì×é²»¿É½â" << endl;
+			cout << "ç­‰å¼çº¦æŸæž„æˆçš„æ–¹ç¨‹ç»„ä¸å¯è§£" << endl;
 			return false;
 		}
 
@@ -56,7 +56,7 @@ bool QR_solver(ECQP& problem)
 		isSolvable = Ax_b_solver(problem.lambda, AAT, A_Hxplusp);
 		if (!isSolvable)
 		{
-			cout << "µÈÊ½Ô¼ÊøÀ­¸ñÀÊÈÕ³Ë×Ó²»¿É½â" << endl;
+			cout << "ç­‰å¼çº¦æŸæ‹‰æ ¼æœ—æ—¥ä¹˜å­ä¸å¯è§£" << endl;
 			return false;
 		}
 		return true;
@@ -79,7 +79,7 @@ bool QR_solver(ECQP& problem)
 	isSolvable = Lx_b_solver(RT_inverse_b, RT, problem.bE);
 	if (!isSolvable)
 	{
-		cout << "µÈÊ½Ô¼Êø´æÔÚÎÊÌâ" << endl;
+		cout << "ç­‰å¼çº¦æŸå­˜åœ¨é—®é¢˜" << endl;
 		return false;
 	}
 	getAB(HQ1, problem.H, Q1);
@@ -91,7 +91,7 @@ bool QR_solver(ECQP& problem)
 	isSolvable = Ax_b_solver(phi, H_temp, p_temp);
 	if (!isSolvable)
 	{
-		cout << "µ±Ç°ÎÊÌâ²»¿É½â£¬¿ÉÄÜÓëº£É­¾ØÕóºÍÏßÐÔÔ¼Êø¾ØÕóÏà¹Ø" << endl;
+		cout << "å½“å‰é—®é¢˜ä¸å¯è§£ï¼Œå¯èƒ½ä¸Žæµ·æ£®çŸ©é˜µå’Œçº¿æ€§çº¦æŸçŸ©é˜µç›¸å…³" << endl;
 		return false;
 	}
 	Column Q2phi;
@@ -108,7 +108,7 @@ bool QR_solver(ECQP& problem)
 	isSolvable = Ax_b_solver(problem.lambda, AAT, A_Hxplusp);
 	if (!isSolvable)
 	{
-		cout << "µ±Ç°ÎÊÌâµÈÊ½Ô¼ÊøµÄÀ­¸ñÀÊÈÕ³Ë×Ó²»¿É½â" << endl;
+		cout << "å½“å‰é—®é¢˜ç­‰å¼çº¦æŸçš„æ‹‰æ ¼æœ—æ—¥ä¹˜å­ä¸å¯è§£" << endl;
 		return false;
 	}
 	return true;
@@ -363,7 +363,7 @@ bool getDelta_pre(Delta& delta_pre, EICQP& problem, ECQP& QP_pre, Nu& nu, Matrix
 	isSolvable = QR_solver(QP_pre);
 	if (!isSolvable)
 	{
-		cout << "¹¹ÔìµÄÔ¤²âÎÊÌâ²»¿É½â" << endl;
+		cout << "æž„é€ çš„é¢„æµ‹é—®é¢˜ä¸å¯è§£" << endl;
 		return false;
 	}
 	delta_pre.x = QP_pre.x;
@@ -389,7 +389,7 @@ bool getDelta_pre(Delta& delta_pre, ICQP& problem, NCQP& QP_pre, Nu& nu, Matrix&
 	isSolvable = LDL_solver(QP_pre);
 	if (!isSolvable)
 	{
-		cout << "¹¹ÔìµÄÔ¤²âÎÊÌâ²»¿É½â" << endl;
+		cout << "æž„é€ çš„é¢„æµ‹é—®é¢˜ä¸å¯è§£" << endl;
 		return false;
 	}
 	delta_pre.x = QP_pre.x;
@@ -413,7 +413,7 @@ bool getDelta_cor(Delta& delta_cor, EICQP& problem, ECQP& QP_cor, Nu& nu, Matrix
 	isSolvable = QR_solver(QP_cor);
 	if (!isSolvable)
 	{
-		cout << "¹¹ÔìµÄÐ£ÕýÎÊÌâ²»¿É½â" << endl;
+		cout << "æž„é€ çš„æ ¡æ­£é—®é¢˜ä¸å¯è§£" << endl;
 		return false;
 	}
 	delta_cor.x = QP_cor.x;
@@ -433,7 +433,7 @@ bool getDelta_cor(Delta& delta_cor, ICQP& problem, NCQP& QP_cor, Nu& nu, Matrix&
 	isSolvable = LDL_solver(QP_cor);
 	if (!isSolvable)
 	{
-		cout << "¹¹ÔìµÄÐ£ÕýÎÊÌâ²»¿É½â" << endl;
+		cout << "æž„é€ çš„æ ¡æ­£é—®é¢˜ä¸å¯è§£" << endl;
 		return false;
 	}
 	delta_cor.x = QP_cor.x;

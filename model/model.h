@@ -1,4 +1,4 @@
-#ifndef MODEL_H
+ï»¿#ifndef MODEL_H
 #define MODEL_H
 #include "turbCloud.h"
 #include "matrixOperation.h"
@@ -6,9 +6,9 @@
 class model
 {
 public:
-	double kz; // ´¹Ö±·½ÏòÉÏµÄÎ²Á÷ÅòÕÍÂÊ
-	double ky; // Õ¹ÏòÉÏµÄÎ²Á÷ÅòÕÍÂÊ
-	double I;  // ÍÄÁ÷Ç¿¶È
+	double kz; // å‚ç›´æ–¹å‘ä¸Šçš„å°¾æµè†¨èƒ€ç‡
+	double ky; // å±•å‘ä¸Šçš„å°¾æµè†¨èƒ€ç‡
+	double I;  // æ¹æµå¼ºåº¦
 	virtual int getWake(Column& vel, TurbCloud& trubine, double& uWind) { return 0; }
 };
 

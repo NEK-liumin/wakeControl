@@ -1,4 +1,4 @@
-#include "turbCloudGeneration.h"
+ï»¿#include "turbCloudGeneration.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -11,13 +11,13 @@ using std::endl;
 
 int generateTestDate(TurbCloud& turbines)
 {
-// ¼ÙÉèÒ»¹²36Ì¨·ç»ú
-// ¼ÙÉèÒ»¹²ÈıÖÖ·ç»ú
+// å‡è®¾ä¸€å…±36å°é£æœº
+// å‡è®¾ä¸€å…±ä¸‰ç§é£æœº
 	turbines = TurbCloud(36, 3, 10, 0, 20);
 
-	// ¼ÙÉè·çÁ¦·¢µç»úÒ¶ÂÖÖ±¾¶150m
-	// ¼ÙÉè·çÁ¦·¢µç»ú¼ä¸ô500m
-	// ¼ÙÉè·çÁ¦·¢µç»ú³Ê¾ÙĞĞÍø¸ñÅÅ²¼
+	// å‡è®¾é£åŠ›å‘ç”µæœºå¶è½®ç›´å¾„150m
+	// å‡è®¾é£åŠ›å‘ç”µæœºé—´éš”500m
+	// å‡è®¾é£åŠ›å‘ç”µæœºå‘ˆä¸¾è¡Œç½‘æ ¼æ’å¸ƒ
 	for (int i = 0; i < turbines.turbNum; ++i)
 	{
 		turbines.D[i] = 150;
@@ -34,7 +34,7 @@ int generateTestDate(TurbCloud& turbines)
 			turbines.x0[id] = i * 500;
 			turbines.y0[id] = j * 500;
 			turbines.z0[id] = 0;
-			if ((i + j) % 3 == 0) // Ëæ±ãÅªµÃ£¬°Ñ·ç»ú·Ö³ÉÈıÖÖ
+			if ((i + j) % 3 == 0) // éšä¾¿å¼„å¾—ï¼ŒæŠŠé£æœºåˆ†æˆä¸‰ç§
 			{
 				turbines.turbType[id] = 0;
 			}
@@ -54,18 +54,18 @@ int generateTestDate(TurbCloud& turbines)
 
 	if (!outFile)
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş" << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶" << std::endl;
 		return 1;
 	}
-	outFile << "Ì¨Êı" << endl;
+	outFile << "å°æ•°" << endl;
 	outFile << turbines.turbNum << endl;
-	outFile << "ÀàĞÍÊı" << endl;
+	outFile << "ç±»å‹æ•°" << endl;
 	outFile << turbines.turbTypeNum << endl;
-	outFile << "·çËÙ½×ÌİÊıÁ¿" << endl;
+	outFile << "é£é€Ÿé˜¶æ¢¯æ•°é‡" << endl;
 	outFile << turbines.uNum << endl;
-	outFile << "×îĞ¡·çËÙ" << endl;
+	outFile << "æœ€å°é£é€Ÿ" << endl;
 	outFile << turbines.uMin << endl;
-	outFile << "×î´ó·çËÙ" << endl;
+	outFile << "æœ€å¤§é£é€Ÿ" << endl;
 	outFile << turbines.uMax << endl;
 	outFile << "x,y,z,D,type" << endl;
 
@@ -73,12 +73,12 @@ int generateTestDate(TurbCloud& turbines)
 	{
 		outFile << turbines.x0[i] << " , " << turbines.y0[i] << " , " << turbines.z0[i] << " , " << turbines.D[i] << " , " << turbines.turbType[i] << endl;
 	}
-	outFile << "Cp¡¢CtÇúÏß" << endl;
+	outFile << "Cpã€Ctæ›²çº¿" << endl;
 	
 	for (int i = 0; i < turbines.turbTypeNum; ++i)
 	{
-		outFile << "µÚ " << i << " ÖÖ·ç»ú" << endl;
-		outFile << "·çËÙ,Cp,Ct" << endl;
+		outFile << "ç¬¬ " << i << " ç§é£æœº" << endl;
+		outFile << "é£é€Ÿ,Cp,Ct" << endl;
 		for (int j = 0; j < turbines.uNum; ++j)
 		{
 			outFile << turbines.uWind[j] << "," << turbines.Cp[i][j] << "," << turbines.Ct[i][j] << endl;

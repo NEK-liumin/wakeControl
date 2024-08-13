@@ -1,4 +1,4 @@
-#include "wake.h"
+﻿#include "wake.h"
 #include <algorithm>
 #include <math.h>
 #include "matrixOperation.h"

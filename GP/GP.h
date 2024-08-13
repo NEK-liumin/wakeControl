@@ -1,4 +1,4 @@
-#ifndef GP_H
+ï»¿#ifndef GP_H
 #define GP_H
 
 #include "matrixOperation.h"
@@ -6,7 +6,7 @@
 using std::cout;
 using std::endl;
 
-// ¶¨ÒåÒ»°ãµÄÓÅ»¯ÎÊÌâ
+// å®šä¹‰ä¸€èˆ¬çš„ä¼˜åŒ–é—®é¢˜
 // define General Programming
 
 // Non-Constrain General Programming

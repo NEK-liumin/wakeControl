@@ -1,4 +1,4 @@
-#ifndef INPUT_H
+﻿#ifndef INPUT_H
 #define INPUT_H
 
 #include"turbCloud.h"

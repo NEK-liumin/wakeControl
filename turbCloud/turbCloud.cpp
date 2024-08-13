@@ -1,4 +1,4 @@
-#include "turbCloud.h"
+ï»¿#include "turbCloud.h"
 #include <iostream>
 #include <math.h>
 #include <fstream>
@@ -11,12 +11,12 @@ int TurbCloud::setPosi(int turbNum, Column& x0, Column& y0, Column& z0)
 {
 	if (x0.size() != turbNum || y0.size() != turbNum || z0.size() != turbNum)
 	{
-		cout << "ÊäÈëµÄ·ç»úÊýÁ¿Óë×ø±êÊýÁ¿²»Æ¥Åä" << endl;
+		cout << "è¾“å…¥çš„é£Žæœºæ•°é‡ä¸Žåæ ‡æ•°é‡ä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	if (x0.size() != y0.size() || x0.size() != z0.size())
 	{
-		cout << "xyz×ø±êµÄÊýÁ¿²»Ò»ÖÂ" << endl;
+		cout << "xyzåæ ‡çš„æ•°é‡ä¸ä¸€è‡´" << endl;
 		return 0;
 	}
 	this->turbNum = turbNum;
@@ -37,7 +37,7 @@ int TurbCloud::getCp(double& cp_i, double& velo_i, int& type_i)
 {
 	if (velo_i < uWind[0] || velo_i > uWind[uNum - 1])
 	{
-		cout << "·ç»úÎÞ·¨ÔÚ¸Ã·çËÙÏÂ½øÐÐ¹¤×÷" << endl;
+		cout << "é£Žæœºæ— æ³•åœ¨è¯¥é£Žé€Ÿä¸‹è¿›è¡Œå·¥ä½œ" << endl;
 		return 0;
 	}
 	if (velo_i == uWind[0])
@@ -50,9 +50,9 @@ int TurbCloud::getCp(double& cp_i, double& velo_i, int& type_i)
 		cp_i = Cp[type_i][uNum - 1];
 		return 0;
 	}
-	// »á²»¶Ï¸ù¾Ý·ç»úÎ»ÖÃ´¦µÄÁ÷ÌåËÙ¶È¼ÆËãÆä¹¦ÂÊÏµÊýºÍÍÆÁ¦ÏµÊý
-	// µ÷ÓÃ´ÎÊý½Ï¶à
-	// ²»ÒË²ÉÓÃÑ­»·
+	// ä¼šä¸æ–­æ ¹æ®é£Žæœºä½ç½®å¤„çš„æµä½“é€Ÿåº¦è®¡ç®—å…¶åŠŸçŽ‡ç³»æ•°å’ŒæŽ¨åŠ›ç³»æ•°
+	// è°ƒç”¨æ¬¡æ•°è¾ƒå¤š
+	// ä¸å®œé‡‡ç”¨å¾ªçŽ¯
 	double delta;
 	delta = (uWind[uNum - 1] - uWind[0]) / (uNum - 1);
 
@@ -69,7 +69,7 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 {
 	if (velo_i < uWind[0] || velo_i > uWind[uNum - 1])
 	{
-		cout << "·ç»úÎÞ·¨ÔÚ¸Ã·çËÙÏÂ½øÐÐ¹¤×÷" << endl;
+		cout << "é£Žæœºæ— æ³•åœ¨è¯¥é£Žé€Ÿä¸‹è¿›è¡Œå·¥ä½œ" << endl;
 		return 0;
 	}
 	if (velo_i == uWind[0])
@@ -82,9 +82,9 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 		ct_i = Ct[type_i][uNum - 1];
 		return 0;
 	}
-	// »á²»¶Ï¸ù¾Ý·ç»úÎ»ÖÃ´¦µÄÁ÷ÌåËÙ¶È¼ÆËãÆä¹¦ÂÊÏµÊýºÍÍÆÁ¦ÏµÊý
-	// µ÷ÓÃ´ÎÊý½Ï¶à
-	// ²»ÒË²ÉÓÃÑ­»·
+	// ä¼šä¸æ–­æ ¹æ®é£Žæœºä½ç½®å¤„çš„æµä½“é€Ÿåº¦è®¡ç®—å…¶åŠŸçŽ‡ç³»æ•°å’ŒæŽ¨åŠ›ç³»æ•°
+	// è°ƒç”¨æ¬¡æ•°è¾ƒå¤š
+	// ä¸å®œé‡‡ç”¨å¾ªçŽ¯
 	double delta;
 	delta = (uWind[uNum - 1] - uWind[0]) / (uNum - 1);
 
@@ -103,18 +103,18 @@ int TurbCloud::turbPrint()
 
 	if (!outFile)
 	{
-		std::cerr << "ÎÞ·¨´ò¿ªÎÄ¼þ" << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶" << std::endl;
 		return 1;
 	}
-	outFile << "Ì¨Êý" << endl;
+	outFile << "å°æ•°" << endl;
 	outFile << this ->turbNum << endl;
-	outFile << "ÀàÐÍÊý" << endl;
+	outFile << "ç±»åž‹æ•°" << endl;
 	outFile << this->turbTypeNum << endl;
-	outFile << "·çËÙ½×ÌÝÊýÁ¿" << endl;
+	outFile << "é£Žé€Ÿé˜¶æ¢¯æ•°é‡" << endl;
 	outFile << this->uNum << endl;
-	outFile << "×îÐ¡·çËÙ" << endl;
+	outFile << "æœ€å°é£Žé€Ÿ" << endl;
 	outFile << this->uMin << endl;
-	outFile << "×î´ó·çËÙ" << endl;
+	outFile << "æœ€å¤§é£Žé€Ÿ" << endl;
 	outFile << this->uMax << endl;
 	outFile << "x,y,z,D,type" << endl;
 
@@ -122,12 +122,12 @@ int TurbCloud::turbPrint()
 	{
 		outFile << this->x0[i] << " , " << this->y0[i] << " , " << this->z0[i] << " , " << this->D[i] << " , " << this->turbType[i] << endl;
 	}
-	outFile << "Cp¡¢CtÇúÏß" << endl;
+	outFile << "Cpã€Ctæ›²çº¿" << endl;
 
 	for (int i = 0; i < this->turbTypeNum; ++i)
 	{
-		outFile << "µÚ " << i << " ÖÖ·ç»ú" << endl;
-		outFile << "·çËÙ,Cp,Ct" << endl;
+		outFile << "ç¬¬ " << i << " ç§é£Žæœº" << endl;
+		outFile << "é£Žé€Ÿ,Cp,Ct" << endl;
 		for (int j = 0; j < this->uNum; ++j)
 		{
 			outFile << this->uWind[j] << "," << this->Cp[i][j] << "," << this->Ct[i][j] << endl;

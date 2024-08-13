@@ -1,6 +1,15 @@
 ﻿# CMakeList.txt: wakeControl 的 CMake 项目，在此处包括源代码并定义
 # 项目特定的逻辑。
 #
+
+# 设置全局编译选项
+if(WIN32)
+    add_compile_definitions(ENCODING_UTF8_BOM=1)
+else()
+    add_compile_definitions(ENCODING_UTF8_BOM=0)
+endif()
+
+
 cmake_minimum_required (VERSION 3.8)
 
 project ("base")
@@ -41,6 +50,8 @@ link_libraries(solver)
 link_libraries(usr)
 link_libraries(turbCloud)
 link_libraries(input)
+
+
 
 # 将源代码添加到此项目的可执行文件。
 #set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)

@@ -1,4 +1,4 @@
-#include "usr.h"
+Ôªø#include "usr.h"
 
 MyNCGP::MyNCGP(int size_x)
 {
@@ -6,7 +6,7 @@ MyNCGP::MyNCGP(int size_x)
 	getZeroColumn(x, size_x);
 	f = 0;
 	getZeroColumn(g, size_x);
-	// H“ª∞„”√≤ªµΩ
+	// H‰∏ÄËà¨Áî®‰∏çÂà∞
 }
 
 void MyNCGP::set_size(int size_x)

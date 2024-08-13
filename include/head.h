@@ -1,4 +1,4 @@
-#ifndef HEAD_H
+﻿#ifndef HEAD_H
 #define HEAD_H
 
 #include "wake.h"

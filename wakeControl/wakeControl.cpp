@@ -61,12 +61,12 @@ int main()
 	
 	Input input = Input(turbines);
 	input.readFile();
-	//turbines.turbPrint();
+	turbines.turbPrint();
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;
 	cout << "程序运行时间：" << duration.count() << " 秒" << endl;
 	cout << "计算结束" << endl;
-	getchar();
+	std::cin.get();
 	return 0;
 }

@@ -1,4 +1,4 @@
-#ifndef SOLVER_H
+ï»¿#ifndef SOLVER_H
 #define SOLVER_H
 
 #include "matrixOperation.h"
@@ -7,53 +7,53 @@
 
 // ====================LPsolver====================
 
-// LÎªÏÂÈı½Ç·½Õó
+// Lä¸ºä¸‹ä¸‰è§’æ–¹é˜µ
 bool Lx_b_solver(Column& x, Matrix& L, Column& b);
 
-// DÎª¶Ô½Ç·½Õó
+// Dä¸ºå¯¹è§’æ–¹é˜µ
 bool Dx_b_solver(Column& x, Matrix& D, Column& b);
 
-// LTÎªÉÏÈı½Ç·½Õó
+// LTä¸ºä¸Šä¸‰è§’æ–¹é˜µ
 bool LTx_b_solver(Column& x, Matrix& LT, Column& b);
 
-// ÒªÇóA¶Ô³Æ£¬ÇÒÌØÕ÷Öµ²»ÄÜÎª0
+// è¦æ±‚Aå¯¹ç§°ï¼Œä¸”ç‰¹å¾å€¼ä¸èƒ½ä¸º0
 bool Ax_b_solver(Column& x, Matrix& A, Column& b);
 
 // ====================QPsolver====================
 
-// LDL·Ö½âÇóÎŞÔ¼Êø¶ş´Î¹æ»®ÎÊÌâµÄ×îĞ¡Öµ¡£ÒªÇóH¶Ô³ÆÕı¶¨
+// LDLåˆ†è§£æ±‚æ— çº¦æŸäºŒæ¬¡è§„åˆ’é—®é¢˜çš„æœ€å°å€¼ã€‚è¦æ±‚Hå¯¹ç§°æ­£å®š
 bool LDL_solver(NCQP& problem);
 
-// ÒªÇóH¶Ô³ÆÕı¶¨
+// è¦æ±‚Hå¯¹ç§°æ­£å®š
 bool QR_solver(ECQP& problem);
 
 // Predictor-Corrector Dual Path-Following Algorithm
-// ´øÔ¤²âĞ£ÕıµÄ¶ÔÅ¼Â·¾¶¸ú×ÙËã·¨
+// å¸¦é¢„æµ‹æ ¡æ­£çš„å¯¹å¶è·¯å¾„è·Ÿè¸ªç®—æ³•
 bool PCDPF_solver(ICQP& problem, double tol);
 
 // Predictor-Corrector Dual Path-Following Algorithm
-// ´øÔ¤²âĞ£ÕıµÄ¶ÔÅ¼Â·¾¶¸ú×ÙËã·¨
+// å¸¦é¢„æµ‹æ ¡æ­£çš„å¯¹å¶è·¯å¾„è·Ÿè¸ªç®—æ³•
 bool PCDPF_solver(EICQP& problem, double tol);
 
 // ====================GPsolver====================
 
 // Sequential Quadratic Programming for NonConstrain
-// ĞòÁĞ¶ş´ÎÓÅ»¯·¨
+// åºåˆ—äºŒæ¬¡ä¼˜åŒ–æ³•
 template<typename T>
 bool SQPNC_solver(T& problem, double tol);
 
 // Sequential Quadratic Programming for Equality Constrain
-// ĞòÁĞ¶ş´ÎÓÅ»¯·¨
+// åºåˆ—äºŒæ¬¡ä¼˜åŒ–æ³•
 template<typename T>
 bool SQPEC_solver(T& problem, double tol);
 
 // Sequential Quadratic Programming for Inequality Constrain
-// ĞòÁĞ¶ş´ÎÓÅ»¯·¨
+// åºåˆ—äºŒæ¬¡ä¼˜åŒ–æ³•
 template<typename T>
 bool SQPIC_solver(T& problem, double tol);
 
 // Sequential Quadratic Programming for Equality and Inequality Constrain
-// ĞòÁĞ¶ş´ÎÓÅ»¯·¨
+// åºåˆ—äºŒæ¬¡ä¼˜åŒ–æ³•
 template<typename T>
 bool SQPEIC_solver(T& problem, double tol);
 

@@ -1,4 +1,4 @@
-#ifndef WAKE_H
+ï»¿#ifndef WAKE_H
 #define WAKE_H
 #include "turbCloud.h"
 
@@ -7,14 +7,14 @@ class Wake
 public:
 	TurbCloud* turbCloud;
 
- // ×ø±ê×ª»»ºóËùÓĞ·ç»úËùÓĞĞÅÏ¢ position of wind turbine
+ // åæ ‡è½¬æ¢åæ‰€æœ‰é£æœºæ‰€æœ‰ä¿¡æ¯ position of wind turbine
 	TurbCloud newCloud;
 
-	Column vel; // Ã¿¸ö·ç»ú´¦µÄËÙ¶È
-	double x, y, z; // Çó¸Ã´¦µÄÎ²Á÷ËğÊ§ wake deflection here
-	double u, theta; // À´Á÷·çËÙ´óĞ¡¼°·½Ïò
+	Column vel; // æ¯ä¸ªé£æœºå¤„çš„é€Ÿåº¦
+	double x, y, z; // æ±‚è¯¥å¤„çš„å°¾æµæŸå¤± wake deflection here
+	double u, theta; // æ¥æµé£é€Ÿå¤§å°åŠæ–¹å‘
 	double ky, kz; // 
-	double gamma; // ·ç»úÆ«º½½Ç yaw angle
+	double gamma; // é£æœºåèˆªè§’ yaw angle
 
 	int getNewCloud();
 	virtual int getWake() { return 0; };

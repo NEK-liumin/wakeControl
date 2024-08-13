@@ -1,31 +1,31 @@
-#ifndef TURBCLOUD_H
+ï»¿#ifndef TURBCLOUD_H
 #define TURBCLOUD_H
 #include "matrixOperation.h"
 
 class TurbCloud
 {
 public:
-	int turbNum; // ·ç»úÊıÁ¿
-	int turbTypeNum; // ·ç»úÖÖÀà
-	// ·ç»úÒ¶ÂÖÖ±¾¶
+	int turbNum; // é£æœºæ•°é‡
+	int turbTypeNum; // é£æœºç§ç±»
+	// é£æœºå¶è½®ç›´å¾„
 	Column D;
-	// ·ç»úÔ­×ø±ê
+	// é£æœºåŸåæ ‡
 	Column x0;
 	Column y0;
 	Column z0;
 
-	Column gamma; // ·ç»úµÄÆ«º½½Ç¶È
+	Column gamma; // é£æœºçš„åèˆªè§’åº¦
 
 	vector<int> turbType;
 
-	// ÓÉÓÚÔÚÍ¬Ò»¸ö·ç³¡£¬¼ÙÉè²»Í¬ÖÖÀà·ç»úµÄ·çËÙÇø¼äÒ»ÖÂ
-	// ·çËÙ±»Æ½¾ù·Ö³ÉuNum-1·İ
-	double uMin, uMax; // ×îĞ¡·çËÙºÍ×î´ó·çËÙ
+	// ç”±äºåœ¨åŒä¸€ä¸ªé£åœºï¼Œå‡è®¾ä¸åŒç§ç±»é£æœºçš„é£é€ŸåŒºé—´ä¸€è‡´
+	// é£é€Ÿè¢«å¹³å‡åˆ†æˆuNum-1ä»½
+	double uMin, uMax; // æœ€å°é£é€Ÿå’Œæœ€å¤§é£é€Ÿ
 	int uNum;
 	Column uWind;
-	// ²»Í¬·çËÙÏÂ·ç»úµÄ¹¦ÂÊÏµÊı(Ã¿ÖÖ·ç»ú£¬Ã¿¸ö·çËÙÏÂµÄ¹¦ÂÊÏµÊı²»Í¬£¬ËùÒÔÊÇ¶şÎ¬)
+	// ä¸åŒé£é€Ÿä¸‹é£æœºçš„åŠŸç‡ç³»æ•°(æ¯ç§é£æœºï¼Œæ¯ä¸ªé£é€Ÿä¸‹çš„åŠŸç‡ç³»æ•°ä¸åŒï¼Œæ‰€ä»¥æ˜¯äºŒç»´)
 	Matrix Cp;
-	// ²»Í¬·çËÙÏÂ·ç»úµÄÍÆÁ¦ÏµÊı
+	// ä¸åŒé£é€Ÿä¸‹é£æœºçš„æ¨åŠ›ç³»æ•°
 	Matrix Ct;
 
 	TurbCloud(int turbNum, int turbTypeNum, int uNum, double uMin, double uMax)

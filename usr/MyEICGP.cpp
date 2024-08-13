@@ -1,4 +1,4 @@
-#include "usr.h"
+Ôªø#include "usr.h"
 
 MyEICGP::MyEICGP(int size_x, int size_e, int size_i)
 {
@@ -8,7 +8,7 @@ MyEICGP::MyEICGP(int size_x, int size_e, int size_i)
 	getZeroColumn(x, size_x);
 	f = 0;
 	getZeroColumn(g, size_x);
-	// H“ª∞„”√≤ªµΩ
+	// H‰∏ÄËà¨Áî®‰∏çÂà∞
 	getZeroColumn(ce, size_e);
 	getZeroMatrix(Je, size_e, size_x);
 	getZeroColumn(lambda, size_e);

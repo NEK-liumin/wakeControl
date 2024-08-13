@@ -1,4 +1,4 @@
-#ifndef TURBCLOUDGENERATION_H
+﻿#ifndef TURBCLOUDGENERATION_H
 #define TURBCLOUDGENERATION_H
 
 #include "turbCloud.h"

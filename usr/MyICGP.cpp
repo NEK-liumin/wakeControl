@@ -1,4 +1,4 @@
-#include "usr.h"
+Ôªø#include "usr.h"
 
 MyICGP::MyICGP(int size_x, int size_i)
 {
@@ -7,7 +7,7 @@ MyICGP::MyICGP(int size_x, int size_i)
 	getZeroColumn(x, size_x);
 	f = 0;
 	getZeroColumn(g, size_x);
-	// H“ª∞„”√≤ªµΩ
+	// H‰∏ÄËà¨Áî®‰∏çÂà∞
 	getZeroColumn(ci, size_i);
 	getZeroMatrix(Ji, size_i, size_x);
 	getZeroColumn(mu, size_i);

@@ -1,4 +1,4 @@
-#include "solver.h"
+ï»¿#include "solver.h"
 #include "iostream"
 #include "algorithm"
 #include <cmath>
@@ -240,7 +240,7 @@ int BFGS(Matrix& B, EICGP& problem, EICGP& problemNext)
 	return 0;
 }
 
-// TÖ»ÄÜÊÇNCGPµÄ×ÓÀà
+// Tåªèƒ½æ˜¯NCGPçš„å­ç±»
 template<typename T>
 bool SQPNC_solver(T& problem, double tol)
 {
@@ -266,7 +266,7 @@ bool SQPNC_solver(T& problem, double tol)
 	return true;
 }
 
-// TÖ»ÄÜÊÇECGPµÄ×ÓÀà
+// Tåªèƒ½æ˜¯ECGPçš„å­ç±»
 template<typename T>
 bool SQPEC_solver(T& problem, double tol)
 {
@@ -298,7 +298,7 @@ bool SQPEC_solver(T& problem, double tol)
 	return true;
 }
 
-// TÖ»ÄÜÊÇICGPµÄ×ÓÀà
+// Tåªèƒ½æ˜¯ICGPçš„å­ç±»
 template<typename T>
 bool SQPIC_solver(T& problem, double tol)
 {
@@ -330,7 +330,7 @@ bool SQPIC_solver(T& problem, double tol)
 	problem.get_f();
 	return true;
 }
-// Õâ¸öTÖ»ÄÜÊÇEICGPµÄ×ÓÀà
+// è¿™ä¸ªTåªèƒ½æ˜¯EICGPçš„å­ç±»
 template<typename T>
 bool SQPEIC_solver(T& problem, double tol)
 {
@@ -354,10 +354,10 @@ bool SQPEIC_solver(T& problem, double tol)
 		getAlphaA(subProblem.bE, problem.ce, -1);
 		subProblem.AI = problem.Ji;
 		getAlphaA(subProblem.bI, problem.ci, -1);
-		// ±ØĞë°ÑÏÂÃæµÄtolÉèÖÃ³ÉºÜĞ¡µÄÊı×Ö£¬ÀıÈç1e-20£¬²ÅÄÜµÃµ½±È½Ï×¼È·µÄÀ­¸ñÀÊÈÕ²ÎÊılambdaºÍmu
-		// ²»ÖªµÀÎªÊ²Ã´
-		// µ«Ææ¹ÖµÄÊÇ£¬Ö±½ÓÀûÓÃ´«ÈëµÄtolÒ²ÄÜµÃµ½ÕıÈ·µÄx
-		// ¿ÉÄÜlambdaºÍmuµÄ¼ÆËã¶Ô³õÖµÃô¸Ğ
+		// å¿…é¡»æŠŠä¸‹é¢çš„tolè®¾ç½®æˆå¾ˆå°çš„æ•°å­—ï¼Œä¾‹å¦‚1e-20ï¼Œæ‰èƒ½å¾—åˆ°æ¯”è¾ƒå‡†ç¡®çš„æ‹‰æ ¼æœ—æ—¥å‚æ•°lambdaå’Œmu
+		// ä¸çŸ¥é“ä¸ºä»€ä¹ˆ
+		// ä½†å¥‡æ€ªçš„æ˜¯ï¼Œç›´æ¥åˆ©ç”¨ä¼ å…¥çš„tolä¹Ÿèƒ½å¾—åˆ°æ­£ç¡®çš„x
+		// å¯èƒ½lambdaå’Œmuçš„è®¡ç®—å¯¹åˆå€¼æ•æ„Ÿ
 		PCDPF_solver(subProblem, 1e-20);
 		getAPlusB(problemNext.x, problem.x, subProblem.x);
 		problemNext.lambda = subProblem.lambda;

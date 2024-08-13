@@ -1,4 +1,4 @@
-#include "template.h"
+ï»¿#include "template.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -11,13 +11,13 @@ using std::endl;
 
 int generateTestDate(TurbCloud& turbines)
 {
-	// ¼ÙÉèÒ»¹²36Ì¨·ç»ú
-	// ¼ÙÉèÒ»¹²ÈıÖÖ·ç»ú
+	// å‡è®¾ä¸€å…±36å°é£æœº
+	// å‡è®¾ä¸€å…±ä¸‰ç§é£æœº
 	// turbines = TurbCloud(36, 3, 10, 0, 20);
 
-	// ¼ÙÉè·çÁ¦·¢µç»úÒ¶ÂÖÖ±¾¶150m
-	// ¼ÙÉè·çÁ¦·¢µç»ú¼ä¸ô500m
-	// ¼ÙÉè·çÁ¦·¢µç»ú³Ê¾ÙĞĞÍø¸ñÅÅ²¼
+	// å‡è®¾é£åŠ›å‘ç”µæœºå¶è½®ç›´å¾„150m
+	// å‡è®¾é£åŠ›å‘ç”µæœºé—´éš”500m
+	// å‡è®¾é£åŠ›å‘ç”µæœºå‘ˆä¸¾è¡Œç½‘æ ¼æ’å¸ƒ
 	//for (int i = 0; i < turbines.turbNum; ++i)
 	//{
 	//	turbines.D[i] = 150;
@@ -27,18 +27,18 @@ int generateTestDate(TurbCloud& turbines)
 
 	if (!outFile)
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş" << std::endl;
+		std::cerr << "Cannot Open File!" << std::endl;
 		return 1;
 	}
-	outFile << "Ì¨Êı" << endl;
+	outFile << "Wind Turbine Number" << endl;
 	outFile << turbines.turbNum << endl;
-	outFile << "ÀàĞÍÊı" << endl;
+	outFile << "Type Number" << endl;
 	outFile << turbines.turbTypeNum << endl;
-	outFile << "·çËÙ½×ÌİÊıÁ¿" << endl;
+	outFile << "Wind Step Number" << endl;
 	outFile << turbines.uNum << endl;
-	outFile << "×îĞ¡·çËÙ" << endl;
+	outFile << "Min Wind Speed" << endl;
 	outFile << turbines.uMin << endl;
-	outFile << "×î´ó·çËÙ" << endl;
+	outFile << "Max Wind Speed" << endl;
 	outFile << turbines.uMax << endl;
 	outFile << "x,y,z,D,type" << endl;
 
@@ -46,12 +46,12 @@ int generateTestDate(TurbCloud& turbines)
 	{
 		outFile << turbines.x0[i] << " , " << turbines.y0[i] << " , " << turbines.z0[i] << " , " << turbines.D[i] << " , " << turbines.turbType[i] << endl;
 	}
-	outFile << "Cp¡¢CtÇúÏß" << endl;
+	outFile << "Cp and Ct" << endl;
 
 	for (int i = 0; i < turbines.turbTypeNum; ++i)
 	{
-		outFile << "µÚ " << i << " ÖÖ·ç»ú" << endl;
-		outFile << "·çËÙ,Cp,Ct" << endl;
+		outFile << "Wind Turbine Type " << i << endl;
+		outFile << "Wind Speed,Cp,Ct" << endl;
 		for (int j = 0; j < turbines.uNum; ++j)
 		{
 			outFile << turbines.uWind[j] << "," << turbines.Cp[i][j] << "," << turbines.Ct[i][j] << endl;

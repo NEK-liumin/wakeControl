@@ -1,4 +1,4 @@
-#include "matrixOperation.h"
+ï»¿#include "matrixOperation.h"
 #include "iostream"
 #include "iomanip"
 #include <cmath>
@@ -177,7 +177,7 @@ int getAB(Matrix& result, Matrix& A, Matrix& B)
 	int n2 = B[0].size();
 	if (n1 != m2)
 	{
-		cout << "Ïà³ËµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸ä¹˜çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -205,7 +205,7 @@ int getAB(Matrix& A, Matrix& B)
 	int n2 = B[0].size();
 	if (n1 != m2)
 	{
-		cout << "Ïà³ËµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸ä¹˜çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -232,7 +232,7 @@ int getAB(Column& result, Matrix& A, Column& B)
 	int m2 = B.size();
 	if (n1 != m2)
 	{
-		cout << "Ïà³ËµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸ä¹˜çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -255,7 +255,7 @@ int getATB(Matrix& result, Matrix& A, Matrix& B)
 	int n2 = B[0].size();
 	if (m1 != m2)
 	{
-		cout << "Ïà³ËµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸ä¹˜çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(n1);
@@ -281,7 +281,7 @@ int getATB(Column& result, Matrix& A, Column& B)
 	int m2 = B.size();
 	if (m1 != m2)
 	{
-		cout << "Ïà³ËµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸ä¹˜çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(n1);
@@ -302,7 +302,7 @@ int getATB(double& result, Column& A, Column& B)
 	int m2 = B.size();
 	if (m1 != m2)
 	{
-		cout << "×ªÖÃÏà³ËµÄÁ½¸öÁÐÊ¸²»Æ¥Åä" << endl;
+		cout << "è½¬ç½®ç›¸ä¹˜çš„ä¸¤ä¸ªåˆ—çŸ¢ä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result = 0;
@@ -319,7 +319,7 @@ int getABT(Matrix& result, Column& A, Column& B)
 	int m2 = B.size();
 	if (m1 != m2)
 	{
-		cout << "Ïà³ËµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸ä¹˜çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -342,7 +342,7 @@ int getABT(Matrix& result, Matrix& A, Matrix& B)
 	int n2 = B[0].size();
 	if (n1 != n2)
 	{
-		cout << "Ïà³ËµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸ä¹˜çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -369,7 +369,7 @@ int getAPlusB(Matrix& result, Matrix& A, Matrix& B)
 	int n2 = B[0].size();
 	if (m1 != m2 || n1 != n2)
 	{
-		cout << "Ïà¼ÓµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸åŠ çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -390,7 +390,7 @@ int getAPlusB(Column& result, Column& A, Column& B)
 	int m2 = B.size();
 	if (m1 != m2)
 	{
-		cout << "Ïà¼ÓµÄÁ½¸öÁÐÊ¸²»Æ¥Åä" << endl;
+		cout << "ç›¸åŠ çš„ä¸¤ä¸ªåˆ—çŸ¢ä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -409,7 +409,7 @@ int getAPlusB(Matrix& A, Matrix& B)
 	int n2 = B[0].size();
 	if (m1 != m2 || n1 != n2)
 	{
-		cout << "Ïà¼ÓµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸åŠ çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	for (int i = 0; i < m1; ++i)
@@ -428,7 +428,7 @@ int getAPlusB(Column& A, Column& B)
 	int m2 = B.size();
 	if (m1 != m2)
 	{
-		cout << "Ïà¼ÓµÄÁ½¸öÁÐÊ¸²»Æ¥Åä" << endl;
+		cout << "ç›¸åŠ çš„ä¸¤ä¸ªåˆ—çŸ¢ä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	for (int i = 0; i < m1; ++i)
@@ -446,7 +446,7 @@ int getAMinusB(Matrix& result, Matrix& A, Matrix& B)
 	int n2 = B[0].size();
 	if (m1 != m2 || n1 != n2)
 	{
-		cout << "Ïà¼õµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸å‡çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -467,7 +467,7 @@ int getAMinusB(Column& result, Column& A, Column& B)
 	int m2 = B.size();
 	if (m1 != m2)
 	{
-		cout << "Ïà¼õµÄÁ½¸öÁÐÊ¸²»Æ¥Åä" << endl;
+		cout << "ç›¸å‡çš„ä¸¤ä¸ªåˆ—çŸ¢ä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	result.resize(m1);
@@ -486,7 +486,7 @@ int getAMinusB(Matrix& A, Matrix& B)
 	int n2 = B[0].size();
 	if (m1 != m2 || n1 != n2)
 	{
-		cout << "Ïà¼õµÄÁ½¸ö¾ØÕó²»Æ¥Åä" << endl;
+		cout << "ç›¸å‡çš„ä¸¤ä¸ªçŸ©é˜µä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	for (int i = 0; i < m1; ++i)
@@ -505,7 +505,7 @@ int getAMinusB(Column& A, Column& B)
 	int m2 = B.size();
 	if (m1 != m2)
 	{
-		cout << "Ïà¼õµÄÁ½¸öÁÐÊ¸²»Æ¥Åä" << endl;
+		cout << "ç›¸å‡çš„ä¸¤ä¸ªåˆ—çŸ¢ä¸åŒ¹é…" << endl;
 		return 0;
 	}
 	for (int i = 0; i < m1; ++i)
@@ -558,12 +558,12 @@ int getExtendedMatrix(Matrix& result, Matrix& A, int n)
 	int n1 = A[0].size();
 	if (m1 != n1)
 	{
-		cout << "À©Õ¹º¯ÊýÖ»ÄÜÀ©Õ¹·½Õó" << endl;
+		cout << "æ‰©å±•å‡½æ•°åªèƒ½æ‰©å±•æ–¹é˜µ" << endl;
 		return 0;
 	}
 	if (n < m1)
 	{
-		cout << "À©Õ¹ºóµÄ·½Õó²»ÄÜ±ÈÀ©Õ¹Ö®Ç°Ð¡" << endl;
+		cout << "æ‰©å±•åŽçš„æ–¹é˜µä¸èƒ½æ¯”æ‰©å±•ä¹‹å‰å°" << endl;
 		return 0;
 	}
 	if (n == m1)
@@ -601,12 +601,12 @@ int getExtendedMatrix(Matrix& A, int n)
 	int n1 = A[0].size();
 	if (m1 != n1)
 	{
-		cout << "À©Õ¹º¯ÊýÖ»ÄÜÀ©Õ¹·½Õó" << endl;
+		cout << "æ‰©å±•å‡½æ•°åªèƒ½æ‰©å±•æ–¹é˜µ" << endl;
 		return 0;
 	}
 	if (n < m1)
 	{
-		cout << "À©Õ¹ºóµÄ·½Õó²»ÄÜ±ÈÀ©Õ¹Ö®Ç°Ð¡" << endl;
+		cout << "æ‰©å±•åŽçš„æ–¹é˜µä¸èƒ½æ¯”æ‰©å±•ä¹‹å‰å°" << endl;
 		return 0;
 	}
 	if (n == m1)
@@ -721,7 +721,7 @@ int QR_decomposition(Matrix& Q, Matrix& R, Matrix& A)
 	int n = A[0].size();
 	if (m < n)
 	{
-		cout << "QR·Ö½âµÄ¾ØÕó£¬ÁÐÊý±ØÐëÐ¡ÓÚµÈÓÚÐÐÊý£¡" << endl;
+		cout << "QRåˆ†è§£çš„çŸ©é˜µï¼Œåˆ—æ•°å¿…é¡»å°äºŽç­‰äºŽè¡Œæ•°ï¼" << endl;
 		return 0;
 	}
 	getUnitMatrix(Q, m);
@@ -756,13 +756,13 @@ bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A)
 	int m = A.size();
 	if (m <= 0)
 	{
-		cout << "LDL·Ö½âµÄ¾ØÕóÖÁÉÙÐèÒªº¬ÓÐÒ»¸öÔªËØ£¡" << endl;
+		cout << "LDLåˆ†è§£çš„çŸ©é˜µè‡³å°‘éœ€è¦å«æœ‰ä¸€ä¸ªå…ƒç´ ï¼" << endl;
 		return false;
 	}
 	int n = A[0].size();
 	if (m != n)
 	{
-		cout << "LDL·Ö½âµÄ¾ØÕó±ØÐëÊÇ·½Õó" << endl;
+		cout << "LDLåˆ†è§£çš„çŸ©é˜µå¿…é¡»æ˜¯æ–¹é˜µ" << endl;
 		return false;
 	}
 	getUnitMatrix(L, m);
@@ -774,7 +774,7 @@ bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A)
 			D[j][j] -= L[j][k] * L[j][k] * D[k][k];
 		}
 
-		// ´¦ÀíD[j][j]ÎªÁãµÄÇé¿ö
+		// å¤„ç†D[j][j]ä¸ºé›¶çš„æƒ…å†µ
 		if (D[j][j] == 0) {
 			cout << "Matrix has a zero pivot at " << j+1 << ". LDL decomposition may not be possible." << endl;
 			return false;
@@ -793,7 +793,7 @@ bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A)
 
 int printA(Matrix A)
 {
-	// Îª·½±ãÕ¹Ê¾£¬½«¾ø¶ÔÖµºÜÐ¡µÄÁ¿ÏÔÊ¾Îª0
+	// ä¸ºæ–¹ä¾¿å±•ç¤ºï¼Œå°†ç»å¯¹å€¼å¾ˆå°çš„é‡æ˜¾ç¤ºä¸º0
 	int width = 15;
 	int precision = 5;
 
@@ -816,7 +816,7 @@ int printA(Matrix A)
 
 int printA(Column A)
 {
-	// Îª·½±ãÕ¹Ê¾£¬½«¾ø¶ÔÖµºÜÐ¡µÄÁ¿ÏÔÊ¾Îª0
+	// ä¸ºæ–¹ä¾¿å±•ç¤ºï¼Œå°†ç»å¯¹å€¼å¾ˆå°çš„é‡æ˜¾ç¤ºä¸º0
 	int width = 15;
 	int precision = 5;
 	int m = A.size();

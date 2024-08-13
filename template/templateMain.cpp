@@ -1,4 +1,4 @@
-#include "iostream"
+ï»¿#include "iostream"
 #include "head.h"
 using std::cout;
 using std::endl;
@@ -11,18 +11,18 @@ int main()
 	int uNum;
 	double uMin;
 	double uMax;
-	cout << "========turbinesInfoTempÎÄ¼þÉú³ÉÆ÷=========" << endl;
-	cout << "ÇëÊäÈë·ç»úÊýÁ¿" << endl;
+	cout << "========turbinesInfoTemp File Generator=========" << endl;
+	cout << "Please Enter Wind Turbine Number:" << endl;
 	cin >> turbNum;
-	cout << "ÇëÊäÈë·ç»úÖÖÀàÊý" << endl;
+	cout << "Please Enter Wind Turbine Type Number:" << endl;
 	cin >> turbTypeNum;
-	cout << "·çËÙ½×ÌÝÊý" << endl;
+	cout << "Please Enter Wind Step Number:" << endl;
 	cin >> uNum;
-	cout << "×îÐ¡·çËÙºÍ×î´ó·çËÙ" << endl;
+	cout << "Please Enter Min And Max Wind Speed:" << endl;
 	cin >> uMin >> uMax;
 	TurbCloud turbines = TurbCloud(turbNum, turbTypeNum, uNum, uMin, uMax);
 	generateTestDate(turbines);
-	cout << "=======turbinesInfoTempÎÄ¼þÉú³É½áÊø========" << endl;
-	getchar();
+	cout << "=======turbinesInfoTemp Generation Done!========" << endl;
+	std::cin.get();
 	return 0;
 }
