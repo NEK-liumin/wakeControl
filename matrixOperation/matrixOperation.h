@@ -7,6 +7,7 @@ using Column = vector<double>;
 
 const double SMALL = 1e-16;
 const double LARGE = 1e20;
+const double PI = 3.1415926;
 
 int getZeroMatrix(Matrix& result, int m, int n);
 

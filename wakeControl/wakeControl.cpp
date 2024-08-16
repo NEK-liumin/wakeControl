@@ -58,10 +58,29 @@ int main()
 
 	TurbCloud turbines = TurbCloud(36, 3, 10, 0, 20);
 	// generateTestDate(turbines);
+
+	for (int i = 0; i < turbines.turbNum; ++i)
+	{
+		turbines.gamma[i] = 20.0 / 180.0 * PI;
+	}
 	
 	Input input = Input(turbines);
 	input.readFile();
-	turbines.turbPrint();
+	
+	double ky = 0.025;
+	double kz = 0.0175;
+	double I = 0.12;
+	Gauss model = Gauss(ky, kz, I);
+
+	double u = 12;
+	double theta = 20.0 / 180.0 * PI;
+	Wake wake = Wake(turbines, u, theta);
+	wake.getWake(model);
+	printA(wake.vel);
+
+	Contour contour = Contour(turbines, true);
+	contour.set_xy();
+	contour.output_xy();
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;

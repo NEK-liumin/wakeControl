@@ -21,7 +21,7 @@ int main()
 	cout << "Please Enter Min And Max Wind Speed:" << endl;
 	cin >> uMin >> uMax;
 	TurbCloud turbines = TurbCloud(turbNum, turbTypeNum, uNum, uMin, uMax);
-	generateTestDate(turbines);
+	generateTemplate(turbines);
 	cout << "=======turbinesInfoTemp Generation Done!========" << endl;
 	std::cin.get();
 	return 0;

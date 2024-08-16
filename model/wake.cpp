@@ -4,9 +4,20 @@
 #include "matrixOperation.h"
 
 using std::vector;
-using std::pair;
-using Pair = pair<double, int>;
 using std::sort;
+
+Wake::Wake(TurbCloud& turbines, double& u, double& theta)
+{
+	this->turbines = &turbines;
+	this->newTurbines = turbines;
+	this->u = u;
+	this->theta = theta;
+	getZeroColumn(vel, turbines.turbNum);
+	x = 0;
+	y = 0;
+	z = 0;
+}
+
 
 bool compare(Pair& a, Pair& b)
 {
@@ -15,58 +26,80 @@ bool compare(Pair& a, Pair& b)
 
 int Wake::getNewCloud()
 {
-	auto ox = min_element(turbCloud->x0.begin(), turbCloud->x0.end());
-	auto oy = min_element(turbCloud->y0.begin(), turbCloud->y0.end());
-	auto oz = min_element(turbCloud->z0.begin(), turbCloud->z0.end());
+	auto ox = min_element(turbines->x0.begin(), turbines->x0.end());
+	auto oy = min_element(turbines->y0.begin(), turbines->y0.end());
+	auto oz = min_element(turbines->z0.begin(), turbines->z0.end());
 
-	for (int i = 0; i < turbCloud->turbNum; ++i)
+	for (int i = 0; i < turbines->turbNum; ++i)
 	{
 		double xTemp, yTemp;
-		xTemp = turbCloud->x0[i] - *ox;
-		yTemp = turbCloud->y0[i] - *oy;
+		xTemp = turbines->x0[i] - *ox;
+		yTemp = turbines->y0[i] - *oy;
 
-		newCloud.x0[i] = xTemp * cos(theta) + yTemp * sin(theta);
-		newCloud.y0[i] = -xTemp * sin(theta) + yTemp * cos(theta);
-		newCloud.z0[i] = turbCloud->z0[i] - *oz;
+		newTurbines.x0[i] = xTemp * cos(theta) + yTemp * sin(theta);
+		newTurbines.y0[i] = -xTemp * sin(theta) + yTemp * cos(theta);
+		newTurbines.z0[i] = turbines->z0[i] - *oz;
 	}
 
-	vector<Pair> index(turbCloud->turbNum);
-	for (int i = 0; i < turbCloud->turbNum; ++i)
+	index.resize(turbines->turbNum);
+	for (int i = 0; i < turbines->turbNum; ++i)
 	{
-		index[i] = { newCloud.x0[i],i };
+		index[i] = { newTurbines.x0[i],i };
 	}
 	sort(index.begin(), index.end(), compare);
 
-	Column temp1;
+	Column temp1 = turbines->x0;
 
-	for (int i = 0; i < turbCloud->turbNum; ++i)
+	for (int i = 0; i < turbines->turbNum; ++i)
 	{
-		temp1[i] = newCloud.x0[index[i].second];
+		temp1[i] = newTurbines.x0[index[i].second];
 	}
-	newCloud.x0 = temp1;
-	for (int i = 0; i < turbCloud->turbNum; ++i)
+	newTurbines.x0 = temp1;
+	for (int i = 0; i < turbines->turbNum; ++i)
 	{
-		temp1[i] = newCloud.y0[index[i].second];
+		temp1[i] = newTurbines.y0[index[i].second];
 	}
-	newCloud.y0 = temp1;
-	for (int i = 0; i < turbCloud->turbNum; ++i)
+	newTurbines.y0 = temp1;
+	for (int i = 0; i < turbines->turbNum; ++i)
 	{
-		temp1[i] = newCloud.z0[index[i].second];
+		temp1[i] = newTurbines.z0[index[i].second];
 	}
-	newCloud.z0 = temp1;
+	newTurbines.z0 = temp1;
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		temp1[i] = newTurbines.D[index[i].second];
+	}
+	newTurbines.D = temp1;
+	//不需要对偏航角度排序
+	//因为偏航角是直接在newTurbines上设置的
+	//但是
+	//计算结束后
+	//偏航角需要重新按照最初的turbines重新排序
+	vector<int>temp2 = turbines->turbType;
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		temp2[i] = newTurbines.turbType[index[i].second];
+	}
+	newTurbines.turbType = temp2;
+	return 0;
+}
 
+int Wake::getWake(Model& model)
+{
+	getNewCloud();
+	model.getWake(vel, newTurbines, u);
+	return 0;
+}
 
-	Matrix temp2;
-	for (int i = 0; i < turbCloud->turbNum; ++i)
+int Wake::restoreGamma()
+{
+	Column velTemp;
+	velTemp = vel;
+	for (int i = 0; i < turbines->turbNum; ++i)
 	{
-		temp2[i] = newCloud.Cp[index[i].second];
+		int j = index[i].second;
+		velTemp[i] = vel[j];
 	}
-	newCloud.Cp = temp2;
-
-	for (int i = 0; i < turbCloud->turbNum; ++i)
-	{
-		temp2[i] = newCloud.Ct[index[i].second];
-	}
-	newCloud.Ct = temp2;
+	vel = velTemp;
 	return 0;
 }

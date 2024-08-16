@@ -9,7 +9,7 @@ using std::ofstream;
 using std::cout;
 using std::endl;
 
-int generateTestDate(TurbCloud& turbines)
+int generateTemplate(TurbCloud& turbines)
 {
 	// 假设一共36台风机
 	// 假设一共三种风机

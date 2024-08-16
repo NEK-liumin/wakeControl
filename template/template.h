@@ -3,6 +3,6 @@
 
 #include "turbCloud.h"
 
-int generateTestDate(TurbCloud& turbines);
+int generateTemplate(TurbCloud& turbines);
 
 #endif // !TURBCLOUDGENERATION_H

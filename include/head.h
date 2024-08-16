@@ -9,6 +9,9 @@
 #include "usr.h"
 #include "turbCloud.h"
 #include "input.h"
-#include "turbCloudGeneration.h"
 #include "template.h"
+#include "model.h"
+#include "Gauss.h"
+#include "wake.h"
+#include "contour.h"
 #endif // !HEAD_H

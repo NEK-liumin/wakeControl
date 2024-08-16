@@ -135,4 +135,5 @@ int TurbCloud::turbPrint()
 	}
 
 	outFile.close();
+	return 0;
 }

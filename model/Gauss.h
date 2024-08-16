@@ -2,26 +2,36 @@
 #define GAUSS_H
 #include "model.h"
 #include <math.h>
+#include <iostream>
+using std::cout;
+using std::endl;
 // [1] Experimental and theoretical study of wind turbine wakes in yawed conditions
 // [2] Control-oriented model for secondary effects of wake steering
-class Gauss :public model
+class Gauss :public Model
 {
 public:
+	Gauss(double& ky, double& kz, double& I)
+	{
+		this->ky = ky;
+		this->kz = kz;
+		this->I = I;
+	}
 	int getC(double& C, double& Ct, double& sigmay0, double& sigmay, double& sigmaz0, double& sigmaz)
 	{
 		C = 1 - sqrt(1 - (sigmay0 * sigmaz0) * Ct / sigmay / sigmaz);
 		return 0;
 	}
-	int getUg(double& Ug, double& Uinf,double& C, double& yTurb, double& zTurb, double& y, double& z, double& delta, double& sigmay, double& simgaz)
+	int getUg(double& Ug, double& Uinf,double& C, double& yTurb, double& zTurb, double& y, double& z, double& delta, double& sigmay, double& sigmaz)
 	{
 		Ug = Uinf * (1 - C * exp(-((y - yTurb - delta) * (y - yTurb - delta)) / (2 * sigmay * sigmay))
-				  * exp(-((z - zTurb) * (z - zTurb)) / (2 * sigmaz * sigmaz));
+				  * exp(-((z - zTurb) * (z - zTurb)) / (2 * sigmaz * sigmaz)));
+		
 		return 0;
 	}
 	int getSigma0(double& sigmaz0, double& sigmay0, double& D, double& uR, double& Uinf, double& u0, double& gamma)
 	{
 		sigmaz0 = D * 0.5 * sqrt(uR / (Uinf + u0));
-		sigmay0 = sigmaz0 * gamma;
+		sigmay0 = sigmaz0 * cos(gamma);
 		return 0;
 	}
 	int getSigma(double& sigmaz, double& sigmay, double& sigmaz0, double& sigmay0, double& xTurb, double& x0, double& x)
@@ -43,7 +53,7 @@ public:
 	int getDelta0(double& delta0, double& gamma, double& Ct,double& x0)
 	{
 		double theta;
-		theta = 0.3 * gamma / cos(gamma) * (1 - sqrt(1 - ct * cos(gamma)));
+		theta = 0.3 * gamma / cos(gamma) * (1 - sqrt(1 - Ct * cos(gamma)));
 		delta0 = x0 * tan(theta);
 		return 0;
 	}
@@ -68,7 +78,7 @@ public:
 		double u0;
 		double C;
 		double delta0, delta;
-		getX0(x0, D, gamma, ct, I);
+		getX0(x0, D, gamma, Ct, I);
 
 		
 		// 当前位置位于风机上游，不受该风机影响
@@ -84,10 +94,10 @@ public:
 			return 0;
 		}
 		// 如果台风机距离过近，风速衰减将非常强烈
-		getU0(u0, Uinf, ct);
+		getU0(u0, Uinf, Ct);
 		if (x - xTurb < x0 && abs(y-yTurb) < 2 * D && abs(z - zTurb) < 2 * D)
 		{
-			cout << "风机距离过近！" << endl;
+			std::cout << "风机距离过近！" << std::endl;
 			vel = u0;
 			return 0;
 		}
@@ -96,27 +106,28 @@ public:
 		getSigma(sigmaz, sigmay, sigmaz0, sigmay0, xTurb, x0, x);
 		getC(C, Ct, sigmay0, sigmay, sigmaz0, sigmaz);
 		getDelta0(delta0, gamma, Ct, x0);
-		getDelta(delta, delta0, gamma, sigmay0, sigmaz0, sigmay, sigmaz, ct, u0, Uinf);
+		getDelta(delta, delta0, gamma, sigmay0, sigmaz0, sigmay, sigmaz, Ct, u0, Uinf);
 		getUg(vel, Uinf, C, yTurb, zTurb, y, z, delta, sigmay, sigmaz);
+		return 0;
 	}
 	int getWake(Column& vel, TurbCloud& turbs, double& uWind)
 	{
-		Column wake(turbs.turbNum) = { 0 };
-		Column sumWake(turbs.turbNum) = { 0 };
+		Column wake(turbs.turbNum, 0);
+		Column sumWake(turbs.turbNum, 0);
 		for (int i = 0; i < turbs.turbNum; ++i)
 		{
 			vel[i] = uWind;
 		}
 		for (int i = 0; i < turbs.turbNum; ++i)
 		{
+			double Ct;
+			int k = turbs.turbType[i];
+			turbs.getCt(Ct, vel[i], k);
 			for (int j = i + 1; j < turbs.turbNum; ++j)
 			{
-				getVel(wake[j], turbs.D[i], turbs.Ct[i], turbs.x0[i], turbs.y0[i], turbs.z0[i], turbs.gamma[i], vel[i], uWind, turbs.x0[j], turbs.y0[j], turbs.z0[j]);
+				getVel(wake[j], turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], turbs.gamma[i], vel[i], uWind, turbs.x0[j], turbs.y0[j], turbs.z0[j]);
 				sumWake[j] += (1 - wake[j] / uWind) * (1 - wake[j] / uWind);
 			}
-		}
-		for (int i = 0; i < turbs.turbNum; ++i)
-		{
 			vel[i] = (1 - sqrt(sumWake[i])) * uWind;
 		}
 		return 0;

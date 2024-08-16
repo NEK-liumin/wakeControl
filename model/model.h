@@ -2,8 +2,9 @@
 #define MODEL_H
 #include "turbCloud.h"
 #include "matrixOperation.h"
+#include <iostream>
 
-class model
+class Model
 {
 public:
 	double kz; // 垂直方向上的尾流膨胀率

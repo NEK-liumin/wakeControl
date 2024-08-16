@@ -6,7 +6,7 @@ class TurbCloud
 {
 public:
 	int turbNum; // 风机数量
-	int turbTypeNum; // 风机种类
+	int turbTypeNum; // 风机种类数
 	// 风机叶轮直径
 	Column D;
 	// 风机原坐标
@@ -27,6 +27,8 @@ public:
 	Matrix Cp;
 	// 不同风速下风机的推力系数
 	Matrix Ct;
+
+	TurbCloud() {};
 
 	TurbCloud(int turbNum, int turbTypeNum, int uNum, double uMin, double uMax)
 	{
