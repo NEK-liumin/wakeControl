@@ -14,4 +14,7 @@
 #include "Gauss.h"
 #include "wake.h"
 #include "contour.h"
+#include "tecplot.h"
+#include "simulation.h"
+
 #endif // !HEAD_H

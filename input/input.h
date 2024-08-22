@@ -7,6 +7,7 @@ class Input
 {
 public:
 	TurbCloud* turbines;
+	Input() {};
 	Input(TurbCloud& turbines)
 	{
 		this->turbines = &turbines;

@@ -43,7 +43,7 @@ void test2()
 
 int main()
 {
-	cout << "开始进行偏航矩阵计算" << endl;
+	
 	auto start = std::chrono::high_resolution_clock::now();
 	// https://www.bilibili.com/video/BV1XT411x7ig/?spm_id_from=333.788&vd_source=22351688aa00db029a949c880636bc36
 	// 例12.3
@@ -55,37 +55,30 @@ int main()
 	// https://www.bilibili.com/video/BV1JK4y1z7AA/?spm_id_from=333.337.search-card.all.click&vd_source=22351688aa00db029a949c880636bc36
 	// 例9.8
 	//test2();
-
-	TurbCloud turbines = TurbCloud(36, 3, 10, 0, 20);
-	// generateTestDate(turbines);
-
-	for (int i = 0; i < turbines.turbNum; ++i)
+	// 
+// 定义偏航角
+	Column gamma360;
+	gamma360.resize(5);
+	for (int i = 0; i < 5; ++i)
 	{
-		turbines.gamma[i] = 20.0 / 180.0 * PI;
+		gamma360[i] = 20.0;
 	}
-	
-	Input input = Input(turbines);
-	input.readFile();
-	
+// 定义尾流模型
 	double ky = 0.025;
 	double kz = 0.0175;
 	double I = 0.12;
 	Gauss model = Gauss(ky, kz, I);
-
-	double u = 12;
-	double theta = 20.0 / 180.0 * PI;
-	Wake wake = Wake(turbines, u, theta);
-	wake.getWake(model);
-	printA(wake.vel);
-
-	Contour contour = Contour(turbines, true);
-	contour.set_xy();
-	contour.output_xy();
-
+// 定义风速、风向
+	double wind = 8.0;
+	double theta360 = 120.0;
+// 计算尾流
+	cout << "开始进行尾流计算" << endl;
+	Simulation simulation = Simulation(wind, theta360, gamma360, model, true);
+	cout << "尾流计算结束" << endl;
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;
 	cout << "程序运行时间：" << duration.count() << " 秒" << endl;
-	cout << "计算结束" << endl;
+	
 	std::cin.get();
 	return 0;
 }

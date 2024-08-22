@@ -31,6 +31,8 @@ include_directories(${PROJECT_SOURCE_DIR}/usr)
 include_directories(${PROJECT_SOURCE_DIR}/turbCloud)
 include_directories(${PROJECT_SOURCE_DIR}/input)
 include_directories(${PROJECT_SOURCE_DIR}/template)
+include_directories(${PROJECT_SOURCE_DIR}/tecplot)
+include_directories(${PROJECT_SOURCE_DIR}/simulation)
 #子目录
 add_subdirectory(matrixOperation)
 add_subdirectory(model)
@@ -42,16 +44,8 @@ add_subdirectory(turbCloud)
 add_subdirectory(input)
 add_subdirectory(wakeControl)
 add_subdirectory(template)
-
-link_directories(${LIBPATH})
-link_libraries(model)
-link_libraries(matrixOperation)
-link_libraries(solver)
-link_libraries(usr)
-link_libraries(turbCloud)
-link_libraries(input)
-
-
+add_subdirectory(tecplot)
+add_subdirectory(simulation)
 
 # 将源代码添加到此项目的可执行文件。
 #set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)

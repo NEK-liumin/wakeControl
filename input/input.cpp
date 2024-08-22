@@ -69,6 +69,7 @@ int Input::readFile()
     turbines->z0.resize(turbines->turbNum);
     turbines->D.resize(turbines->turbNum);
     turbines->turbType.resize(turbines->turbNum);
+    turbines->gamma.resize(turbines->turbNum);
 
     // 读取每个风机的位置、叶轮直径、风机种类
     std::getline(file, line);

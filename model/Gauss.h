@@ -34,10 +34,12 @@ public:
 		sigmay0 = sigmaz0 * cos(gamma);
 		return 0;
 	}
-	int getSigma(double& sigmaz, double& sigmay, double& sigmaz0, double& sigmay0, double& xTurb, double& x0, double& x)
+	int getSigma(double& sigmaz, double& sigmay, double& sigmaz0, double& sigmay0, double& xTurb, double& x)
 	{
-		sigmaz = kz * (x - xTurb - x0) + sigmaz0;
-		sigmay = ky * (x - xTurb - x0) + sigmay0;
+		/*sigmaz = kz * (x - xTurb - x0) + sigmaz0;
+		sigmay = ky * (x - xTurb - x0) + sigmay0;*/
+		sigmaz = kz * (x - xTurb) + sigmaz0;
+		sigmay = ky * (x - xTurb) + sigmay0;
 		return 0;
 	}
 	int getU0(double& u0, double& Uinf, double& ct)
@@ -50,11 +52,19 @@ public:
 		x0 = D * ((cos(gamma) * (1 + sqrt(1 - ct))) / (1.414214 * (2.32 * I + 0.154 * (1 - sqrt(1 - ct)))));
 		return 0;
 	}
-	int getDelta0(double& delta0, double& gamma, double& Ct,double& x0)
+	int getTheta(double& theta, double& gamma, double& Ct)
 	{
-		double theta;
 		theta = 0.3 * gamma / cos(gamma) * (1 - sqrt(1 - Ct * cos(gamma)));
+		return 0;
+	}
+	int getDelta0(double& delta0, double& x0, double& theta)
+	{
 		delta0 = x0 * tan(theta);
+		return 0;
+	}
+	int getDelta(double& delta, double & xTurb, double& x, double& theta)
+	{
+		delta = (x - xTurb) * tan(theta);
 		return 0;
 	}
 	int getDelta(double& delta, double& delta0, double& gamma, double& sigmay0, double& sigmaz0, double& sigmay, double& sigmaz, double& ct, double& u0, double& Uinf)
@@ -70,6 +80,24 @@ public:
 		delta = delta0 + gamma * E0 / 5.2 * sqrt(sigmay0 * sigmaz0 / ky / kz / ct) * log(((1.6 + sqrtCt) * (1.6 * sqrtSimma - sqrtCt)) / ((1.6 - sqrtCt) * (1.6 * sqrtSimma + sqrtCt)));
 		return 0;
 	}
+	//int getDelta2(double& delta, double& delta0, double& gamma, double& sigmay0, double& sigmaz0, double& sigmay, double& sigmaz, double& ct, double& u0, double& Uinf, double& D, double& theta)
+	//{
+	//	double sqrtCt;
+	//	double sqrtSimma;
+	//	double temp1, temp2, temp3, temp4, temp5, temp6, temp7;
+	//	sqrtCt = sqrt(ct);
+	//	sqrtSimma = sqrt(sigmay * sigmaz / sigmay0 / sigmaz0);
+	//	temp1 = sqrt(cos(gamma) / ky / kz / ct);
+	//	temp2 = 2.9 + 1.3 * sqrt(1 - ct) - ct;
+	//	temp3 = 1.6 + sqrt(ct);
+	//	temp4 = 1.6 - sqrt(ct);
+	//	temp5 = 1.6 * sqrt(8 * sigmay * sigmaz / D / D / cos(gamma));
+	//	temp6 = temp5 - sqrtCt;
+	//	temp7 = temp5 + sqrtCt;
+	//	delta = delta0 + theta / 14.7 * temp1 * temp2 * log((temp3 * temp6) / (temp4 * temp7));
+	//	// delta = delta0 + gamma * E0 / 5.2 * sqrt(sigmay0 * sigmaz0 / ky / kz / ct) * log(((1.6 + sqrtCt) * (1.6 * sqrtSimma - sqrtCt)) / ((1.6 - sqrtCt) * (1.6 * sqrtSimma + sqrtCt)));
+	//	return 0;
+	//}
 	int getVel(double& vel, double& D, double& Ct, double& xTurb, double& yTurb, double& zTurb, double& gamma, double& uR, double& Uinf, double&x,double&y,double&z)
 	{
 		double sigmaz0, sigmay0;
@@ -78,38 +106,36 @@ public:
 		double u0;
 		double C;
 		double delta0, delta;
+		double theta;
 		getX0(x0, D, gamma, Ct, I);
 
 		
 		// 当前位置位于风机上游，不受该风机影响
 		if (x < xTurb)
 		{
-			vel = uR;
-			return 0;
-		}
-		// 当两台风机在x方向上很近，但在y方向和z方向上距离较远时，假设互不影响
-		if (x - xTurb < x0 && (abs(y - yTurb) > 2 * D || abs(z - zTurb) > 2 * D))
-		{
-			vel = uR;
-			return 0;
-		}
-		// 如果台风机距离过近，风速衰减将非常强烈
-		getU0(u0, Uinf, Ct);
-		if (x - xTurb < x0 && abs(y-yTurb) < 2 * D && abs(z - zTurb) < 2 * D)
-		{
-			std::cout << "风机距离过近！" << std::endl;
-			vel = u0;
+			vel = Uinf;
 			return 0;
 		}
 		
+		getU0(u0, Uinf, Ct);
+		
 		getSigma0(sigmaz0, sigmay0, D, uR, Uinf, u0, gamma);
-		getSigma(sigmaz, sigmay, sigmaz0, sigmay0, xTurb, x0, x);
+		getSigma(sigmaz, sigmay, sigmaz0, sigmay0, xTurb, x);
 		getC(C, Ct, sigmay0, sigmay, sigmaz0, sigmaz);
-		getDelta0(delta0, gamma, Ct, x0);
+		getTheta(theta, gamma, Ct);
+
+		getDelta0(delta0, x0, theta);
+
 		getDelta(delta, delta0, gamma, sigmay0, sigmaz0, sigmay, sigmaz, Ct, u0, Uinf);
+
 		getUg(vel, Uinf, C, yTurb, zTurb, y, z, delta, sigmay, sigmaz);
 		return 0;
 	}
+	
+	// 这里turbs中得风机必须已经按照x0从小到大排序好了
+	// 然后，计算每一个风机处的风速
+	// 计算尾流的时候，只计算当前风机上风向的风机的尾流影响
+	// 所以，j = i + 1
 	int getWake(Column& vel, TurbCloud& turbs, double& uWind)
 	{
 		Column wake(turbs.turbNum, 0);
@@ -130,6 +156,25 @@ public:
 			}
 			vel[i] = (1 - sqrt(sumWake[i])) * uWind;
 		}
+		return 0;
+	}
+	int getWake(double& meshVel, Column& turbVel, TurbCloud& turbs, double& uWind, double& x, double& y, double& z)
+	{
+		double wake = 0;
+		double sumWake = 0;
+		meshVel = uWind;
+		for (int i = 0; i < turbs.turbNum; ++i)
+		{
+			if (x > turbs.x0[i])
+			{
+				double Ct;
+				int k = turbs.turbType[i];
+				turbs.getCt(Ct, turbVel[i], k);
+				getVel(wake, turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], turbs.gamma[i], turbVel[i], uWind, x, y, z);
+				sumWake += (1 - wake / uWind) * (1 - wake / uWind);
+			}
+		}
+		meshVel = (1 - sqrt(sumWake)) * uWind;
 		return 0;
 	}
 };

@@ -10,6 +10,8 @@ link_libraries(solver)
 link_libraries(usr)
 link_libraries(turbCloud)
 link_libraries(input)
+link_libraries(tecplot)
+link_libraries(simulation)
 
 set(EXECUTABLE_OUTPUT_PATH ${WAKECONTROL}/bin)
 add_executable (wakeControl ${SRC})

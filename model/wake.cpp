@@ -6,6 +6,27 @@
 using std::vector;
 using std::sort;
 
+int Wake::xyzMin()
+{
+	auto ox = min_element(turbines->x0.begin(), turbines->x0.end());
+	auto oy = min_element(turbines->y0.begin(), turbines->y0.end());
+	auto oz = min_element(turbines->z0.begin(), turbines->z0.end());
+	xmin = *ox;
+	ymin = *oy;
+	zmin = *oz;
+	return 0;
+}
+int Wake::xyz_transformation(double& x, double& y, double& z)
+{
+	double xTemp, yTemp;
+	xTemp = x - xmin;
+	yTemp = y - ymin;
+	x1 = xTemp * cos(theta) + yTemp * sin(theta);
+	y1 = -xTemp * sin(theta) + yTemp * cos(theta);
+	z1 = z - zmin;
+	return 0;
+}
+
 Wake::Wake(TurbCloud& turbines, double& u, double& theta)
 {
 	this->turbines = &turbines;
@@ -13,9 +34,7 @@ Wake::Wake(TurbCloud& turbines, double& u, double& theta)
 	this->u = u;
 	this->theta = theta;
 	getZeroColumn(vel, turbines.turbNum);
-	x = 0;
-	y = 0;
-	z = 0;
+	newVel = vel;
 }
 
 
@@ -26,19 +45,17 @@ bool compare(Pair& a, Pair& b)
 
 int Wake::getNewCloud()
 {
-	auto ox = min_element(turbines->x0.begin(), turbines->x0.end());
-	auto oy = min_element(turbines->y0.begin(), turbines->y0.end());
-	auto oz = min_element(turbines->z0.begin(), turbines->z0.end());
+	xyzMin();
 
 	for (int i = 0; i < turbines->turbNum; ++i)
 	{
 		double xTemp, yTemp;
-		xTemp = turbines->x0[i] - *ox;
-		yTemp = turbines->y0[i] - *oy;
+		xTemp = turbines->x0[i] - xmin;
+		yTemp = turbines->y0[i] - ymin;
 
 		newTurbines.x0[i] = xTemp * cos(theta) + yTemp * sin(theta);
 		newTurbines.y0[i] = -xTemp * sin(theta) + yTemp * cos(theta);
-		newTurbines.z0[i] = turbines->z0[i] - *oz;
+		newTurbines.z0[i] = turbines->z0[i] - zmin;
 	}
 
 	index.resize(turbines->turbNum);
@@ -87,19 +104,29 @@ int Wake::getNewCloud()
 int Wake::getWake(Model& model)
 {
 	getNewCloud();
-	model.getWake(vel, newTurbines, u);
+	model.getWake(newVel, newTurbines, u);
+	restoreVel();
 	return 0;
 }
-
-int Wake::restoreGamma()
+int Wake::getWake(double& meshVel, double& x, double& y, double& z, Model& model)
 {
-	Column velTemp;
-	velTemp = vel;
+	getWake(model);
+	xyz_transformation(x, y, z);
+	model.getWake(meshVel, newVel, newTurbines, u, x1, y1, z1);
+	return 0;
+}
+// 恢复Vel的排序
+int Wake::restoreVel()
+{
+	vel = newVel;
 	for (int i = 0; i < turbines->turbNum; ++i)
 	{
 		int j = index[i].second;
-		velTemp[i] = vel[j];
+		vel[i] = newVel[j];
 	}
-	vel = velTemp;
+	return 0;
+}
+int Wake::restoreGamma()
+{
 	return 0;
 }

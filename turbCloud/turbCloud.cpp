@@ -69,7 +69,8 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 {
 	if (velo_i < uWind[0] || velo_i > uWind[uNum - 1])
 	{
-		cout << "风机无法在该风速下进行工作" << endl;
+		ct_i = 0;
+		// cout << "风机无法在该风速下进行工作" << endl;
 		return 0;
 	}
 	if (velo_i == uWind[0])
@@ -94,6 +95,10 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 	double delta1 = velo_i - uWind[j];
 	double delta2 = uWind[j + 1] - velo_i;
 	ct_i = (Ct[type_i][j] * delta2 + Ct[type_i][j + 1] * delta1) / delta;
+	if (ct_i < 0)
+	{
+		ct_i = 0;
+	}
 	return 0;
 }
 

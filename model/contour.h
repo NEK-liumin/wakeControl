@@ -1,18 +1,23 @@
 #ifndef CONTOUR_H
 #define CONTOUR_H
 #include "turbCloud.h"
+#include "wake.h"
+
 class Contour
 {
 private:
-	TurbCloud* turbines;
+	Wake* wake;
 	bool is2D;
 	int nI, nJ, nK;
 public:
 	vector<vector<vector<double>>> x;
 	vector<vector<vector<double>>> y;
 	vector<vector<vector<double>>> z;
-	Contour(TurbCloud& turbines, bool is2D);
+	vector<vector<vector<double>>> vel;
+	Contour(Wake& wake, bool is2D);
 	int set_xy();
+	int get_vel(Model& model);
+	int output2D();
 	int set_xyz();
 	int output_xy();
 };
