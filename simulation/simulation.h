@@ -13,6 +13,7 @@ public:
 	// turbinesInfo.csv is needed
 	// input wind velocity, wind theta, yaw angles, model and isPlot
 	// then, simulation run!
-	Simulation(double& wind, double& theta360, Column& gamma, Model& model, bool isPlot);
+	Simulation();
+	int run(double& wind, double& theta360, Column& gamma, Model& model, bool isPlot);
 };
 #endif // !SIMULATION_H

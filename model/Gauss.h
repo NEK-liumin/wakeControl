@@ -7,6 +7,8 @@ using std::cout;
 using std::endl;
 // [1] Experimental and theoretical study of wind turbine wakes in yawed conditions
 // [2] Control-oriented model for secondary effects of wake steering
+
+// 高斯尾流模型
 class Gauss :public Model
 {
 public:

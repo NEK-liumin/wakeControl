@@ -57,11 +57,12 @@ int main()
 	//test2();
 	// 
 // 定义偏航角
+	int turbNum = 36; // 风机数量。必须与输入文件中的风机数量一致
 	Column gamma360;
-	gamma360.resize(5);
-	for (int i = 0; i < 5; ++i)
+	gamma360.resize(turbNum);
+	for (int i = 0; i < turbNum; ++i)
 	{
-		gamma360[i] = 20.0;
+		gamma360[i] = 10.0;
 	}
 // 定义尾流模型
 	double ky = 0.025;
@@ -70,10 +71,13 @@ int main()
 	Gauss model = Gauss(ky, kz, I);
 // 定义风速、风向
 	double wind = 8.0;
-	double theta360 = 120.0;
+	double theta360 = 220.0;
+// 是否输出云图
+	bool isPlot = false;
 // 计算尾流
 	cout << "开始进行尾流计算" << endl;
-	Simulation simulation = Simulation(wind, theta360, gamma360, model, true);
+	Simulation simulation;
+	simulation.run(wind, theta360, gamma360, model, isPlot);
 	cout << "尾流计算结束" << endl;
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;
