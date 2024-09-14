@@ -55,30 +55,54 @@ int main()
 	// https://www.bilibili.com/video/BV1JK4y1z7AA/?spm_id_from=333.337.search-card.all.click&vd_source=22351688aa00db029a949c880636bc36
 	// 例9.8
 	//test2();
-	// 
+
+// 定义空气密度
+	double rho = 1.225;
 // 定义偏航角
-	int turbNum = 36; // 风机数量。必须与输入文件中的风机数量一致
+	int turbNum = 33; // 风机数量。必须与输入文件中的风机数量一致
 	Column gamma360;
 	gamma360.resize(turbNum);
 	for (int i = 0; i < turbNum; ++i)
 	{
-		gamma360[i] = 10.0;
+		gamma360[i] = 30.0;
 	}
 // 定义尾流模型
 	double ky = 0.025;
 	double kz = 0.0175;
 	double I = 0.12;
-	Gauss model = Gauss(ky, kz, I);
+	Gauss3 model = Gauss3(ky, kz, I);
 // 定义风速、风向
-	double wind = 8.0;
-	double theta360 = 220.0;
+	double wind = 7.0;
+	double theta360 = 90.0;
 // 是否输出云图
-	bool isPlot = false;
+	bool isPlot = true;
 // 计算尾流
 	cout << "开始进行尾流计算" << endl;
-	Simulation simulation;
-	simulation.run(wind, theta360, gamma360, model, isPlot);
+	// Simulation simulation(wind, theta360, model);
+	// simulation.run(gamma360, isPlot);
 	cout << "尾流计算结束" << endl;
+// 定义优化问题
+	Yaw yaw = Yaw(wind, theta360, rho, model);
+
+	/*for (int i = 0; i < 36; i++)
+	{
+		yaw.x[i] = 0.0;
+	}*/
+	yaw.get_f();
+	cout << yaw.f << endl;
+	double tol = 1.0e-5;
+	SQPIC_solver(yaw, tol);
+	yaw.outputGamma(gamma360);
+	printA(gamma360);
+	yaw.get_f();
+	cout << yaw.f << endl;
+    Simulation simulation(wind, theta360, model);
+    simulation.run(gamma360, isPlot);
+
+	/*printA(yaw.g);
+	cout << yaw.f << endl;*/
+	/*printA(yaw.ci);
+	printA(yaw.Ji);*/
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;
 	cout << "程序运行时间：" << duration.count() << " 秒" << endl;

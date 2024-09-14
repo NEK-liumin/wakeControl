@@ -7,6 +7,30 @@ using std::ofstream;
 using std::cout;
 using std::endl;
 
+int TurbCloud::init(int turbNum, int turbTypeNum, int uNum, double uMin, double uMax)
+{
+	this->turbNum = turbNum;
+	this->turbTypeNum = turbTypeNum;
+	this->uNum = uNum;
+	this->uMin = uMin;
+	this->uMax = uMax;
+	getZeroColumn(D, turbNum);
+	getZeroColumn(x0, turbNum);
+	getZeroColumn(y0, turbNum);
+	getZeroColumn(z0, turbNum);
+	turbType.resize(turbNum);
+
+	getZeroColumn(uWind, uNum);
+
+	for (int i = 0; i < uNum; ++i)
+	{
+		uWind[i] = uMin + (uMax - uMin) / (uNum - 1) * i;
+	}
+
+	getZeroMatrix(Cp, turbTypeNum, uNum);
+	getZeroMatrix(Ct, turbTypeNum, uNum);
+	return 0;
+}
 int TurbCloud::setPosi(int turbNum, Column& x0, Column& y0, Column& z0)
 {
 	if (x0.size() != turbNum || y0.size() != turbNum || z0.size() != turbNum)
@@ -101,7 +125,31 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 	}
 	return 0;
 }
-
+int TurbCloud::getPower(double& power, Column& vel, double& rho)
+{
+	power = 0.0;
+	double cp_i;
+	for (int i = 0; i < turbNum; ++i)
+	{
+		getCp(cp_i, vel[i], turbType[i]);
+		power += 0.5 * cp_i * rho * (0.25 * PI * D[i] * D[i]) * pow(vel[i] * cos((*gamma)[i]), 3);
+	}
+	return 0;
+}
+//
+int TurbCloud::getPower(double& power, Column& vel)
+{
+	power = 0.0;
+	double pc_i; // 这里实际上调用的是功率曲线，而不是功率系数曲线
+	double vel_axial;
+	for (int i = 0; i < turbNum; ++i)
+	{
+		vel_axial = vel[i] * cos((*gamma)[i]);
+		getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+		power += pc_i; // 单位是kw
+	}
+	return 0;
+}
 int TurbCloud::turbPrint()
 {
 	ofstream outFile("turbinesInfo_check.csv");

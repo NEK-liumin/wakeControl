@@ -14,7 +14,7 @@ public:
 	Column y0;
 	Column z0;
 
-	Column gamma; // 风机的偏航角度
+	Column* gamma; // 风机的偏航角度（在优化问题中，偏航角度一般作为输入量。为了避免对其进行赋值操作，这里定义为指针）
 
 	vector<int> turbType;
 
@@ -28,20 +28,28 @@ public:
 	// 不同风速下风机的推力系数
 	Matrix Ct;
 
-	TurbCloud() {};
+	TurbCloud() 
+	{
+		gamma = nullptr;
+		turbNum = 0;
+		turbTypeNum = 0;
+		uMin = 0;
+		uMax = 0;
+		uNum = 0;
+	};
 
 	TurbCloud(int turbNum, int turbTypeNum, int uNum, double uMin, double uMax)
+		:turbNum(turbNum),
+		turbTypeNum(turbTypeNum),
+		uNum(uNum),
+		uMin(uMin),
+		uMax(uMax),
+		gamma(nullptr)
 	{
-		this->turbNum = turbNum;
-		this->turbTypeNum = turbTypeNum;
-		this->uNum = uNum;
-		this->uMin = uMin;
-		this->uMax = uMax;
 		getZeroColumn(D, turbNum);
 		getZeroColumn(x0, turbNum);
 		getZeroColumn(y0, turbNum);
 		getZeroColumn(z0, turbNum);
-		getZeroColumn(gamma, turbNum);
 		turbType.resize(turbNum);
 
 		getZeroColumn(uWind, uNum);
@@ -53,10 +61,8 @@ public:
 
 		getZeroMatrix(Cp, turbTypeNum, uNum);
 		getZeroMatrix(Ct, turbTypeNum, uNum);
-
-
 	}
-	
+	int init(int turbNum, int turbTypeNum, int uNum, double uMin, double uMax);
 	int setD(Column& D);
 	int setD(double& D);
 
@@ -65,7 +71,8 @@ public:
 	int setCoef(Matrix& Cp, Matrix& Ct);
 	int getCp(double& cp_i, double& velo, int& type_i);
 	int getCt(double& ct_i, double& velo, int& type_i);
-	
+	int getPower(double& power, Column& vel, double& rho);
+	int getPower(double& power, Column& vel);
 	int turbPrint();
 };
 #endif // !TURBCLOUD_H

@@ -46,12 +46,12 @@ int generateTemplate(TurbCloud& turbines)
 	{
 		outFile << turbines.x0[i] << " , " << turbines.y0[i] << " , " << turbines.z0[i] << " , " << turbines.D[i] << " , " << turbines.turbType[i] << endl;
 	}
-	outFile << "Cp and Ct" << endl;
+	outFile << "Pc and Ct" << endl;
 
 	for (int i = 0; i < turbines.turbTypeNum; ++i)
 	{
 		outFile << "Wind Turbine Type " << i << endl;
-		outFile << "Wind Speed,Cp,Ct" << endl;
+		outFile << "Wind Speed,Pc,Ct" << endl;
 		for (int j = 0; j < turbines.uNum; ++j)
 		{
 			outFile << turbines.uWind[j] << "," << turbines.Cp[i][j] << "," << turbines.Ct[i][j] << endl;

@@ -1,14 +1,37 @@
 #include "simulation.h"
 #include "tecplot.h"
+const double minusPiOutOf180 = - 0.01745329251994329576923690768489;
 Simulation::Simulation()
 {
-	turbines = TurbCloud(1, 1, 10, 0, 20);
-	input = Input(turbines);
-	input.readFile();
+	model = nullptr;
 }
-int Simulation::run(double& wind, double& theta360, Column& gamma, Model& model, bool isPlot)
+
+Simulation::Simulation(double& wind, double& theta360, Model& model)
+	:turbines(1, 1, 10, 0, 20)
 {
 	double theta;
+
+	input.setTurb(turbines);
+	input.readFile();
+	
+	theta = theta360 / 180.0 * PI;
+	wake.setWake(turbines, wind, theta);
+	this->model = &model;
+}
+int Simulation::setAll(double& wind, double& theta360, Model& model)
+{
+	double theta;
+	turbines.init(1, 1, 10, 0, 20);
+	input.setTurb(turbines);
+	input.readFile();
+
+	theta = theta360 / 180.0 * PI;
+	wake.setWake(turbines, wind, theta);
+	this->model = &model;
+	return 0;
+}
+int Simulation::run(Column& gamma)
+{
 	if (gamma.size() != turbines.turbNum)
 	{
 		cout << "The number of input yaw angle does not match the number of wind turbines" << endl;
@@ -16,20 +39,42 @@ int Simulation::run(double& wind, double& theta360, Column& gamma, Model& model,
 		cout << "The number of input yaw angle: " << gamma.size() << endl;
 		return 0;
 	}
+	wake.newTurbines.gamma = &gamma;
+	wake.getWake(*model);
+	// 为了避免在计算最优角度期间反复计算对应的原始风机角度，不重新排列角度
+	// 也不重新排列风机速度。
+	// 后续的功率计算也在已经排列后的wake.newTurbines基础上计算
+	return 0;
+}
+int Simulation::run(Column& gamma, bool isPlot)
+{
+	if (gamma.size() != turbines.turbNum)
+	{
+		cout << "The number of input yaw angle does not match the number of wind turbines" << endl;
+		cout << "The number of wind turbines: " << turbines.turbNum << endl;
+		cout << "The number of input yaw angle: " << gamma.size() << endl;
+		return 0;
+	}
+    // 由于浅拷贝，
+	// 以下指针和wake.turbines->gamma指向同一个位置
+	// 所以只删除一次
+	delete wake.newTurbines.gamma; 
+	wake.turbines->gamma = &gamma;
+	wake.newTurbines.gamma = new Column(gamma);
+
 // 在尾流模型中，偏航角的正方向和尾流偏转角的正方向相反。这里加一个负号用以调整
 	for (int i = 0; i < turbines.turbNum; ++i)
 	{
-		turbines.gamma[i] = -gamma[i] / 180.0 * PI;
+		gamma[i] *= minusPiOutOf180;
 	}
-	theta = theta360 / 180 * PI;
-	Wake wake = Wake(turbines, wind, theta);
-	wake.getWake(model);
-
+	wake.gamma2NewGamma();
+	wake.getWake(*model);
+	wake.restoreVel();
 	if (isPlot)
 	{
 		Contour contour = Contour(wake, true);
 		contour.set_xy();
-		contour.get_vel(model);
+		contour.get_vel(*model);
 		std::string fileName = "tecplot2D.dat";
 		vector<std::string> varName;
 		varName.resize(1);

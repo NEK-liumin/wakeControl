@@ -310,6 +310,7 @@ bool SQPIC_solver(T& problem, double tol)
 	problem.set_g();
 	problem.set_Ji();
 	problem.get_ci();
+	int k = 0;
 	do
 	{
 		subProblem.init();
@@ -381,6 +382,7 @@ template bool SQPNC_solver<MyNCGP>(MyNCGP& problem, double tol);
 template bool SQPEC_solver<MyECGP>(MyECGP& problem, double tol);
 
 template bool SQPIC_solver<MyICGP>(MyICGP& problem, double tol);
+template bool SQPIC_solver<Yaw>(Yaw& problem, double tol);
 
 template bool SQPEIC_solver<MyEICGP>(MyEICGP& problem, double tol);
 template bool SQPEIC_solver<MyEICGP2>(MyEICGP2& problem, double tol);

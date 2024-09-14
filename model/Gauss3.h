@@ -1,5 +1,5 @@
-﻿#ifndef GAUSS_H
-#define GAUSS_H
+﻿#ifndef GAUSS3_H
+#define GAUSS3_H
 #include "model.h"
 #include <math.h>
 #include <iostream>
@@ -9,10 +9,10 @@ using std::endl;
 // [2] Control-oriented model for secondary effects of wake steering
 
 // 高斯尾流模型
-class Gauss :public Model
+class Gauss3 :public Model
 {
 public:
-	Gauss(double& ky, double& kz, double& I)
+	Gauss3(double& ky, double& kz, double& I)
 	{
 		this->ky = ky;
 		this->kz = kz;
@@ -44,6 +44,14 @@ public:
 		sigmay = ky * (x - xTurb) + sigmay0;
 		return 0;
 	}
+	int getSigma(double& sigmaz, double& sigmay, double& sigmaz0, double& sigmay0, double& xTurb, double& x, double& x0)
+	{
+		/*sigmaz = kz * (x - xTurb - x0) + sigmaz0;
+		sigmay = ky * (x - xTurb - x0) + sigmay0;*/
+		sigmaz = kz * abs(x - xTurb - x0) + sigmaz0;
+		sigmay = ky * abs(x - xTurb - x0) + sigmay0;
+		return 0;
+	}
 	int getU0(double& u0, double& Uinf, double& ct)
 	{
 		u0 = Uinf * sqrt(1 - ct);
@@ -61,15 +69,15 @@ public:
 	}
 	int getDelta0(double& delta0, double& x0, double& theta)
 	{
-		delta0 = x0 * tan(theta);
+		delta0 = x0 * theta;
 		return 0;
 	}
 	int getDelta(double& delta, double & xTurb, double& x, double& theta)
 	{
-		delta = (x - xTurb) * tan(theta);
+		delta = (x - xTurb) * theta;
 		return 0;
 	}
-	int getDelta(double& delta, double& delta0, double& gamma, double& sigmay0, double& sigmaz0, double& sigmay, double& sigmaz, double& ct, double& u0, double& Uinf)
+	/*int getDelta(double& delta, double& delta0, double& gamma, double& sigmay0, double& sigmaz0, double& sigmay, double& sigmaz, double& ct, double& u0, double& Uinf)
 	{
 		double C0;
 		double E0;
@@ -81,25 +89,22 @@ public:
 		sqrtSimma = sqrt(sigmay * sigmaz / sigmay0 / sigmaz0);
 		delta = delta0 + gamma * E0 / 5.2 * sqrt(sigmay0 * sigmaz0 / ky / kz / ct) * log(((1.6 + sqrtCt) * (1.6 * sqrtSimma - sqrtCt)) / ((1.6 - sqrtCt) * (1.6 * sqrtSimma + sqrtCt)));
 		return 0;
+	}*/
+	int getDelta(double& delta, double& delta0, double& gamma, double& ky, double& kz, double& sigmay, double& sigmaz, double& ct, double& D, double& theta)
+	{
+		double sqrtCt;
+		double temp1, temp2, temp3, temp4, temp5, temp6, temp7;
+		sqrtCt = sqrt(ct);
+		temp1 = sqrt(cos(gamma) / ky / kz / ct);
+		temp2 = 2.9 + 1.3 * sqrt(1 - ct) - ct;
+		temp3 = 1.6 + sqrtCt;
+		temp4 = 1.6 - sqrtCt;
+		temp5 = 1.6 * sqrt(8 * sigmay * sigmaz / D / D / cos(gamma));
+		temp6 = temp5 - sqrtCt;
+		temp7 = temp5 + sqrtCt;
+		delta = delta0 + D * theta / 14.7 * temp1 * temp2 * log((temp3 * temp6) / (temp4 * temp7));
+		return 0;
 	}
-	//int getDelta2(double& delta, double& delta0, double& gamma, double& sigmay0, double& sigmaz0, double& sigmay, double& sigmaz, double& ct, double& u0, double& Uinf, double& D, double& theta)
-	//{
-	//	double sqrtCt;
-	//	double sqrtSimma;
-	//	double temp1, temp2, temp3, temp4, temp5, temp6, temp7;
-	//	sqrtCt = sqrt(ct);
-	//	sqrtSimma = sqrt(sigmay * sigmaz / sigmay0 / sigmaz0);
-	//	temp1 = sqrt(cos(gamma) / ky / kz / ct);
-	//	temp2 = 2.9 + 1.3 * sqrt(1 - ct) - ct;
-	//	temp3 = 1.6 + sqrt(ct);
-	//	temp4 = 1.6 - sqrt(ct);
-	//	temp5 = 1.6 * sqrt(8 * sigmay * sigmaz / D / D / cos(gamma));
-	//	temp6 = temp5 - sqrtCt;
-	//	temp7 = temp5 + sqrtCt;
-	//	delta = delta0 + theta / 14.7 * temp1 * temp2 * log((temp3 * temp6) / (temp4 * temp7));
-	//	// delta = delta0 + gamma * E0 / 5.2 * sqrt(sigmay0 * sigmaz0 / ky / kz / ct) * log(((1.6 + sqrtCt) * (1.6 * sqrtSimma - sqrtCt)) / ((1.6 - sqrtCt) * (1.6 * sqrtSimma + sqrtCt)));
-	//	return 0;
-	//}
 
 	int getVel(double& vel, double& D, double& Ct, double& xTurb, double& yTurb, double& zTurb, double& gamma, double& uR, double& Uinf, double&x,double&y,double&z)
 	{
@@ -123,13 +128,22 @@ public:
 		getU0(u0, Uinf, Ct);
 		
 		getSigma0(sigmaz0, sigmay0, D, uR, Uinf, u0, gamma);
-		getSigma(sigmaz, sigmay, sigmaz0, sigmay0, xTurb, x);
+		// getSigma(sigmaz, sigmay, sigmaz0, sigmay0, xTurb, x);
+		getSigma(sigmaz, sigmay, sigmaz0, sigmay0, xTurb, x, x0);
 		getC(C, Ct, sigmay0, sigmay, sigmaz0, sigmaz);
 		getTheta(theta, gamma, Ct);
 
 		getDelta0(delta0, x0, theta);
 
-		getDelta(delta, delta0, gamma, sigmay0, sigmaz0, sigmay, sigmaz, Ct, u0, Uinf);
+		if (x - xTurb < x0)
+		{
+			getDelta(delta, xTurb, x, theta);
+		}
+		else
+		{
+			getDelta(delta, delta0, gamma, sigmay0, sigmaz0, sigmay, sigmaz, Ct, u0, Uinf);
+		}
+		
 
 		getUg(vel, Uinf, C, yTurb, zTurb, y, z, delta, sigmay, sigmaz);
 		return 0;

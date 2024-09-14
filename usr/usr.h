@@ -2,6 +2,9 @@
 #define USR_H
 
 #include "GP.h"
+#include "simulation.h"
+#include "model.h"
+#include "Gauss.h"
 
 // 用户自定义无约束优化问题
 class MyNCGP :public NCGP
@@ -52,6 +55,30 @@ public:
 	void get_ci();
 	void set_Ji();
 	void set_Ji(Matrix& Ji);
+};
+
+// 定义的偏航问题
+class Yaw :public ICGP
+{
+public:
+	Simulation simulation;
+	double rho;
+	Column xLeft, xRight; // 与当前x接近的点，用于计算梯度
+	double f0; //初始时刻的发电功率，用于缩放。
+	Yaw(int size_x, int size_i);
+	Yaw(double& wind, double& theta360, double& rho, Model& model);
+	void set_size(int size_x, int size_i);
+	void init();
+	void init(int size_x, int size_i, Column& x, Column& mu);
+	void set_g();
+	void set_g(Column& g);
+	void set_H();
+	void set_H(Matrix& H);
+	void get_f();
+	void get_ci();
+	void set_Ji();
+	void set_Ji(Matrix& Ji);
+	int outputGamma(Column& gamma360); // 输出原偏航角，单位为°
 };
 
 // 用户自定义等式及不等式约束优化问题

@@ -27,6 +27,18 @@ int Wake::xyz_transformation(double& x, double& y, double& z)
 	return 0;
 }
 
+Wake::Wake()
+{
+	theta = 0;
+	turbines = nullptr;
+	u = 0;
+	x1 = 0;
+	xmin = 0;
+	y1 = 0;
+	ymin = 0;
+	z1 = 0;
+	zmin = 0;
+}
 Wake::Wake(TurbCloud& turbines, double& u, double& theta)
 {
 	this->turbines = &turbines;
@@ -34,7 +46,20 @@ Wake::Wake(TurbCloud& turbines, double& u, double& theta)
 	this->u = u;
 	this->theta = theta;
 	getZeroColumn(vel, turbines.turbNum);
+	getNewCloud();
 	newVel = vel;
+}
+
+int Wake::setWake(TurbCloud& turbines, double& u, double& theta)
+{
+	this->turbines = &turbines;
+	this->newTurbines = turbines;
+	this->u = u;
+	this->theta = theta;
+	getZeroColumn(vel, turbines.turbNum);
+	getNewCloud();
+	newVel = vel;
+	return 0;
 }
 
 
@@ -103,9 +128,7 @@ int Wake::getNewCloud()
 
 int Wake::getWake(Model& model)
 {
-	getNewCloud();
 	model.getWake(newVel, newTurbines, u);
-	restoreVel();
 	return 0;
 }
 int Wake::getWake(double& meshVel, double& x, double& y, double& z, Model& model)
@@ -126,7 +149,34 @@ int Wake::restoreVel()
 	}
 	return 0;
 }
-int Wake::restoreGamma()
+int Wake::gamma2NewGamma()
 {
+	if (turbines->gamma == nullptr || newTurbines.gamma == nullptr)
+	{
+		cout << "gamma is not defined!!!" << endl;
+		return 0;
+	}
+	Column temp = *turbines->gamma;
+
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		temp[i] = (*turbines->gamma)[index[i].second];
+	}
+	*newTurbines.gamma = temp;
+	return 0;
+}
+int Wake::newGamma2Gamma()
+{
+	if (turbines->gamma == nullptr || newTurbines.gamma == nullptr)
+	{
+		cout << "gamma is not defined!!!" << endl;
+		return 0;
+	}
+	*(turbines->gamma) = *newTurbines.gamma;
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		int j = index[i].second;
+		(*turbines->gamma)[i] = (*newTurbines.gamma)[j];
+	}
 	return 0;
 }

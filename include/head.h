@@ -16,5 +16,6 @@
 #include "contour.h"
 #include "tecplot.h"
 #include "simulation.h"
-
+#include "Gauss2.h"
+#include "Gauss3.h"
 #endif // !HEAD_H
