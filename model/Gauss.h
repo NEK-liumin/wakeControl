@@ -8,6 +8,8 @@ using std::endl;
 // [1] Experimental and theoretical study of wind turbine wakes in yawed conditions
 // [2] Control-oriented model for secondary effects of wake steering
 
+// 与文献中不同，这里重新调整了角度，逆时针为角度偏转的正方向
+
 // 高斯尾流模型
 class Gauss :public Model
 {
@@ -33,7 +35,7 @@ public:
 	int getSigma0(double& sigmaz0, double& sigmay0, double& D, double& uR, double& Uinf, double& u0, double& gamma)
 	{
 		sigmaz0 = D * 0.5 * sqrt(uR / (Uinf + u0));
-		sigmay0 = sigmaz0 * cos(gamma);
+		sigmay0 = sigmaz0 * cos(-gamma);
 		return 0;
 	}
 	int getSigma(double& sigmaz, double& sigmay, double& sigmaz0, double& sigmay0, double& xTurb, double& x)
@@ -51,12 +53,12 @@ public:
 	}
 	int getX0(double& x0, double& D, double& gamma, double& ct, double& I)
 	{
-		x0 = D * ((cos(gamma) * (1 + sqrt(1 - ct))) / (1.414214 * (2.32 * I + 0.154 * (1 - sqrt(1 - ct)))));
+		x0 = D * ((cos(-gamma) * (1 + sqrt(1 - ct))) / (1.414214 * (2.32 * I + 0.154 * (1 - sqrt(1 - ct)))));
 		return 0;
 	}
 	int getTheta(double& theta, double& gamma, double& Ct)
 	{
-		theta = 0.3 * gamma / cos(gamma) * (1 - sqrt(1 - Ct * cos(gamma)));
+		theta = 0.3 * (-gamma) / cos(-gamma) * (1 - sqrt(1 - Ct * cos(-gamma)));
 		return 0;
 	}
 	int getDelta0(double& delta0, double& x0, double& theta)
@@ -79,7 +81,7 @@ public:
 		E0 = C0 * C0 - 3.2607121485636 * C0 + 4.18683727525826;
 		sqrtCt = sqrt(ct);
 		sqrtSimma = sqrt(sigmay * sigmaz / sigmay0 / sigmaz0);
-		delta = delta0 + gamma * E0 / 5.2 * sqrt(sigmay0 * sigmaz0 / ky / kz / ct) * log(((1.6 + sqrtCt) * (1.6 * sqrtSimma - sqrtCt)) / ((1.6 - sqrtCt) * (1.6 * sqrtSimma + sqrtCt)));
+		delta = delta0 + (-gamma) * E0 / 5.2 * sqrt(sigmay0 * sigmaz0 / ky / kz / ct) * log(((1.6 + sqrtCt) * (1.6 * sqrtSimma - sqrtCt)) / ((1.6 - sqrtCt) * (1.6 * sqrtSimma + sqrtCt)));
 		return 0;
 	}
 	//int getDelta2(double& delta, double& delta0, double& gamma, double& sigmay0, double& sigmaz0, double& sigmay, double& sigmaz, double& ct, double& u0, double& Uinf, double& D, double& theta)

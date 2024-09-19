@@ -78,7 +78,12 @@ public:
 	void get_ci();
 	void set_Ji();
 	void set_Ji(Matrix& Ji);
-	int outputGamma(Column& gamma360); // 输出原偏航角，单位为°
+	// 输出原偏航角，单位为°
+	int outputGamma(Column& gamma360);
+	// 输出优化后的发电功率
+	double power(); 
+	// 输出不偏航时的发电功率
+	double initialPower();
 };
 
 // 用户自定义等式及不等式约束优化问题

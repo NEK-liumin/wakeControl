@@ -72,15 +72,15 @@ int main()
 	double I = 0.12;
 	Gauss3 model = Gauss3(ky, kz, I);
 // 定义风速、风向
-	double wind = 7.0;
-	double theta360 = 90.0;
+	double wind = 8.5;
+	double theta360 = 0.0;
 // 是否输出云图
 	bool isPlot = true;
 // 计算尾流
-	cout << "开始进行尾流计算" << endl;
-	// Simulation simulation(wind, theta360, model);
-	// simulation.run(gamma360, isPlot);
-	cout << "尾流计算结束" << endl;
+	//cout << "开始进行尾流计算" << endl;
+	//Simulation simulation(wind, theta360, model);
+	//simulation.run(gamma360, isPlot);
+	//cout << "尾流计算结束" << endl;
 // 定义优化问题
 	Yaw yaw = Yaw(wind, theta360, rho, model);
 
@@ -88,16 +88,22 @@ int main()
 	{
 		yaw.x[i] = 0.0;
 	}*/
-	yaw.get_f();
-	cout << yaw.f << endl;
+	// yaw.get_f();
+	//cout << yaw.f << endl;
 	double tol = 1.0e-5;
 	SQPIC_solver(yaw, tol);
+	//cout << "balabala" << endl;
+	//printA(yaw.x);
 	yaw.outputGamma(gamma360);
 	printA(gamma360);
-	yaw.get_f();
-	cout << yaw.f << endl;
+	cout << "Total power of wind field without yawing: " << yaw.initialPower() << " kw" << endl;
+	cout << "Total power of wind field with yawing: " << yaw.power() << " kw" << endl;
+	cout << "Power generation increased by " << (yaw.power() - yaw.initialPower()) / yaw.initialPower() * 100 << "% !" << endl;
     Simulation simulation(wind, theta360, model);
     simulation.run(gamma360, isPlot);
+	//double power;
+	//simulation.turbines.getPower(power, simulation.wake.vel);
+	//cout << power << endl;
 
 	/*printA(yaw.g);
 	cout << yaw.f << endl;*/

@@ -61,7 +61,7 @@ int TurbCloud::getCp(double& cp_i, double& velo_i, int& type_i)
 {
 	if (velo_i < uWind[0] || velo_i > uWind[uNum - 1])
 	{
-		cout << "风机无法在该风速下进行工作" << endl;
+		cp_i = 0;
 		return 0;
 	}
 	if (velo_i == uWind[0])
@@ -69,6 +69,8 @@ int TurbCloud::getCp(double& cp_i, double& velo_i, int& type_i)
 		cp_i = Cp[type_i][0];
 		return 0;
 	}
+	//cout << "in getcp" << endl;
+	//cout << velo_i << endl;
 	if (velo_i == uWind[uNum - 1])
 	{
 		cp_i = Cp[type_i][uNum - 1];
@@ -100,11 +102,19 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 	if (velo_i == uWind[0])
 	{
 		ct_i = Ct[type_i][0];
+		if (ct_i >= 1)
+		{
+			ct_i = 0.99999999;
+		}
 		return 0;
 	}
 	if (velo_i == uWind[uNum - 1])
 	{
 		ct_i = Ct[type_i][uNum - 1];
+		if (ct_i >= 1)
+		{
+			ct_i = 0.99999999;
+		}
 		return 0;
 	}
 	// 会不断根据风机位置处的流体速度计算其功率系数和推力系数
@@ -122,6 +132,10 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 	if (ct_i < 0)
 	{
 		ct_i = 0;
+	}
+	if (ct_i >= 1)
+	{
+		ct_i = 0.99999999;
 	}
 	return 0;
 }

@@ -33,7 +33,7 @@ public:
 	int getSigma0(double& sigmaz0, double& sigmay0, double& D, double& uR, double& Uinf, double& u0, double& gamma)
 	{
 		sigmaz0 = D * 0.5 * sqrt(uR / (Uinf + u0));
-		sigmay0 = sigmaz0 * cos(gamma);
+		sigmay0 = sigmaz0 * cos(-gamma);
 		return 0;
 	}
 	int getSigma(double& sigmaz, double& sigmay, double& sigmaz0, double& sigmay0, double& xTurb, double& x)
@@ -54,17 +54,19 @@ public:
 	}
 	int getU0(double& u0, double& Uinf, double& ct)
 	{
+		//cout << "in Gauss3.getU0" << endl;
+		//cout << ct << endl;
 		u0 = Uinf * sqrt(1 - ct);
 		return 0;
 	}
 	int getX0(double& x0, double& D, double& gamma, double& ct, double& I)
 	{
-		x0 = D * ((cos(gamma) * (1 + sqrt(1 - ct))) / (1.414214 * (2.32 * I + 0.154 * (1 - sqrt(1 - ct)))));
+		x0 = D * ((cos(-gamma) * (1 + sqrt(1 - ct))) / (1.414214 * (2.32 * I + 0.154 * (1 - sqrt(1 - ct)))));
 		return 0;
 	}
 	int getTheta(double& theta, double& gamma, double& Ct)
 	{
-		theta = 0.3 * gamma / cos(gamma) * (1 - sqrt(1 - Ct * cos(gamma)));
+		theta = 0.3 * (-gamma) / cos(-gamma) * (1 - sqrt(1 - Ct * cos(-gamma)));
 		return 0;
 	}
 	int getDelta0(double& delta0, double& x0, double& theta)
@@ -90,16 +92,17 @@ public:
 		delta = delta0 + gamma * E0 / 5.2 * sqrt(sigmay0 * sigmaz0 / ky / kz / ct) * log(((1.6 + sqrtCt) * (1.6 * sqrtSimma - sqrtCt)) / ((1.6 - sqrtCt) * (1.6 * sqrtSimma + sqrtCt)));
 		return 0;
 	}*/
+
 	int getDelta(double& delta, double& delta0, double& gamma, double& ky, double& kz, double& sigmay, double& sigmaz, double& ct, double& D, double& theta)
 	{
 		double sqrtCt;
 		double temp1, temp2, temp3, temp4, temp5, temp6, temp7;
 		sqrtCt = sqrt(ct);
-		temp1 = sqrt(cos(gamma) / ky / kz / ct);
+		temp1 = sqrt(cos(-gamma) / ky / kz / ct);
 		temp2 = 2.9 + 1.3 * sqrt(1 - ct) - ct;
 		temp3 = 1.6 + sqrtCt;
 		temp4 = 1.6 - sqrtCt;
-		temp5 = 1.6 * sqrt(8 * sigmay * sigmaz / D / D / cos(gamma));
+		temp5 = 1.6 * sqrt(8 * sigmay * sigmaz / D / D / cos(-gamma));
 		temp6 = temp5 - sqrtCt;
 		temp7 = temp5 + sqrtCt;
 		delta = delta0 + D * theta / 14.7 * temp1 * temp2 * log((temp3 * temp6) / (temp4 * temp7));
@@ -124,9 +127,15 @@ public:
 			vel = Uinf;
 			return 0;
 		}
+		if (Ct <= 0)
+		{
+			vel = Uinf;
+			return 0;
+		}
 		
 		getU0(u0, Uinf, Ct);
-		
+		//cout << "in Gauss3.getVel" << endl;
+		//cout << u0 << endl;
 		getSigma0(sigmaz0, sigmay0, D, uR, Uinf, u0, gamma);
 		// getSigma(sigmaz, sigmay, sigmaz0, sigmay0, xTurb, x);
 		getSigma(sigmaz, sigmay, sigmaz0, sigmay0, xTurb, x, x0);
@@ -169,8 +178,12 @@ public:
 			for (int j = i + 1; j < turbs.turbNum; ++j)
 			{
 				getVel(wake[j], turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], (*turbs.gamma)[i], vel[i], uWind, turbs.x0[j], turbs.y0[j], turbs.z0[j]);
+				//cout << "in Gauss3.getWake" << endl;
+				//cout << wake[j] << endl;
 				sumWake[j] += (1 - wake[j] / uWind) * (1 - wake[j] / uWind);
 			}
+			
+			//cout << sumWake[i] << endl;
 			vel[i] = (1 - sqrt(sumWake[i])) * uWind;
 		}
 		return 0;

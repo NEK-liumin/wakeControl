@@ -1,6 +1,17 @@
 #include "usr.h"
+#include <random>
+#include <chrono>
 
-const double minusPiOutOf180 = -0.01745329251994329576923690768489;
+static double getRandom(double left, double right)
+{
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	std::mt19937 generator(seed);
+	std::uniform_real_distribution<double>distribution(left, right);
+	return distribution(generator);
+}
+
+
+const double PiOutOf180 = 0.01745329251994329576923690768489;
 Yaw::Yaw(int size_x, int size_i)
 {
 	this->size_x = size_x;
@@ -17,10 +28,10 @@ Yaw::Yaw(int size_x, int size_i)
 }
 
 Yaw::Yaw(double& wind, double& theta360, double& rho, Model& model)
-	// :simulation(wind, theta360, model)
 {
-	double norm_g;
-	double tol = 1e-3;
+	// double norm_g;
+	// double tol = 1e-3;
+	double range = 2.0 / 180.0 * PI; // 初始时刻，每个风机的偏航角会在正负range之间随机产生
 	simulation.setAll(wind, theta360, model);
 	this->rho = rho;
 	this->size_x = simulation.turbines.turbNum;
@@ -34,13 +45,22 @@ Yaw::Yaw(double& wind, double& theta360, double& rho, Model& model)
 	getZeroMatrix(Ji, size_i, size_x);
 	getOneColumn(mu, size_i);
 	simulation.run(x);
+	// cout << "inYaw" << endl;
+	// printA(simulation.wake.newVel);
 	// simulation.wake.newTurbines.getPower(f0, simulation.wake.newVel, rho);
 	simulation.wake.newTurbines.getPower(f0, simulation.wake.newVel);
+	// cout << f0 << endl;
 	f0 /= -1.0;
-	set_g();
-	norm_g = norm(g);
-	printA(g);
-	if (norm_g < tol)
+	for (int i = 0; i < size_x; ++i)
+	{
+		x[i] = getRandom(-range, range);
+	}
+	// set_g();
+	// norm_g = norm(g);
+	//cout << norm_g << endl;
+	// printA(simulation.wake.newTurbines.x0);
+	//printA(g);
+	/*if (norm_g < tol)
 	{
 		int k = 0;
 		do
@@ -56,7 +76,7 @@ Yaw::Yaw(double& wind, double& theta360, double& rho, Model& model)
 		{
 			cout << "gradient is too small and simulation can not run!" << endl;
 		}
-	}
+	}*/
 }
 
 void Yaw::set_size(int size_x, int size_i)
@@ -83,18 +103,21 @@ void Yaw::set_g()
 {
 	/*simulation.run(x);
 	simulation.wake.newTurbines.getPower(f, simulation.wake.newVel, rho);*/
-	double delta = 0.0001;
+	double delta = 0.01;
 	double fLeft, fRight;
 	xLeft = x;
 	xRight = x;
 	for (int i = 0; i < size_x; ++i)
 	{
+// 注意，以下，求梯度的过程中必须在末尾恢复xLeft[i]和xRight[i]的值
 		xLeft[i] = xLeft[i] - delta;
 		xRight[i] = xRight[i] + delta;
 		simulation.run(xLeft);
-		simulation.wake.newTurbines.getPower(fLeft, simulation.wake.newVel, rho);
+		// simulation.wake.newTurbines.getPower(fLeft, simulation.wake.newVel, rho);
+		simulation.wake.newTurbines.getPower(fLeft, simulation.wake.newVel);
 		simulation.run(xRight);
-		simulation.wake.newTurbines.getPower(fRight, simulation.wake.newVel, rho);
+		// simulation.wake.newTurbines.getPower(fRight, simulation.wake.newVel, rho);
+		simulation.wake.newTurbines.getPower(fRight, simulation.wake.newVel);
 		fLeft /= f0;
 		fRight /= f0;
 		g[i] = (fRight - fLeft) / delta / 2.0;
@@ -142,7 +165,7 @@ void Yaw::get_f()
 	simulation.run(x);
 	// simulation.wake.newTurbines.getPower(f, simulation.wake.newVel, rho);
 	simulation.wake.newTurbines.getPower(f, simulation.wake.newVel);
-	f /= f0; // 让值小一点，看看行不行
+	f /= f0; // 用初始发电量的负值对方程进行无量纲化；梯度同理
 }
 
 void Yaw::get_ci()
@@ -153,7 +176,7 @@ void Yaw::get_ci()
 	}
 	for (int i = size_x; i < size_i; ++i)
 	{
-		ci[i] = -x[i - size_x] + PI / 6.0;
+		ci[i] = -x[i - size_x] + PI / 9.0;
 	}
 }
 
@@ -180,7 +203,18 @@ int Yaw::outputGamma(Column& gamma360)
 	gamma360 = *simulation.turbines.gamma;
 	for (int i = 0; i < simulation.turbines.turbNum; ++i)
 	{
-		gamma360[i] /= minusPiOutOf180;
+		gamma360[i] /= PiOutOf180;
 	}
 	return 0;
+}
+
+double Yaw::power()
+{
+	get_f();
+	return f * f0;
+}
+
+double Yaw::initialPower()
+{
+	return -f0;
 }

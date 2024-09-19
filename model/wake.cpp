@@ -90,6 +90,12 @@ int Wake::getNewCloud()
 	}
 	sort(index.begin(), index.end(), compare);
 
+	/*cout << "in getNewCloud" << endl;
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		cout << index[i].first << "  " << index[i].second << endl;
+	}*/
+
 	Column temp1 = turbines->x0;
 
 	for (int i = 0; i < turbines->turbNum; ++i)
@@ -149,6 +155,7 @@ int Wake::restoreVel()
 	}
 	return 0;
 }
+// 获取排列后风机的偏航角
 int Wake::gamma2NewGamma()
 {
 	if (turbines->gamma == nullptr || newTurbines.gamma == nullptr)
@@ -167,6 +174,7 @@ int Wake::gamma2NewGamma()
 }
 int Wake::newGamma2Gamma()
 {
+	//cout << "in newGamma2Gamma" << endl;
 	if (turbines->gamma == nullptr || newTurbines.gamma == nullptr)
 	{
 		cout << "gamma is not defined!!!" << endl;
@@ -176,7 +184,11 @@ int Wake::newGamma2Gamma()
 	for (int i = 0; i < turbines->turbNum; ++i)
 	{
 		int j = index[i].second;
-		(*turbines->gamma)[i] = (*newTurbines.gamma)[j];
+		//cout << "i=" << i << "j=" << j << endl;
+		(*turbines->gamma)[j] = (*newTurbines.gamma)[i];
 	}
+	
+	//printA(*newTurbines.gamma);
+	//printA(*turbines->gamma);
 	return 0;
 }

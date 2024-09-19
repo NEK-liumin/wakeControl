@@ -1,6 +1,6 @@
 #include "simulation.h"
 #include "tecplot.h"
-const double minusPiOutOf180 = - 0.01745329251994329576923690768489;
+const double PiOutOf180 = 0.01745329251994329576923690768489;
 Simulation::Simulation()
 {
 	model = nullptr;
@@ -26,6 +26,7 @@ int Simulation::setAll(double& wind, double& theta360, Model& model)
 	input.readFile();
 
 	theta = theta360 / 180.0 * PI;
+	//if (wind - turbines.uMin <= 1e-2) wind = turbines.uMin + 1e-2;//如果环境风太小，计算尾流容易出问题。
 	wake.setWake(turbines, wind, theta);
 	this->model = &model;
 	return 0;
@@ -62,16 +63,17 @@ int Simulation::run(Column& gamma, bool isPlot)
 	wake.turbines->gamma = &gamma;
 	wake.newTurbines.gamma = new Column(gamma);
 
-// 在尾流模型中，偏航角的正方向和尾流偏转角的正方向相反。这里加一个负号用以调整
+// 在尾流模型中，偏航角的正方向和尾流偏转角的正方向相同
 	for (int i = 0; i < turbines.turbNum; ++i)
 	{
-		gamma[i] *= minusPiOutOf180;
+		gamma[i] *= PiOutOf180;
 	}
 	wake.gamma2NewGamma();
 	wake.getWake(*model);
 	wake.restoreVel();
 	if (isPlot)
 	{
+		cout << "The tecplot file is generating..." << endl;
 		Contour contour = Contour(wake, true);
 		contour.set_xy();
 		contour.get_vel(*model);
@@ -83,6 +85,7 @@ int Simulation::run(Column& gamma, bool isPlot)
 		tecplot2D.var[0] = &contour.vel;
 		tecplot2D.set_xy(contour.x, contour.y);
 		tecplot2D.output();
+		cout << "Done!" << endl;
 	}
 	return 0;
 }

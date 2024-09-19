@@ -34,22 +34,22 @@ int Contour::set_xy()
 	ymin = *ymin_it - Cspread * (*Dmax);
 	ymax = *ymax_it + Cspread * (*Dmax);
 
-	cout << xmin << endl;
+	/*cout << xmin << endl;
 	cout << xmax << endl;
 	cout << xmax - xmin << endl;
 	cout << ymin << endl;
 	cout << ymax << endl;
-	cout << ymax - ymin << endl;
+	cout << ymax - ymin << endl;*/
 
 	delta = *Dmax / meshSize;
 
-	cout << delta << endl;
+	// cout << delta << endl;
 	nI = floor((xmax - xmin) / delta);
 	nJ = floor((ymax - ymin) / delta);
 	nK = 1;
 
-	cout << nI << endl;
-	cout <<nJ<<endl;
+	/*cout << nI << endl;
+	cout <<nJ<<endl;*/
 
 	x.resize(nI);
 	y.resize(nI);

@@ -10,8 +10,8 @@ using std::endl;
 
 static int writeLoop2D(ofstream& outFile, vector<Matrix>& v)
 {
-	int width = 15;
-	int precision = 5;
+	int width = 30;
+	int precision = 20;
 	int n = 0;
 	int nI = v.size();
 	int nJ = v[0].size();
