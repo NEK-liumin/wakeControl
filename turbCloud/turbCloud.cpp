@@ -59,7 +59,12 @@ int TurbCloud::setCoef(Matrix& Cp, Matrix& Ct)
 
 int TurbCloud::getCp(double& cp_i, double& velo_i, int& type_i)
 {
-	if (velo_i < uWind[0] || velo_i > uWind[uNum - 1])
+	if (velo_i < uWind[0])
+	{
+		cp_i = velo_i * Cp[type_i][0] / uWind[0];
+		return 0;
+	}
+	if (velo_i > uWind[uNum - 1])
 	{
 		cp_i = 0;
 		return 0;
@@ -150,7 +155,26 @@ int TurbCloud::getPower(double& power, Column& vel, double& rho)
 	}
 	return 0;
 }
-//
+
+bool TurbCloud::isYaw(Column& vel, int& i)
+{
+	double pc_i;
+	double vel_axial;
+	if (vel[i] < uWind[0])
+	{
+		pc_i = 0;
+	}
+	else
+	{
+		vel_axial = vel[i] * cos((*gamma)[i]);
+		getCp(pc_i, vel_axial, turbType[i]);
+	}
+
+
+	if (pc_i > 0)return true;
+	else return false;
+}
+
 int TurbCloud::getPower(double& power, Column& vel)
 {
 	power = 0.0;
@@ -158,9 +182,21 @@ int TurbCloud::getPower(double& power, Column& vel)
 	double vel_axial;
 	for (int i = 0; i < turbNum; ++i)
 	{
-		vel_axial = vel[i] * cos((*gamma)[i]);
-		getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
-		power += pc_i; // 单位是kw
+		// 为了能在切入速度处能正常计算，采用以下策略：
+		// 1. 如果风机处的风速小于切入速度，当前风机的功率取0；
+		// 2. 如果风机处的风速大于等于切入速度，只是风机偏航后，风速的分量小于切入速度
+		//    则会让风机的功率在0和切入速度处的功率之间插值
+		if (vel[i] < uWind[0])
+		{
+			power += 0;
+		}
+		else
+		{
+			vel_axial = vel[i] * cos((*gamma)[i]);
+			getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+			power += pc_i; // 单位是kw
+		}
+		
 	}
 	return 0;
 }

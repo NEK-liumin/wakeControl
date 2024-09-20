@@ -71,7 +71,11 @@ public:
 	int setCoef(Matrix& Cp, Matrix& Ct);
 	int getCp(double& cp_i, double& velo, int& type_i);
 	int getCt(double& ct_i, double& velo, int& type_i);
+	// 以下函数被废弃
 	int getPower(double& power, Column& vel, double& rho);
+	// 在计算完成后才调用，用于校正偏航角：没功率的话就不偏航
+	bool isYaw(Column& vel, int& i);
+	// 计算总功率
 	int getPower(double& power, Column& vel);
 	int turbPrint();
 };

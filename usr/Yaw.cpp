@@ -199,6 +199,16 @@ void Yaw::set_Ji(Matrix& Ji)
 
 int Yaw::outputGamma(Column& gamma360)
 {
+	// 根据每个风机输出的功率，校正偏航角
+	// 如果风机没有输出功率，偏航角为0
+	double P_i;
+	for (int i = 0; i < size_x; ++i)
+	{
+		if (!simulation.wake.newTurbines.isYaw(simulation.wake.newVel, i))
+		{
+			(*simulation.wake.newTurbines.gamma)[i] = 0;
+		}
+	}
 	simulation.wake.newGamma2Gamma();
 	gamma360 = *simulation.turbines.gamma;
 	for (int i = 0; i < simulation.turbines.turbNum; ++i)

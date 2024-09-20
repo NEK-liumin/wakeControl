@@ -830,3 +830,32 @@ int printA(Column A)
 	cout << endl;
 	return 0;
 }
+
+const double g = 7;
+const double lanczos_coefficients[] = {
+	0.99999999999980993,
+	676.5203681218851,
+	-1259.1392167224028,
+	771.32342877765313,
+	-176.61502916214059,
+	12.507343278686905,
+	-0.13857109526572012,
+	9.9843695780195716e-6,
+	1.5056327351493116e-7
+};
+double Gamma(double z)
+{
+	if (z < 0.5) {
+		// 使用Gamma函数反射公式
+		return PI / (sin(PI * z) * Gamma(1 - z));
+	}
+	else {
+		z -= 1;
+		double x = lanczos_coefficients[0];
+		for (int i = 1; i < sizeof(lanczos_coefficients) / sizeof(double); ++i) {
+			x += lanczos_coefficients[i] / (z + i);
+		}
+		double t = z + g + 0.5;
+		return sqrt(2 * PI) * pow(t, z + 0.5) * exp(-t) * x;
+	}
+}

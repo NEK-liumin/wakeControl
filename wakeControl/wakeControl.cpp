@@ -5,6 +5,8 @@
 #include <chrono>
 using namespace std;
 
+
+
 void test0()
 {
 	double tol = 1e-4;
@@ -43,6 +45,7 @@ void test2()
 
 int main()
 {
+	cout << Gamma(1) << endl;
 	
 	auto start = std::chrono::high_resolution_clock::now();
 	// https://www.bilibili.com/video/BV1XT411x7ig/?spm_id_from=333.788&vd_source=22351688aa00db029a949c880636bc36
@@ -72,7 +75,7 @@ int main()
 	double I = 0.12;
 	Gauss3 model = Gauss3(ky, kz, I);
 // 定义风速、风向
-	double wind = 8.5;
+	double wind = 6;
 	double theta360 = 0.0;
 // 是否输出云图
 	bool isPlot = true;

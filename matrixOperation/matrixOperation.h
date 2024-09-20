@@ -1,6 +1,10 @@
 ﻿#ifndef MATRIXOPERATION_H
 #define MATRIXOPERATION_H
 #include<vector>
+
+// 除了矩阵运算之外，也提供了计算gamma函数的代码Gamma(double&x)
+// 为区分风机偏航的角度，G大写
+
 using std::vector;
 using Matrix = vector<vector<double>>;
 using Column = vector<double>;
@@ -92,5 +96,9 @@ bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A);
 int printA(Matrix A);
 
 int printA(Column A);
+
+// 计算gamma函数
+// Gamma(z) = (z-1)!
+double Gamma(double z);
 
 #endif // ! MATRIXOPERATION_H
