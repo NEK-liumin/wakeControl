@@ -31,7 +31,7 @@ Yaw::Yaw(double& wind, double& theta360, double& rho, Model& model)
 {
 	// double norm_g;
 	// double tol = 1e-3;
-	double range = 2.0 / 180.0 * PI; // 初始时刻，每个风机的偏航角会在正负range之间随机产生
+	double range = 0.0 / 180.0 * PI; // 初始时刻，每个风机的偏航角会在正负range之间随机产生
 	simulation.setAll(wind, theta360, model);
 	this->rho = rho;
 	this->size_x = simulation.turbines.turbNum;
@@ -46,9 +46,10 @@ Yaw::Yaw(double& wind, double& theta360, double& rho, Model& model)
 	getOneColumn(mu, size_i);
 	simulation.run(x);
 	// cout << "inYaw" << endl;
-	// printA(simulation.wake.newVel);
-	// simulation.wake.newTurbines.getPower(f0, simulation.wake.newVel, rho);
+	//printA(simulation.wake.newVel);
+	//simulation.wake.newTurbines.getPower(f0, simulation.wake.newVel, rho);
 	simulation.wake.newTurbines.getPower(f0, simulation.wake.newVel);
+	//simulation.run(f0, x);
 	// cout << f0 << endl;
 	f0 /= -1.0;
 	for (int i = 0; i < size_x; ++i)
@@ -79,6 +80,31 @@ Yaw::Yaw(double& wind, double& theta360, double& rho, Model& model)
 	}*/
 }
 
+int Yaw::reset(double& wind, double& theta360, double& rho, Model& model)
+{
+	double range = 2.0 / 180.0 * PI; // 初始时刻，每个风机的偏航角会在正负range之间随机产生
+	simulation.setAll(wind, theta360, model);
+	this->rho = rho;
+	this->size_x = simulation.turbines.turbNum;
+	this->size_i = simulation.turbines.turbNum * 2;
+	getZeroColumn(x, size_x);
+	xLeft = x;
+	xRight = x;
+	f = 0;
+	getZeroColumn(g, size_x);
+	getZeroColumn(ci, size_i);
+	getZeroMatrix(Ji, size_i, size_x);
+	getOneColumn(mu, size_i);
+	//simulation.run(x);
+	//simulation.wake.newTurbines.getPower(f0, simulation.wake.newVel);
+	simulation.run(f0, x);
+	f0 /= -1.0;
+	for (int i = 0; i < size_x; ++i)
+	{
+		x[i] = getRandom(-range, range);
+	}
+	return 0;
+}
 void Yaw::set_size(int size_x, int size_i)
 {
 	this->size_x = size_x;
@@ -115,6 +141,8 @@ void Yaw::set_g()
 		simulation.run(xLeft);
 		// simulation.wake.newTurbines.getPower(fLeft, simulation.wake.newVel, rho);
 		simulation.wake.newTurbines.getPower(fLeft, simulation.wake.newVel);
+		//simulation.run(fLeft, xLeft);
+		//simulation.run(fRight, xRight);
 		simulation.run(xRight);
 		// simulation.wake.newTurbines.getPower(fRight, simulation.wake.newVel, rho);
 		simulation.wake.newTurbines.getPower(fRight, simulation.wake.newVel);
@@ -162,6 +190,7 @@ void Yaw::set_H(Matrix& H)
 
 void Yaw::get_f()
 {
+	// simulation.run(f, x);
 	simulation.run(x);
 	// simulation.wake.newTurbines.getPower(f, simulation.wake.newVel, rho);
 	simulation.wake.newTurbines.getPower(f, simulation.wake.newVel);

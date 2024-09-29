@@ -56,7 +56,7 @@ int Simulation::run(Column& gamma, bool isPlot)
 		cout << "The number of input yaw angle: " << gamma.size() << endl;
 		return 0;
 	}
-    // 由于浅拷贝，
+    // 由于浅拷贝，（拷贝过程在构造Weak类型的变量时完成）
 	// 以下指针和wake.turbines->gamma指向同一个位置
 	// 所以只删除一次
 	delete wake.newTurbines.gamma; 
@@ -71,6 +71,7 @@ int Simulation::run(Column& gamma, bool isPlot)
 	wake.gamma2NewGamma();
 	wake.getWake(*model);
 	wake.restoreVel();
+	// printA(wake.vel);
 	if (isPlot)
 	{
 		cout << "The tecplot file is generating..." << endl;
@@ -87,5 +88,11 @@ int Simulation::run(Column& gamma, bool isPlot)
 		tecplot2D.output();
 		cout << "Done!" << endl;
 	}
+	return 0;
+}
+int Simulation::run(double& f, Column& gamma)
+{
+	run(gamma);
+	wake.newTurbines.getPower(f, wake.newVel);
 	return 0;
 }

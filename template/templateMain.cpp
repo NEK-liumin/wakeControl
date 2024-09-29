@@ -11,7 +11,12 @@ int main()
 	int uNum;
 	double uMin;
 	double uMax;
-	cout << "========turbinesInfoTemp File Generator=========" << endl;
+	double isParameterFile;
+	double uBegin, uEnd;
+	double thetaBegin, thetaEnd;
+	double deltaU, deltaTheta;
+	double ky, kz;
+	cout << "=============Template File Generator==============" << endl;
 	cout << "Please Enter Wind Turbine Number:" << endl;
 	cin >> turbNum;
 	cout << "Please Enter Wind Turbine Type Number:" << endl;
@@ -22,7 +27,8 @@ int main()
 	cin >> uMin >> uMax;
 	TurbCloud turbines = TurbCloud(turbNum, turbTypeNum, uNum, uMin, uMax);
 	generateTemplate(turbines);
-	cout << "=======turbinesInfoTemp Generation Done!========" << endl;
+	cout << "turbinesInfoTemp and parameterTemp file Generation Done!" << endl;
+	cout << endl;
 	std::cin.get();
 	return 0;
 }

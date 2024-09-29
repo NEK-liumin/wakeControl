@@ -23,6 +23,14 @@ int generateTemplate(TurbCloud& turbines)
 	//	turbines.D[i] = 150;
 	//}
 
+	double uBegin = 5, uEnd = 12;
+	double thetaBegin = 0, thetaEnd = 350;
+	double deltaU=1, deltaTheta=10;
+	double ky=0.025, kz= 0.0175;
+	double I = 0.12;
+	double rho = 1.205;
+	double tol = 1e-5;
+
 	ofstream outFile("turbinesInfoTemp.csv");
 
 	if (!outFile)
@@ -59,5 +67,25 @@ int generateTemplate(TurbCloud& turbines)
 	}
 
 	outFile.close();
+
+	ofstream parameterFile("parameterTemp.csv");
+	if (!parameterFile)
+	{
+		std::cerr << "Cannot Open File!" << std::endl;
+		return 1;
+	}
+	parameterFile << "Value,Name,Detailed Description" << endl;
+	parameterFile << uBegin << ",uBegin,Minimum Wind Speed for Calculating the Yaw Matrix" << endl;
+	parameterFile << uEnd << ",uEnd,Maximum Wind Speed for Calculating the Yaw Matrix" << endl;
+	parameterFile << thetaBegin << ",thetaBegin,Minimum Wind Direction for Calculating the Yaw Matrix" << endl;
+	parameterFile << thetaEnd << ",thetaEnd,Maximum Wind Direction for Calculating the Yaw Matrix" << endl;
+	parameterFile << deltaU << ",deltaU, Wind Speed Interval to Generate the Yaw Matrix" << endl;
+	parameterFile << deltaTheta << ",deltaTheta, Wind Direction Interval to Generate the Yaw Matrix" << endl;
+	parameterFile << ky << ",ky,Wake Width Growth Rate in y Direction" << endl;
+	parameterFile << kz << ",kz,Wake Width Growth Rate in z Direction" << endl;
+	parameterFile << I << ",I,Turbulence Intensity" << endl;
+	parameterFile << rho << ",rho,Air Density" << endl;
+	parameterFile << tol << ",tol,Optimal Tolerance" << endl;
+	parameterFile.close();
 	return 0;
 }

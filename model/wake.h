@@ -9,7 +9,7 @@ using Pair = pair<double, int>;
 class Wake
 {
 public:
-	TurbCloud* turbines;
+	TurbCloud* turbines = nullptr;
 	Column vel; // 每个风机处的速度
 	double u, theta; // 来流风速大小及方向
 	Wake();

@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.10)
 
-project ("wakeControl")
+project ("figure")
 aux_source_directory(./ SRC)
 
 link_directories(${LIBPATH})
@@ -15,4 +15,4 @@ link_libraries(simulation)
 link_libraries(run)
 
 set(EXECUTABLE_OUTPUT_PATH ${WAKECONTROL}/bin)
-add_executable (wakeControl ${SRC})
+add_executable (figure ${SRC})

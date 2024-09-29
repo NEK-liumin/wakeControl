@@ -18,4 +18,6 @@
 #include "simulation.h"
 #include "Gauss2.h"
 #include "Gauss3.h"
+#include "Blondel.h"
+#include "run.h"
 #endif // !HEAD_H

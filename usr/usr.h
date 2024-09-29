@@ -67,6 +67,8 @@ public:
 	double f0; //初始时刻的发电功率，用于缩放。
 	Yaw(int size_x, int size_i);
 	Yaw(double& wind, double& theta360, double& rho, Model& model);
+	// 重新对对象进行设置
+	int reset(double& wind, double& theta360, double& rho, Model& model);
 	void set_size(int size_x, int size_i);
 	void init();
 	void init(int size_x, int size_i, Column& x, Column& mu);

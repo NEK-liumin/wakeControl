@@ -155,6 +155,8 @@ public:
 		
 
 		getUg(vel, Uinf, C, yTurb, zTurb, y, z, delta, sigmay, sigmaz);
+		//cout << "in Gauss3.getVel" << endl;
+		//cout << vel << endl;
 		return 0;
 	}
 	

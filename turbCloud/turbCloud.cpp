@@ -107,18 +107,18 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 	if (velo_i == uWind[0])
 	{
 		ct_i = Ct[type_i][0];
-		if (ct_i >= 1)
+		if (ct_i >= 0.95)
 		{
-			ct_i = 0.99999999;
+			ct_i = 0.95;
 		}
 		return 0;
 	}
 	if (velo_i == uWind[uNum - 1])
 	{
 		ct_i = Ct[type_i][uNum - 1];
-		if (ct_i >= 1)
+		if (ct_i >= 0.95)
 		{
-			ct_i = 0.99999999;
+			ct_i = 0.95;
 		}
 		return 0;
 	}
@@ -138,9 +138,9 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 	{
 		ct_i = 0;
 	}
-	if (ct_i >= 1)
+	if (ct_i >= 0.95)
 	{
-		ct_i = 0.99999999;
+		ct_i = 0.95;
 	}
 	return 0;
 }

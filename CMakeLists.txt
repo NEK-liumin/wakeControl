@@ -10,10 +10,13 @@ else()
 endif()
 
 
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10)
 
 project ("base")
 #当前目录，即根目录
+
+set(CMAKE_CXX_STANDARD 17)
+
 set(WAKECONTROL ${PROJECT_SOURCE_DIR})
 set(LIBPATH ${PROJECT_SOURCE_DIR}/lib)
 #main函数所在目录
@@ -33,6 +36,7 @@ include_directories(${PROJECT_SOURCE_DIR}/input)
 include_directories(${PROJECT_SOURCE_DIR}/template)
 include_directories(${PROJECT_SOURCE_DIR}/tecplot)
 include_directories(${PROJECT_SOURCE_DIR}/simulation)
+include_directories(${PROJECT_SOURCE_DIR}/run)
 #子目录
 add_subdirectory(matrixOperation)
 add_subdirectory(model)
@@ -46,6 +50,7 @@ add_subdirectory(wakeControl)
 add_subdirectory(template)
 add_subdirectory(tecplot)
 add_subdirectory(simulation)
+add_subdirectory(run)
 
 # 将源代码添加到此项目的可执行文件。
 #set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)

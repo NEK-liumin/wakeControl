@@ -17,10 +17,13 @@ public:
 	Simulation();
 	Simulation(double& wind, double& theta360, Model& model);
 	int setAll(double& wind, double& theta360, Model& model);
-	// 下面的函数是为了作图，输入的角度为角度制，且逆时针为正方向
+	// 为了作图，输入的角度为角度制，且逆时针为正方向
 	int run(Column& gamma, bool isPlot);
-	// 下面这个只求尾流，不画图。且输入的gamma为弧度制，且顺时针为正方向
+	// 只求尾流，不画图。且输入的gamma为弧度制，且逆时针为正方向
 	// 在求最优角度过程中被调用
 	int run(Column& gamma);
+	// 只求尾流，不画图。且输入的gamma为弧度制，且逆时针为正方向
+	// 在求最优角度过程中被调用,且返回总发电功率
+	int run(double& f, Column& gamma);
 };
 #endif // !SIMULATION_H
