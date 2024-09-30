@@ -6,7 +6,7 @@
 class Input
 {
 public:
-	TurbCloud* turbines;
+	TurbCloud* turbines; //析构不释放指向的地址。因为地址来自传入的变量
 	Input()
 	{
 		turbines = nullptr;

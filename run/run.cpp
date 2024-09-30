@@ -149,7 +149,11 @@ int Run::getMatrix()
 int Run::outputMatrix()
 {
 	double theta_i = 0, u_i = 0;
-	std::filesystem::path outputDir("output");
+	std::filesystem::path output("output");
+	std::filesystem::path matrix("yawMatrix");
+	std::filesystem::path outputDir;
+	outputDir = output / matrix;
+
 	if (!std::filesystem::exists(outputDir))
 	{
 		std::filesystem::create_directory(outputDir);
@@ -176,7 +180,7 @@ int Run::outputMatrix()
 			file << "U \\ Theta,";
 			for (int k = 0; k < nLoopTheta; ++k)
 			{
-				theta_i = k * deltaTheta;
+				theta_i = thetaBegin + k * deltaTheta;
 				file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
 				if (k < nLoopTheta - 1)
 				{
@@ -316,7 +320,11 @@ int Run::outputAbsMatrix()
 {
 	double theta_i = 0, u_i = 0;
 	double AbsGamma = 0; //风机的绝对偏转角度。风向为0，且正对风时，偏航角度为0
-	std::filesystem::path outputDir("output");
+	std::filesystem::path output("output");
+	std::filesystem::path matrix("yawMatrix");
+	std::filesystem::path outputDir;
+	outputDir = output / matrix;
+
 	if (!std::filesystem::exists(outputDir))
 	{
 		std::filesystem::create_directory(outputDir);
@@ -343,7 +351,7 @@ int Run::outputAbsMatrix()
 			file << "U \\ Theta,";
 			for (int k = 0; k < nLoopTheta; ++k)
 			{
-				theta_i = k * deltaTheta;
+				theta_i = thetaBegin + k * deltaTheta;
 				file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
 				if (k < nLoopTheta - 1)
 				{
@@ -484,7 +492,11 @@ int Run::outputAbsMatrix()
 int Run::outputMatrixT()
 {
 	double theta_i = 0, u_i = 0;
-	std::filesystem::path outputDir("output");
+	std::filesystem::path output("output");
+	std::filesystem::path matrix("yawMatrix");
+	std::filesystem::path outputDir;
+	outputDir = output / matrix;
+
 	if (!std::filesystem::exists(outputDir))
 	{
 		std::filesystem::create_directory(outputDir);
@@ -523,7 +535,7 @@ int Run::outputMatrixT()
 			file << std::endl;
 			for (int k = 0; k < nLoopTheta; ++k)
 			{
-				theta_i = deltaTheta * k;
+				theta_i = thetaBegin + deltaTheta * k;
 				file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
 				for (int j = 0; j < nLoopU; ++j)
 				{
@@ -656,7 +668,12 @@ int Run::outputAbsMatrixT()
 {
 	double theta_i = 0, u_i = 0;
 	double absGamma = 0;
-	std::filesystem::path outputDir("output");
+
+	std::filesystem::path output("output");
+	std::filesystem::path matrix("yawMatrix");
+	std::filesystem::path outputDir;
+	outputDir = output / matrix;
+
 	if (!std::filesystem::exists(outputDir))
 	{
 		std::filesystem::create_directory(outputDir);
@@ -695,7 +712,7 @@ int Run::outputAbsMatrixT()
 			file << std::endl;
 			for (int k = 0; k < nLoopTheta; ++k)
 			{
-				theta_i = deltaTheta * k;
+				theta_i = thetaBegin + deltaTheta * k;
 				file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
 				for (int j = 0; j < nLoopU; ++j)
 				{

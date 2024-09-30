@@ -82,7 +82,7 @@ Yaw::Yaw(double& wind, double& theta360, double& rho, Model& model)
 
 int Yaw::reset(double& wind, double& theta360, double& rho, Model& model)
 {
-	double range = 2.0 / 180.0 * PI; // 初始时刻，每个风机的偏航角会在正负range之间随机产生
+	double range = 1.0 / 180.0 * PI; // 初始时刻，每个风机的偏航角会在正负range之间随机产生
 	simulation.setAll(wind, theta360, model);
 	this->rho = rho;
 	this->size_x = simulation.turbines.turbNum;

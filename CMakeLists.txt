@@ -37,6 +37,9 @@ include_directories(${PROJECT_SOURCE_DIR}/template)
 include_directories(${PROJECT_SOURCE_DIR}/tecplot)
 include_directories(${PROJECT_SOURCE_DIR}/simulation)
 include_directories(${PROJECT_SOURCE_DIR}/run)
+include_directories(${PROJECT_SOURCE_DIR}/figure)
+include_directories(${PROJECT_SOURCE_DIR}/statistics)
+
 #子目录
 add_subdirectory(matrixOperation)
 add_subdirectory(model)
@@ -51,6 +54,8 @@ add_subdirectory(template)
 add_subdirectory(tecplot)
 add_subdirectory(simulation)
 add_subdirectory(run)
+add_subdirectory(figure)
+add_subdirectory(statistics)
 
 # 将源代码添加到此项目的可执行文件。
 #set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)

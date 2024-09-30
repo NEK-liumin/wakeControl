@@ -8,18 +8,6 @@
 
 // using namespace std;
 
-// 输出偏航矩阵
-int outputMatrix(vector<vector<vector<double>>>& gamma360);
-
-// 输出偏航矩阵，并标注风速和风向
-int outputMatrix(vector<vector<vector<double>>>& gamma360, double& uBegin, double& deltaU, double& deltaTheta);
-
-// 输出转置后的偏航矩阵，并标注风速和方向
-int outputMatrixT(vector<vector<vector<double>>>& gamma360, double& uBegin, double& deltaU, double& deltaTheta);
-
-// 输出转置后的偏航矩阵，并标注风速和风向（绝对偏航方向）
-int outputMatrixT2(vector<vector<vector<double>>>& gamma360, double& uBegin, double& deltaU, double& deltaTheta);
-
 int yawTest()
 {
 	// 定义空气密度
@@ -169,10 +157,8 @@ int main()
 	// getYawMatrix();
 
 	Run run;
-	cout << run.uBegin << endl;
-	std::cin.get();
 	run.getMatrix();
-	run.outputAbsMatrixT();
+	run.outputMatrixT();
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;
