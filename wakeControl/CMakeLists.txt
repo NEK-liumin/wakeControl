@@ -14,6 +14,7 @@ link_libraries(tecplot)
 link_libraries(simulation)
 link_libraries(run)
 link_libraries(statistics)
+link_libraries(excel)
 
 set(EXECUTABLE_OUTPUT_PATH ${WAKECONTROL}/bin)
 add_executable (wakeControl ${SRC})

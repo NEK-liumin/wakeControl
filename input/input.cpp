@@ -7,7 +7,7 @@
 
 int Input::readFile()
 {
-    std::ifstream file("turbinesInfo.csv");
+    std::ifstream file("input/turbinesInfo.csv");
     if (!file.is_open())
     {
         std::cerr << "无法打开风机配置文件" << std::endl;

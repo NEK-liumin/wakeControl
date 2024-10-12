@@ -5,13 +5,17 @@
 #include "usr.h"
 #include "matrixOperation.h"
 
+// 偏航矩阵的计算与输出
 class Run
 {
 public:
 	// 偏航矩阵
 	vector<vector<vector<double>>> gamma360;
+	vector<double> u, theta360;
 	// 每个风速和风向下，风场偏航前后的总发电功率，以及偏航后总发电功率的增加量
 	Matrix P0, P, deltaP;
+	// 每个风速和风向下，每台风机偏航前后的发电功率，以及偏航后发电功率的增加量
+	vector<Matrix> P0_i, P_i, deltaP_i;
 	// 只计算此区间的偏航矩阵
 	double uBegin = 5, uEnd = 12; 
 	double thetaBegin = 0, thetaEnd = 350;
@@ -26,12 +30,14 @@ public:
 	double rho = 1.225;
 	// 默认的优化容差
 	double tol = 1e-5;
-	// 默认的风速和风向（后缀360表示角度制）
-	double u = uBegin, theta360 = 0;
 	// 默认的尾流模型
 	Blondel model = Blondel(ky, kz, I);
+	// 默认的初始随机范围（-randomRange,randomRange）
+	double randomRange = 5.0 / 180.0 * PI;
+	// 当得到偏航角绝对值小于smallGamma，取0
+	double smallGamma = 2;
 	// 默认的优化问题
-	Yaw yaw = Yaw(u, theta360, rho, model);
+	Yaw yaw = Yaw(uBegin, thetaBegin, rho, model, randomRange);
 
 	Run();
 	Run(double& uBegin, double& uEnd, double& deltaU, double& deltaTheta);
@@ -42,10 +48,10 @@ public:
 	int getMatrix();
 
 	// 输出偏航矩阵，并标注风速和风向
-	int outputMatrix();
+	int outputMatrix(bool isTranspose);
 
 	// 输出绝对偏航矩阵，并标注风速和风向
-	int outputAbsMatrix();
+	int outputAbsMatrix(bool isTranspose);
 
 	// 输出转置后的偏航矩阵，并标注风速和方向
 	int outputMatrixT();

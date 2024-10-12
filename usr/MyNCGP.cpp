@@ -1,5 +1,6 @@
 ﻿#include "usr.h"
 
+
 MyNCGP::MyNCGP(int size_x)
 {
 	this->size_x = size_x;

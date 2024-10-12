@@ -59,7 +59,7 @@ int Tecplot2D::output()
 
 	if (!outFile)
 	{
-		std::cerr << "Cannot Open File!" << std::endl;
+		std::cerr << "Cannot Open File " << fileName << "!" << std::endl;
 		return 1;
 	}
 	if (variNum == 0)

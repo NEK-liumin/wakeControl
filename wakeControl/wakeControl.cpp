@@ -37,7 +37,8 @@ int yawTest()
 		simulation.run(gamma360, isPlot);
 		cout << "尾流计算结束" << endl;*/
 		// 定义优化问题
-	Yaw yaw = Yaw(wind, theta360, rho, model);
+	double randomRange = 5.0 / 180 * PI;
+	Yaw yaw = Yaw(wind, theta360, rho, model, randomRange);
 
 	/*for (int i = 0; i < 36; i++)
 	{
@@ -158,7 +159,22 @@ int main()
 
 	Run run;
 	run.getMatrix();
-	run.outputMatrixT();
+	run.outputMatrix(true);
+	Statistics statistics;
+	statistics.setStatistisc(run);
+	statistics.readFile(true);
+	statistics.powerStatistics(true);
+	statistics.windStatistics(true);
+	statistics.power_iStatistics(true);
+	statistics.annualPowerGeneration();
+	/*bool isDelBadVal = true;
+	Statistics statistics;
+	statistics.readFile(isDelBadVal);
+	statistics.windStatistics();
+	printA(statistics.pWindSpeed);
+	printA(statistics.pWindTheta);*/
+	//printA(statistics.windSpeed);
+	
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;

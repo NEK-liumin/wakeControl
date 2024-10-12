@@ -19,6 +19,7 @@ public:
 	double f;
 	Column g;
 	Matrix H;
+	int count; // 迭代了多少次
 	virtual void set_size(int size_x) {};
 	virtual void init() {};
 	virtual void init(int size_x, Column& x) {};

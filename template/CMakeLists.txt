@@ -10,7 +10,7 @@ link_libraries(solver)
 link_libraries(usr)
 link_libraries(turbCloud)
 link_libraries(input)
-
+link_libraries(excel)
 
 
 set(EXECUTABLE_OUTPUT_PATH ${WAKECONTROL}/bin)

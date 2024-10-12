@@ -8,6 +8,7 @@
 
 #include <sstream>
 #include <string>
+#include "excel.h"
 
 Run::Run()
 {
@@ -23,7 +24,7 @@ Run::Run(double& uBegin, double& uEnd, double& deltaU, double& deltaTheta)
 
 int Run::readParameter()
 {
-	std::ifstream file("parameter.csv");
+	std::ifstream file("input/parameter.csv");
 	if (!file.is_open())
 	{
 		std::cerr << "parameter.csv is not found and default parameters are used!" << std::endl;
@@ -88,7 +89,6 @@ int Run::readParameter()
 
 int Run::getMatrix()
 {
-	double smallGamma = 2; // 当得到偏航角绝对值小于该值，取0
 	cout << "The wind turbine yaw matrix is being calculated..." << endl;
 	int nLoopU = floor((uEnd - uBegin) / deltaU) + 1;
 	int nLoopTheta = floor((thetaEnd - thetaBegin) / deltaTheta) + 1;
@@ -99,6 +99,24 @@ int Run::getMatrix()
 	P0.resize(nLoopU);
 	P.resize(nLoopU);
 	deltaP.resize(nLoopU);
+	u.resize(nLoopU);
+
+	P0_i.resize(yaw.size_x);
+	P_i.resize(yaw.size_x);
+	deltaP_i.resize(yaw.size_x);
+
+	for (int i = 0; i < yaw.size_x; ++i)
+	{
+		P0_i[i].resize(nLoopU);
+		P_i[i].resize(nLoopU);
+		deltaP_i[i].resize(nLoopU);
+		for (int j = 0; j < nLoopU; ++j)
+		{
+			P0_i[i][j].resize(nLoopTheta);
+			P_i[i][j].resize(nLoopTheta);
+			deltaP_i[i][j].resize(nLoopTheta);
+		}
+	}
 
 	for (int i = 0; i < nLoopU; ++i)
 	{
@@ -113,14 +131,24 @@ int Run::getMatrix()
 			gamma360[i][j].resize(yaw.size_x);
 		}
 	}
+	theta360.resize(nLoopTheta);
+
+	for (int i = 0; i < nLoopU; ++i)
+	{
+		u[i] = uBegin + i * deltaU;
+	}
+	for (int j = 0; j < nLoopTheta; ++j)
+	{
+		theta360[j] = thetaBegin + j * deltaTheta;
+	}
 	for (int i = 0; i < nLoopU; ++i)
 	{
 		for (int j = 0; j < nLoopTheta; ++j)
 		{
-			u = uBegin + i * deltaU;
-			theta360 = thetaBegin + j * deltaTheta;
-
-			yaw.reset(u, theta360, rho, model);
+			
+			yaw.reset(u[i], theta360[j], rho, model, randomRange);
+			//cout << "u = " << u << "theta = " << theta360 << endl;
+			//printA(yaw.g);
 			SQPIC_solver(yaw, tol);
 
 			yaw.outputGamma(gamma360[i][j]);
@@ -131,6 +159,13 @@ int Run::getMatrix()
 				{
 					gamma360[i][j][k] = 0;
 				}
+			}
+
+			for (int k = 0; k < yaw.size_x; ++k)
+			{
+				P0_i[k][i][j] = yaw.f0_i[k];
+				P_i[k][i][j] = yaw.f_i[k];
+				deltaP_i[k][i][j] = yaw.f_i[k] - yaw.f0_i[k];
 			}
 
 			P0[i][j] = yaw.initialPower();
@@ -146,13 +181,17 @@ int Run::getMatrix()
 	return 0;
 }
 
-int Run::outputMatrix()
+int Run::outputMatrix(bool isTranspose)
 {
-	double theta_i = 0, u_i = 0;
 	std::filesystem::path output("output");
 	std::filesystem::path matrix("yawMatrix");
 	std::filesystem::path outputDir;
 	outputDir = output / matrix;
+
+	if (!std::filesystem::exists(output))
+	{
+		std::filesystem::create_directory(output);
+	}
 
 	if (!std::filesystem::exists(outputDir))
 	{
@@ -163,390 +202,56 @@ int Run::outputMatrix()
 	nLoopTheta = gamma360[0].size();
 	nLoopTurbine = gamma360[0][0].size();
 
-	std::string P0name = (outputDir / "P0.csv").string();
-	std::string Pname = (outputDir / "P.csv").string();
-	std::string deltaPname = (outputDir / "deltaP.csv").string();
-
-	std::ofstream P0file(P0name);
-	std::ofstream Pfile(Pname);
-	std::ofstream deltaPfile(deltaPname);
-
-	for (int i = 0; i < nLoopTurbine; ++i)
+	if (isTranspose)
 	{
-		std::string filename = (outputDir / (std::to_string(i + 1) + ".csv")).string();
-		std::ofstream file(filename);
-		if (file.is_open())
+		for (int i = 0; i < nLoopTurbine; ++i)
 		{
-			file << "U \\ Theta,";
-			for (int k = 0; k < nLoopTheta; ++k)
+			std::string filename = (outputDir / (std::to_string(i + 1) + ".csv")).string();
+			std::ofstream file(filename);
+			if (file.is_open())
 			{
-				theta_i = thetaBegin + k * deltaTheta;
-				file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
-				if (k < nLoopTheta - 1)
-				{
-					file << ",";
-				}
-			}
-			file << std::endl;
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				u_i = uBegin + deltaU * j;
-				file << std::setw(6) << std::setprecision(2) << std::fixed << u_i << ",";
-				for (int k = 0; k < nLoopTheta; ++k)
-				{
-					file << std::setw(6) << std::setprecision(2) << std::fixed << gamma360[j][k][i];
-					if (k < nLoopTheta - 1)
-					{
-						file << ",";
-					}
-				}
-				file << std::endl;
-			}
-			std::cout << "Turbine " << i + 1 << " yaw matrix has been output!" << endl;
-		}
-		else
-		{
-			std::cerr << "Failed to create file: " << filename << std::endl;
-		}
-		file.close();
-	}
-
-	if (P0file.is_open())
-	{
-		P0file << "U \\ Theta,";
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = k * deltaTheta;
-			P0file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
-			if (k < nLoopTheta - 1)
-			{
-				P0file << ",";
-			}
-		}
-		P0file << std::endl;
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + deltaU * j;
-			P0file << std::setw(6) << std::setprecision(2) << std::fixed << u_i << ",";
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				P0file << std::setw(6) << std::setprecision(2) << std::fixed << P0[j][k];
-				if (k < nLoopTheta - 1)
-				{
-					P0file << ",";
-				}
-			}
-			P0file << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << P0name << std::endl;
-	}
-	P0file.close();
-
-	if (Pfile.is_open())
-	{
-		Pfile << "U \\ Theta,";
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = k * deltaTheta;
-			Pfile << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
-			if (k < nLoopTheta - 1)
-			{
-				Pfile << ",";
-			}
-		}
-		Pfile << std::endl;
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + deltaU * j;
-			Pfile << std::setw(6) << std::setprecision(2) << std::fixed << u_i << ",";
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				Pfile << std::setw(6) << std::setprecision(2) << std::fixed << P[j][k];
-				if (k < nLoopTheta - 1)
-				{
-					Pfile << ",";
-				}
-			}
-			Pfile << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << Pname << std::endl;
-	}
-	Pfile.close();
-
-	if (deltaPfile.is_open())
-	{
-		deltaPfile << "U \\ Theta,";
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = k * deltaTheta;
-			deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
-			if (k < nLoopTheta - 1)
-			{
-				deltaPfile << ",";
-			}
-		}
-		deltaPfile << std::endl;
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + deltaU * j;
-			deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << u_i << ",";
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << deltaP[j][k];
-				if (k < nLoopTheta - 1)
-				{
-					deltaPfile << ",";
-				}
-			}
-			deltaPfile << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << deltaPname << std::endl;
-	}
-	deltaPfile.close();
-
-	return 0;
-}
-
-int Run::outputAbsMatrix()
-{
-	double theta_i = 0, u_i = 0;
-	double AbsGamma = 0; //风机的绝对偏转角度。风向为0，且正对风时，偏航角度为0
-	std::filesystem::path output("output");
-	std::filesystem::path matrix("yawMatrix");
-	std::filesystem::path outputDir;
-	outputDir = output / matrix;
-
-	if (!std::filesystem::exists(outputDir))
-	{
-		std::filesystem::create_directory(outputDir);
-	}
-	int nLoopU, nLoopTheta, nLoopTurbine;
-	nLoopU = gamma360.size();
-	nLoopTheta = gamma360[0].size();
-	nLoopTurbine = gamma360[0][0].size();
-
-	std::string P0name = (outputDir / "P0.csv").string();
-	std::string Pname = (outputDir / "P.csv").string();
-	std::string deltaPname = (outputDir / "deltaP.csv").string();
-
-	std::ofstream P0file(P0name);
-	std::ofstream Pfile(Pname);
-	std::ofstream deltaPfile(deltaPname);
-
-	for (int i = 0; i < nLoopTurbine; ++i)
-	{
-		std::string filename = (outputDir / (std::to_string(i + 1) + ".csv")).string();
-		std::ofstream file(filename);
-		if (file.is_open())
-		{
-			file << "U \\ Theta,";
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				theta_i = thetaBegin + k * deltaTheta;
-				file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
-				if (k < nLoopTheta - 1)
-				{
-					file << ",";
-				}
-			}
-			file << std::endl;
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				u_i = uBegin + deltaU * j;
-				file << std::setw(6) << std::setprecision(2) << std::fixed << u_i << ",";
-				for (int k = 0; k < nLoopTheta; ++k)
-				{
-					theta_i = k * deltaTheta;
-					AbsGamma = theta_i + gamma360[j][k][i];
-					file << std::setw(6) << std::setprecision(2) << std::fixed << AbsGamma;
-					if (k < nLoopTheta - 1)
-					{
-						file << ",";
-					}
-				}
-				file << std::endl;
-			}
-			std::cout << "Turbine " << i + 1 << " yaw matrix has been output!" << endl;
-		}
-		else
-		{
-			std::cerr << "Failed to create file: " << filename << std::endl;
-		}
-		file.close();
-	}
-
-	if (P0file.is_open())
-	{
-		P0file << "U \\ Theta,";
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = k * deltaTheta;
-			P0file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
-			if (k < nLoopTheta - 1)
-			{
-				P0file << ",";
-			}
-		}
-		P0file << std::endl;
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + deltaU * j;
-			P0file << std::setw(6) << std::setprecision(2) << std::fixed << u_i << ",";
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				P0file << std::setw(6) << std::setprecision(2) << std::fixed << P0[j][k];
-				if (k < nLoopTheta - 1)
-				{
-					P0file << ",";
-				}
-			}
-			P0file << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << P0name << std::endl;
-	}
-	P0file.close();
-
-	if (Pfile.is_open())
-	{
-		Pfile << "U \\ Theta,";
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = k * deltaTheta;
-			Pfile << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
-			if (k < nLoopTheta - 1)
-			{
-				Pfile << ",";
-			}
-		}
-		Pfile << std::endl;
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + deltaU * j;
-			Pfile << std::setw(6) << std::setprecision(2) << std::fixed << u_i << ",";
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				Pfile << std::setw(6) << std::setprecision(2) << std::fixed << P[j][k];
-				if (k < nLoopTheta - 1)
-				{
-					Pfile << ",";
-				}
-			}
-			Pfile << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << Pname << std::endl;
-	}
-	Pfile.close();
-
-	if (deltaPfile.is_open())
-	{
-		deltaPfile << "U \\ Theta,";
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = k * deltaTheta;
-			deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << theta_i;
-			if (k < nLoopTheta - 1)
-			{
-				deltaPfile << ",";
-			}
-		}
-		deltaPfile << std::endl;
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + deltaU * j;
-			deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << u_i << ",";
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << deltaP[j][k];
-				if (k < nLoopTheta - 1)
-				{
-					deltaPfile << ",";
-				}
-			}
-			deltaPfile << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << deltaPname << std::endl;
-	}
-	deltaPfile.close();
-
-	return 0;
-}
-
-int Run::outputMatrixT()
-{
-	double theta_i = 0, u_i = 0;
-	std::filesystem::path output("output");
-	std::filesystem::path matrix("yawMatrix");
-	std::filesystem::path outputDir;
-	outputDir = output / matrix;
-
-	if (!std::filesystem::exists(outputDir))
-	{
-		std::filesystem::create_directory(outputDir);
-	}
-	int nLoopU, nLoopTheta, nLoopTurbine;
-	nLoopU = gamma360.size();
-	nLoopTheta = gamma360[0].size();
-	nLoopTurbine = gamma360[0][0].size();
-
-	std::string P0name = (outputDir / "P0.csv").string();
-	std::string Pname = (outputDir / "P.csv").string();
-	std::string deltaPname = (outputDir / "deltaP.csv").string();
-
-	std::ofstream P0file(P0name);
-	std::ofstream Pfile(Pname);
-	std::ofstream deltaPfile(deltaPname);
-
-	// 将偏航矩阵写入文件
-	for (int i = 0; i < nLoopTurbine; ++i)
-	{
-		std::string filename = (outputDir / (std::to_string(i + 1) + ".csv")).string();
-		std::ofstream file(filename);
-
-		if (file.is_open())
-		{
-			file << "Theta \\ U,";
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				u_i = uBegin + j * deltaU;
-				file << std::setw(6) << std::setprecision(2) << std::fixed << u_i;
-				if (j < nLoopU - 1)
-				{
-					file << ",";
-				}
-			}
-			file << std::endl;
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				theta_i = thetaBegin + deltaTheta * k;
-				file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
+				Matrix gamma,gammaT;
+				gamma.resize(nLoopU);
 				for (int j = 0; j < nLoopU; ++j)
 				{
-					file << std::setw(6) << std::setprecision(2) << std::fixed << gamma360[j][k][i];
-					if (j < nLoopU - 1)
+					gamma[j].resize(nLoopTheta);
+					for (int k = 0; k < nLoopTheta; ++k)
 					{
-						file << ",";
+						gamma[j][k] = gamma360[j][k][i];
 					}
 				}
-				file << std::endl;
+				string varName = "Theta \\ U";
+				getAT(gammaT, gamma);
+				writeExcel(filename, varName, u, theta360, gammaT, 6, 2);
+				std::cout << "Turbine " << i + 1 << " yaw matrix has been output!" << endl;
 			}
+			else
+			{
+				std::cerr << "Failed to create file: " << filename << std::endl;
+			}
+			file.close();
+		}
+		return 0;
+	}
+
+	for (int i = 0; i < nLoopTurbine; ++i)
+	{
+		std::string filename = (outputDir / (std::to_string(i + 1) + ".csv")).string();
+		std::ofstream file(filename);
+		if (file.is_open())
+		{
+			Matrix gamma;
+			gamma.resize(nLoopU);
+			for (int j = 0; j < nLoopU; ++j)
+			{
+				gamma[j].resize(nLoopTheta);
+				for (int k = 0; k < nLoopTheta; ++k)
+				{
+					gamma[j][k] = gamma360[j][k][i];
+				}
+			}
+			string varName = "U \\ Theta";
+			writeExcel(filename, varName, theta360, u, gamma, 6, 2);
 			std::cout << "Turbine " << i + 1 << " yaw matrix has been output!" << endl;
 		}
 		else
@@ -555,125 +260,22 @@ int Run::outputMatrixT()
 		}
 		file.close();
 	}
-
-	if (P0file.is_open())
-	{
-		P0file << "Theta \\ U,";
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + j * deltaU;
-			P0file << std::setw(6) << std::setprecision(2) << std::fixed << u_i;
-			if (j < nLoopU - 1)
-			{
-				P0file << ",";
-			}
-		}
-		P0file << std::endl;
-
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = deltaTheta * k;
-			P0file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				P0file << std::setw(6) << std::setprecision(2) << std::fixed << P0[j][k];
-				if (j < nLoopU - 1)
-				{
-					P0file << ",";
-				}
-			}
-			P0file << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << P0name << std::endl;
-	}
-	P0file.close();
-
-	if (Pfile.is_open())
-	{
-		Pfile << "Theta \\ U,";
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + j * deltaU;
-			Pfile << std::setw(6) << std::setprecision(2) << std::fixed << u_i;
-			if (j < nLoopU - 1)
-			{
-				Pfile << ",";
-			}
-		}
-		Pfile << std::endl;
-
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = deltaTheta * k;
-			Pfile << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				Pfile << std::setw(6) << std::setprecision(2) << std::fixed << P[j][k];
-				if (j < nLoopU - 1)
-				{
-					Pfile << ",";
-				}
-			}
-			Pfile << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << Pname << std::endl;
-	}
-	Pfile.close();
-
-	if (deltaPfile.is_open())
-	{
-		deltaPfile << "Theta \\ U,";
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + j * deltaU;
-			deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << u_i;
-			if (j < nLoopU - 1)
-			{
-				deltaPfile << ",";
-			}
-		}
-		deltaPfile << std::endl;
-
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = deltaTheta * k;
-			deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << deltaP[j][k];
-				if (j < nLoopU - 1)
-				{
-					deltaPfile << ",";
-				}
-			}
-			deltaPfile << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << deltaPname << std::endl;
-	}
-	deltaPfile.close();
-
 	return 0;
 }
 
-int Run::outputAbsMatrixT()
+int Run::outputAbsMatrix(bool isTranspose)
 {
 	double theta_i = 0, u_i = 0;
-	double absGamma = 0;
-
+//风机的绝对偏转角度。风向为0，且正对风时，偏航角度为0
 	std::filesystem::path output("output");
 	std::filesystem::path matrix("yawMatrix");
 	std::filesystem::path outputDir;
 	outputDir = output / matrix;
 
+	if (!std::filesystem::exists(output))
+	{
+		std::filesystem::create_directory(output);
+	}
 	if (!std::filesystem::exists(outputDir))
 	{
 		std::filesystem::create_directory(outputDir);
@@ -683,48 +285,58 @@ int Run::outputAbsMatrixT()
 	nLoopTheta = gamma360[0].size();
 	nLoopTurbine = gamma360[0][0].size();
 
-	std::string P0name = (outputDir / "P0.csv").string();
-	std::string Pname = (outputDir / "P.csv").string();
-	std::string deltaPname = (outputDir / "deltaP.csv").string();
+	if (isTranspose)
+	{
+		for (int i = 0; i < nLoopTurbine; ++i)
+		{
+			std::string filename = (outputDir / (std::to_string(i + 1) + ".csv")).string();
+			std::ofstream file(filename);
+			if (file.is_open())
+			{
+				Matrix absGamma, absGammaT; //风机的绝对偏转角度。风向为0，且正对风时，偏航角度为0
+				absGamma.resize(nLoopU);
 
-	std::ofstream P0file(P0name);
-	std::ofstream Pfile(Pname);
-	std::ofstream deltaPfile(deltaPname);
+				for (int j = 0; j < nLoopU; ++j)
+				{
+					absGamma[j].resize(nLoopTheta);
+					for (int k = 0; k < nLoopTheta; ++k)
+					{
+						absGamma[j][k] = gamma360[j][k][i];
+					}
+				}
+				getAT(absGammaT, absGamma);
+				string varName = "Theta \\ U";
+				writeExcel(filename, varName, u, theta360, absGammaT, 6, 2);
+				std::cout << "Turbine " << i + 1 << " yaw matrix has been output!" << endl;
+			}
+			else
+			{
+				std::cerr << "Failed to create file: " << filename << std::endl;
+			}
+			file.close();
+			return 0;
+		}
+	}
 
-	// 将偏航矩阵写入文件
 	for (int i = 0; i < nLoopTurbine; ++i)
 	{
 		std::string filename = (outputDir / (std::to_string(i + 1) + ".csv")).string();
 		std::ofstream file(filename);
-
 		if (file.is_open())
 		{
-			file << "Theta \\ U,";
+			Matrix absGamma; //风机的绝对偏转角度。风向为0，且正对风时，偏航角度为0
+			absGamma.resize(nLoopU);
+
 			for (int j = 0; j < nLoopU; ++j)
 			{
-				u_i = uBegin + j * deltaU;
-				file << std::setw(6) << std::setprecision(2) << std::fixed << u_i;
-				if (j < nLoopU - 1)
+				absGamma[j].resize(nLoopTheta);
+				for (int k = 0; k < nLoopTheta; ++k)
 				{
-					file << ",";
+					absGamma[j][k] = gamma360[j][k][i];
 				}
 			}
-			file << std::endl;
-			for (int k = 0; k < nLoopTheta; ++k)
-			{
-				theta_i = thetaBegin + deltaTheta * k;
-				file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
-				for (int j = 0; j < nLoopU; ++j)
-				{
-					absGamma = theta_i + gamma360[j][k][i];
-					file << std::setw(6) << std::setprecision(2) << std::fixed << absGamma;
-					if (j < nLoopU - 1)
-					{
-						file << ",";
-					}
-				}
-				file << std::endl;
-			}
+			string varName = "U \\ Theta";
+			writeExcel(filename, varName, theta360, u, absGamma, 6, 2);
 			std::cout << "Turbine " << i + 1 << " yaw matrix has been output!" << endl;
 		}
 		else
@@ -733,111 +345,5 @@ int Run::outputAbsMatrixT()
 		}
 		file.close();
 	}
-
-	if (P0file.is_open())
-	{
-		P0file << "Theta \\ U,";
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + j * deltaU;
-			P0file << std::setw(6) << std::setprecision(2) << std::fixed << u_i;
-			if (j < nLoopU - 1)
-			{
-				P0file << ",";
-			}
-		}
-		P0file << std::endl;
-
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = deltaTheta * k;
-			P0file << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				P0file << std::setw(6) << std::setprecision(2) << std::fixed << P0[j][k];
-				if (j < nLoopU - 1)
-				{
-					P0file << ",";
-				}
-			}
-			P0file << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << P0name << std::endl;
-	}
-	P0file.close();
-
-	if (Pfile.is_open())
-	{
-		Pfile << "Theta \\ U,";
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + j * deltaU;
-			Pfile << std::setw(6) << std::setprecision(2) << std::fixed << u_i;
-			if (j < nLoopU - 1)
-			{
-				Pfile << ",";
-			}
-		}
-		Pfile << std::endl;
-
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = deltaTheta * k;
-			Pfile << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				Pfile << std::setw(6) << std::setprecision(2) << std::fixed << P[j][k];
-				if (j < nLoopU - 1)
-				{
-					Pfile << ",";
-				}
-			}
-			Pfile << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << Pname << std::endl;
-	}
-	Pfile.close();
-
-	if (deltaPfile.is_open())
-	{
-		deltaPfile << "Theta \\ U,";
-		for (int j = 0; j < nLoopU; ++j)
-		{
-			u_i = uBegin + j * deltaU;
-			deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << u_i;
-			if (j < nLoopU - 1)
-			{
-				deltaPfile << ",";
-			}
-		}
-		deltaPfile << std::endl;
-
-		for (int k = 0; k < nLoopTheta; ++k)
-		{
-			theta_i = deltaTheta * k;
-			deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << theta_i << ",";
-			for (int j = 0; j < nLoopU; ++j)
-			{
-				deltaPfile << std::setw(6) << std::setprecision(2) << std::fixed << deltaP[j][k];
-				if (j < nLoopU - 1)
-				{
-					deltaPfile << ",";
-				}
-			}
-			deltaPfile << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << deltaPname << std::endl;
-	}
-	deltaPfile.close();
-
 	return 0;
 }

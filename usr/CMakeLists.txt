@@ -6,6 +6,9 @@ cmake_minimum_required (VERSION 3.10)
 project ("usr")
 aux_source_directory(./ SRC)
 
+link_directories(${LIBPATH})
+link_libraries(model)
+
 # 将源代码添加到此项目的可执行文件。
 set(LIBRARY_OUTPUT_PATH ${LIBPATH})
 add_library(usr ${SRC})

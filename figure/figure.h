@@ -3,6 +3,7 @@
 
 #include "run.h"
 
+// 风场尾流云图的计算与输出
 class Figure
 {
 public:

@@ -39,6 +39,7 @@ include_directories(${PROJECT_SOURCE_DIR}/simulation)
 include_directories(${PROJECT_SOURCE_DIR}/run)
 include_directories(${PROJECT_SOURCE_DIR}/figure)
 include_directories(${PROJECT_SOURCE_DIR}/statistics)
+include_directories(${PROJECT_SOURCE_DIR}/excel)
 
 #子目录
 add_subdirectory(matrixOperation)
@@ -56,6 +57,21 @@ add_subdirectory(simulation)
 add_subdirectory(run)
 add_subdirectory(figure)
 add_subdirectory(statistics)
+add_subdirectory(excel)
+
+#link_directories(${LIBPATH})
+#link_libraries(excel)
+#link_libraries(input)
+#link_libraries(matrixOperation)
+#link_libraries(model)
+#link_libraries(run)
+#link_libraries(simulation)
+#link_libraries(solver)
+#link_libraries(statistics)
+#link_libraries(tecplot)
+#link_libraries(turbCloud)
+#link_libraries(usr)
+
 
 # 将源代码添加到此项目的可执行文件。
 #set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)

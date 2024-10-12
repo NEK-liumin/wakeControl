@@ -29,5 +29,8 @@ public:
 	// 只求尾流，不画图。且输入的gamma为弧度制，且逆时针为正方向
 	// 在求最优角度过程中被调用,且返回总发电功率
 	int run(double& f, Column& gamma);
+	//  只求尾流，不画图。且输入的gamma为弧度制，且逆时针为正方向
+	// 返回每台风机的发电功率，用于统计
+	int run(Column& f_i, Column& gamma);
 };
 #endif // !SIMULATION_H

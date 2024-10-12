@@ -20,4 +20,7 @@
 #include "Gauss3.h"
 #include "Blondel.h"
 #include "run.h"
+#include "statistics.h"
+#include "excel.h"
+
 #endif // !HEAD_H

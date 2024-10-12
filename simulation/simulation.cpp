@@ -14,7 +14,7 @@ Simulation::Simulation(double& wind, double& theta360, Model& model)
 	input.setTurb(turbines);
 	input.readFile();
 	
-	theta = theta360 / 180.0 * PI;
+	theta = (270 - theta360) / 180.0 * PI; // 为了匹配输入文件的风向
 	wake.setWake(turbines, wind, theta);
 	this->model = &model;
 }
@@ -25,7 +25,7 @@ int Simulation::setAll(double& wind, double& theta360, Model& model)
 	input.setTurb(turbines);
 	input.readFile();
 
-	theta = theta360 / 180.0 * PI;
+	theta = (270 - theta360) / 180.0 * PI; // 为了匹配输入文件的风向
 	//if (wind - turbines.uMin <= 1e-2) wind = turbines.uMin + 1e-2;//如果环境风太小，计算尾流容易出问题。
 	wake.setWake(turbines, wind, theta);
 	this->model = &model;
@@ -152,5 +152,15 @@ int Simulation::run(double& f, Column& gamma)
 {
 	run(gamma);
 	wake.newTurbines.getPower(f, wake.newVel);
+	return 0;
+}
+// 先获取排序后风机，每台风机的发电功率
+// 然后，对功率重新排序，得到原本的功率
+int Simulation::run(Column& f_i, Column& gamma)
+{
+	run(gamma);
+	wake.newTurbines.getPower(wake.newVel);
+	wake.newPower2Power();
+	f_i = wake.turbines->power_i;
 	return 0;
 }

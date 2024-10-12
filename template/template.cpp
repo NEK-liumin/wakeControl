@@ -4,6 +4,9 @@
 #include <iomanip>
 #include <matrixOperation.h>
 #include "turbCloud.h"
+#include <string>
+#include <filesystem>
+
 using std::vector;
 using std::ofstream;
 using std::cout;
@@ -23,6 +26,16 @@ int generateTemplate(TurbCloud& turbines)
 	//	turbines.D[i] = 150;
 	//}
 
+	std::string inputDir = "input";
+	std::string turbPath = inputDir + "/turbinesInfoTemp.csv";
+	std::string paraPath = inputDir + "/parameterTemp.csv";
+
+	if (!std::filesystem::exists(inputDir))
+	{
+		std::filesystem::create_directories(inputDir);
+	}
+
+
 	double uBegin = 5, uEnd = 12;
 	double thetaBegin = 0, thetaEnd = 350;
 	double deltaU=1, deltaTheta=10;
@@ -31,11 +44,11 @@ int generateTemplate(TurbCloud& turbines)
 	double rho = 1.205;
 	double tol = 1e-5;
 
-	ofstream outFile("turbinesInfoTemp.csv");
+	ofstream outFile(turbPath);
 
-	if (!outFile)
+	if (!outFile.is_open())
 	{
-		std::cerr << "Cannot Open File!" << std::endl;
+		std::cerr << "Error creating file turbinesInfoTemp.csv!" << std::endl;
 		return 1;
 	}
 	outFile << "Wind Turbine Number" << endl;
@@ -68,10 +81,10 @@ int generateTemplate(TurbCloud& turbines)
 
 	outFile.close();
 
-	ofstream parameterFile("parameterTemp.csv");
-	if (!parameterFile)
+	ofstream parameterFile(paraPath);
+	if (!parameterFile.is_open())
 	{
-		std::cerr << "Cannot Open File!" << std::endl;
+		std::cerr << "Error creating file parameterTemp.csv!" << std::endl;
 		return 1;
 	}
 	parameterFile << "Value,Name,Detailed Description" << endl;

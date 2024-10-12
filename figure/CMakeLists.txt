@@ -1,5 +1,7 @@
 ﻿cmake_minimum_required (VERSION 3.10)
 
+set(CMAKE_CXX_STANDARD 17)
+
 project ("figure")
 aux_source_directory(./ SRC)
 
@@ -13,6 +15,7 @@ link_libraries(input)
 link_libraries(tecplot)
 link_libraries(simulation)
 link_libraries(run)
+link_libraries(excel)
 
 set(EXECUTABLE_OUTPUT_PATH ${WAKECONTROL}/bin)
 add_executable (figure ${SRC})

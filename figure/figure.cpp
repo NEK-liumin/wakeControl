@@ -17,6 +17,13 @@ int Figure::outputContour()
 
 	fullPath = outputPath / tecfile;
 
+	// string fullPathName = fullPath.string();
+
+	if (!std::filesystem::exists(outputPath))
+	{
+		std::filesystem::create_directory(outputPath);
+	}
+
 	if (!std::filesystem::exists(fullPath))
 	{
 		std::filesystem::create_directory(fullPath);
@@ -36,32 +43,36 @@ int Figure::outputContour()
 
 	if (option == 0)
 	{
-		Simulation simulation(run.u, run.theta360, run.model);
+		double u, theta360;
+		Simulation simulation(run.uBegin, run.thetaBegin, run.model);
 		Column gamma360;
 		std::ostringstream oss;
 		cout << "Please Enter Wind Speed" << endl;
-		std::cin >> run.u;
+		std::cin >> u;
 		cout << "Please Enter Wind Direction" << endl;
-		std::cin >> run.theta360;
-		run.yaw.reset(run.u, run.theta360, run.rho, run.model);
+		std::cin >> theta360;
+		run.yaw.reset(u, theta360, run.rho, run.model, run.randomRange);
 
 		SQPIC_solver(run.yaw, run.tol);
 		run.yaw.outputGamma(gamma360);
 
-		oss << std::fixed << std::setprecision(p) << run.u << "_" << std::fixed << std::setprecision(p) << run.theta360 << ".dat";
+		oss << std::fixed << std::setprecision(p) << u << "_" << std::fixed << std::setprecision(p) << theta360 << ".dat";
 		fileName = oss.str();
 		fullPath = outputPath / tecfile / fileName;
+		string fullPathName = fullPath.string();
+		cout << fullPath.string() << " is output, please wait..." << endl;
 
-		cout << fullPath.string() << endl;
-
-		simulation.setAll(run.u, run.theta360, run.model);
-		simulation.run(gamma360, true, fullPath.string());
+		simulation.setAll(u, theta360, run.model);
+		simulation.run(gamma360, true, fullPathName);
+		cout << endl;
+		cout << "Done!" << endl;
 		return 0;
 	}
 	if (option == 1)
 	{
+		double u, theta360;
 		double smallGamma = 2;
-		Simulation simulation(run.u, run.theta360, run.model);
+		Simulation simulation(run.uBegin, run.thetaBegin, run.model);
 		cout << "It will take a long time to output all contours, please wait..." << endl;
 		int nLoopU = floor((run.uEnd - run.uBegin) / run.deltaU) + 1;
 		int nLoopTheta = floor((run.thetaEnd - run.thetaBegin) / run.deltaTheta) + 1;
@@ -83,10 +94,10 @@ int Figure::outputContour()
 		{
 			for (int j = 0; j < nLoopTheta; ++j)
 			{
-				run.u = run.uBegin + i * run.deltaU;
-				run.theta360 = run.thetaBegin + j * run.deltaTheta;
+				u = run.uBegin + i * run.deltaU;
+				theta360 = run.thetaBegin + j * run.deltaTheta;
 
-				run.yaw.reset(run.u, run.theta360, run.rho, run.model);
+				run.yaw.reset(u, theta360, run.rho, run.model, run.randomRange);
 				SQPIC_solver(run.yaw, run.tol);
 
 				run.yaw.outputGamma(gamma360[i][j]);
@@ -99,12 +110,12 @@ int Figure::outputContour()
 					}
 				}
 				std::ostringstream oss;
-				oss << std::fixed << std::setprecision(p) << run.u << "_" << std::fixed << std::setprecision(p) << run.theta360 << ".dat";
+				oss << std::fixed << std::setprecision(p) << u << "_" << std::fixed << std::setprecision(p) << theta360 << ".dat";
 				fileName = oss.str();
 				fullPath = outputPath / tecfile / fileName;
-
-				simulation.setAll(run.u, run.theta360, run.model);
-				simulation.run(gamma360[i][j], true, fullPath.string());// 改名字
+				string fullPathName = fullPath.string();
+				simulation.setAll(u, theta360, run.model);
+				simulation.run(gamma360[i][j], true, fullPathName);// 改名字
 
 				count++;
 				cout << "\rProgress: " << std::setw(4) << count << "/" << nLoop << "(" << std::setw(6) << std::setprecision(3) << count * 1.0 / nLoop * 100 << "%)";

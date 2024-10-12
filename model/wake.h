@@ -26,6 +26,8 @@ public:
 	int gamma2NewGamma();
 // 重新排列每个风机的偏航角
 	int newGamma2Gamma();
+// 重新排列每个风机的功率
+	int newPower2Power();
 // 重新排列每个风机处的速度
 	int restoreVel();
 

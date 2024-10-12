@@ -192,3 +192,14 @@ int Wake::newGamma2Gamma()
 	//printA(*turbines->gamma);
 	return 0;
 }
+
+int Wake::newPower2Power()
+{
+	turbines->power_i.resize(turbines->turbNum);
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		int j = index[i].second;
+		turbines->power_i[j] = newTurbines.power_i[i];
+	}
+	return 0;
+}

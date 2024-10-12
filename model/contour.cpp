@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include "Gauss.h"
+#include <algorithm>
 
 using std::ofstream;
 using std::cout;

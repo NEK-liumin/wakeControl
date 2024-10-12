@@ -27,6 +27,8 @@ public:
 	Matrix Cp;
 	// 不同风速下风机的推力系数
 	Matrix Ct;
+	// 每台风机的输出功率，用于统计
+	Column power_i;
 
 	TurbCloud() 
 	{
@@ -50,6 +52,7 @@ public:
 		getZeroColumn(x0, turbNum);
 		getZeroColumn(y0, turbNum);
 		getZeroColumn(z0, turbNum);
+		getZeroColumn(power_i, turbNum);
 		turbType.resize(turbNum);
 
 		getZeroColumn(uWind, uNum);
@@ -75,6 +78,8 @@ public:
 	int getPower(double& power, Column& vel, double& rho);
 	// 在计算完成后才调用，用于校正偏航角：没功率的话就不偏航
 	bool isYaw(Column& vel, int& i);
+	// 计算每台风机的功率
+	int getPower(Column& vel);
 	// 计算总功率
 	int getPower(double& power, Column& vel);
 	int turbPrint();

@@ -5,7 +5,7 @@
 #include "simulation.h"
 #include "model.h"
 #include "Gauss.h"
-
+#include "wake.h"
 // 用户自定义无约束优化问题
 class MyNCGP :public NCGP
 {
@@ -65,10 +65,12 @@ public:
 	double rho;
 	Column xLeft, xRight; // 与当前x接近的点，用于计算梯度
 	double f0; //初始时刻的发电功率，用于缩放。
+	Column f0_i; // 每台风机初始时刻的发电功率，用于统计
+	Column f_i; // 每台风机偏航后的发电功率，用于统计
 	Yaw(int size_x, int size_i);
-	Yaw(double& wind, double& theta360, double& rho, Model& model);
+	Yaw(double& wind, double& theta360, double& rho, Model& model, double& range);
 	// 重新对对象进行设置
-	int reset(double& wind, double& theta360, double& rho, Model& model);
+	int reset(double& wind, double& theta360, double& rho, Model& model, double& range);
 	void set_size(int size_x, int size_i);
 	void init();
 	void init(int size_x, int size_i, Column& x, Column& mu);
@@ -80,12 +82,14 @@ public:
 	void get_ci();
 	void set_Ji();
 	void set_Ji(Matrix& Ji);
-	// 输出原偏航角，单位为°
+	// 输出原偏航角，单位为°（同时输出每台风机偏航前后功率，用于统计）
 	int outputGamma(Column& gamma360);
 	// 输出优化后的发电功率
 	double power(); 
 	// 输出不偏航时的发电功率
 	double initialPower();
+	// 获取每台风机的发电功率
+	int power_i();
 };
 
 // 用户自定义等式及不等式约束优化问题

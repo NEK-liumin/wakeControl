@@ -302,7 +302,9 @@ bool SQPEC_solver(T& problem, double tol)
 template<typename T>
 bool SQPIC_solver(T& problem, double tol)
 {
-	double normal;
+	int countLimit = 100;
+	double normal = 0;
+	problem.count = 0;
 	T problemNext = problem;
 	ICQP subProblem = ICQP(problem.size_x, problem.size_i);
 	Matrix B;
@@ -313,6 +315,12 @@ bool SQPIC_solver(T& problem, double tol)
 	int k = 0;
 	do
 	{
+		problem.count++;
+		problemNext.count++;
+		//printA(problem.g);
+		/*cout << k << endl;
+		cout << normal << endl;*/
+		//cout << problem.count << endl;
 		subProblem.init();
 		subProblem.H = B;
 		subProblem.p = problem.g;
@@ -327,7 +335,7 @@ bool SQPIC_solver(T& problem, double tol)
 		BFGS(B, problem, problemNext);
 		problem = problemNext;
 		normal = norm(subProblem.x);
-	} while (normal > tol);
+	} while (normal > tol && problem.count < countLimit);
 	problem.get_f();
 	return true;
 }

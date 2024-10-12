@@ -196,10 +196,43 @@ int TurbCloud::getPower(double& power, Column& vel)
 			getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
 			power += pc_i; // 单位是kw
 		}
+		// 为避免功率不连续，不采用上述策略
+		//vel_axial = vel[i] * cos((*gamma)[i]);
+		//getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+		//power += pc_i; // 单位是kw
 		
 	}
 	return 0;
 }
+
+int TurbCloud::getPower(Column& vel)
+{
+	double vel_axial;
+	power_i.resize(turbNum);
+	for (int i = 0; i < turbNum; ++i)
+	{
+		// 为了能在切入速度处能正常计算，采用以下策略：
+		// 1. 如果风机处的风速小于切入速度，当前风机的功率取0；
+		// 2. 如果风机处的风速大于等于切入速度，只是风机偏航后，风速的分量小于切入速度
+		//    则会让风机的功率在0和切入速度处的功率之间插值
+		if (vel[i] < uWind[0])
+		{
+			power_i[i] = 0;
+		}
+		else
+		{
+			vel_axial = vel[i] * cos((*gamma)[i]);
+			getCp(power_i[i], vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+		}
+		// 为避免功率不连续，不采用上述策略
+		//vel_axial = vel[i] * cos((*gamma)[i]);
+		//getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+		//power += pc_i; // 单位是kw
+
+	}
+	return 0;
+}
+
 int TurbCloud::turbPrint()
 {
 	ofstream outFile("turbinesInfo_check.csv");
