@@ -205,7 +205,7 @@ int TurbCloud::getPower(double& power, Column& vel)
 	return 0;
 }
 
-int TurbCloud::getPower(Column& vel)
+int TurbCloud::getPower(Column& power_i, Column& vel)
 {
 	double vel_axial;
 	power_i.resize(turbNum);
@@ -223,6 +223,60 @@ int TurbCloud::getPower(Column& vel)
 		{
 			vel_axial = vel[i] * cos((*gamma)[i]);
 			getCp(power_i[i], vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+		}
+		// 为避免功率不连续，不采用上述策略
+		//vel_axial = vel[i] * cos((*gamma)[i]);
+		//getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+		//power += pc_i; // 单位是kw
+
+	}
+	return 0;
+}
+
+int TurbCloud::getHypothesisPower(Column& power_i, double& vel)
+{
+	power_i.resize(turbNum);
+	for (int i = 0; i < turbNum; ++i)
+	{
+		// 为了能在切入速度处能正常计算，采用以下策略：
+		// 1. 如果风机处的风速小于切入速度，当前风机的功率取0；
+		// 2. 如果风机处的风速大于等于切入速度，只是风机偏航后，风速的分量小于切入速度
+		//    则会让风机的功率在0和切入速度处的功率之间插值
+		if (vel < uWind[0])
+		{
+			power_i[i] = 0;
+		}
+		else
+		{
+			getCp(power_i[i], vel, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+		}
+		// 为避免功率不连续，不采用上述策略
+		//vel_axial = vel[i] * cos((*gamma)[i]);
+		//getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+		//power += pc_i; // 单位是kw
+
+	}
+	return 0;
+}
+
+int TurbCloud::getHypothesisPower(double& power, double& vel)
+{
+	power = 0.0;
+	double pc_i; // 这里实际上调用的是功率曲线，而不是功率系数曲线
+	for (int i = 0; i < turbNum; ++i)
+	{
+		// 为了能在切入速度处能正常计算，采用以下策略：
+		// 1. 如果风机处的风速小于切入速度，当前风机的功率取0；
+		// 2. 如果风机处的风速大于等于切入速度，只是风机偏航后，风速的分量小于切入速度
+		//    则会让风机的功率在0和切入速度处的功率之间插值
+		if (vel < uWind[0])
+		{
+			power += 0;
+		}
+		else
+		{
+			getCp(pc_i, vel, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+			power += pc_i; // 单位是kw
 		}
 		// 为避免功率不连续，不采用上述策略
 		//vel_axial = vel[i] * cos((*gamma)[i]);

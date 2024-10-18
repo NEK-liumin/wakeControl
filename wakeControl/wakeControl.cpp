@@ -157,16 +157,20 @@ int main()
 	// yawTest();
 	// getYawMatrix();
 
-	Run run;
-	run.getMatrix();
-	run.outputMatrix(true);
-	Statistics statistics;
-	statistics.setStatistisc(run);
-	statistics.readFile(true);
-	statistics.powerStatistics(true);
-	statistics.windStatistics(true);
-	statistics.power_iStatistics(true);
-	statistics.annualPowerGeneration();
+	//Run run;
+	//run.getMatrix();
+	//run.outputMatrix(true);
+	//Statistics statistics;
+	//statistics.setStatistisc(run);
+	//statistics.readFile(true);
+	//statistics.powerStatistics();
+	//statistics.windStatistics();
+	//statistics.power_iStatistics();
+	//statistics.annualPowerGeneration();
+
+	//statistics.writeFile(true);
+
+
 	/*bool isDelBadVal = true;
 	Statistics statistics;
 	statistics.readFile(isDelBadVal);
@@ -174,7 +178,6 @@ int main()
 	printA(statistics.pWindSpeed);
 	printA(statistics.pWindTheta);*/
 	//printA(statistics.windSpeed);
-	
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> duration = end - start;

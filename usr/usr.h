@@ -65,8 +65,8 @@ public:
 	double rho;
 	Column xLeft, xRight; // 与当前x接近的点，用于计算梯度
 	double f0; //初始时刻的发电功率，用于缩放。
-	Column f0_i; // 每台风机初始时刻的发电功率，用于统计
-	Column f_i; // 每台风机偏航后的发电功率，用于统计
+	// Column f0_i; // 每台风机初始时刻的发电功率，用于统计(定义的时候就计算好了)
+	// Column f_i; // 每台风机偏航后的发电功率，用于统计
 	Yaw(int size_x, int size_i);
 	Yaw(double& wind, double& theta360, double& rho, Model& model, double& range);
 	// 重新对对象进行设置
@@ -88,8 +88,14 @@ public:
 	double power(); 
 	// 输出不偏航时的发电功率
 	double initialPower();
-	// 获取每台风机的发电功率
-	int power_i();
+	// 输出假设没有尾流时，整个风场的发电功率
+	double hypotheticalPower();
+	// 获取优化后每台风机的发电功率
+	Column power_i();
+	// 输出不偏航每台风机的发电功率
+	Column initialPower_i();
+	// 输出假设没有尾流时，每台风机的发电功率
+	Column hypotheticalPower_i();
 };
 
 // 用户自定义等式及不等式约束优化问题

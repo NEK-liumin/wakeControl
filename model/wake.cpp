@@ -151,7 +151,7 @@ int Wake::restoreVel()
 	for (int i = 0; i < turbines->turbNum; ++i)
 	{
 		int j = index[i].second;
-		vel[i] = newVel[j];
+		vel[j] = newVel[i];
 	}
 	return 0;
 }
@@ -193,13 +193,29 @@ int Wake::newGamma2Gamma()
 	return 0;
 }
 
-int Wake::newPower2Power()
+//int Wake::newPower2Power()
+//{
+//	turbines->power_i.resize(turbines->turbNum);
+//	for (int i = 0; i < turbines->turbNum; ++i)
+//	{
+//		int j = index[i].second;
+//		turbines->power_i[j] = newTurbines.power_i[i];
+//	}
+//	return 0;
+//}
+
+int Wake::restoreA(Column& result, Column& A)
 {
-	turbines->power_i.resize(turbines->turbNum);
+	if (A.size() != turbines->turbNum)
+	{
+		cout << "Column can not be restored because size of A is not equal to turbine number" << endl;
+		return 0;
+	}
+	result.resize(turbines->turbNum);
 	for (int i = 0; i < turbines->turbNum; ++i)
 	{
 		int j = index[i].second;
-		turbines->power_i[j] = newTurbines.power_i[i];
+		result[j] = A[i];
 	}
 	return 0;
 }

@@ -27,9 +27,11 @@ public:
 // 重新排列每个风机的偏航角
 	int newGamma2Gamma();
 // 重新排列每个风机的功率
-	int newPower2Power();
+//	int newPower2Power();
 // 重新排列每个风机处的速度
 	int restoreVel();
+// 重新排列任意输入，输入是按照位置排序的，输出是原顺序
+	int restoreA(Column& result, Column& A);
 
 private:
 	vector<Pair> index;

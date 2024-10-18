@@ -6,6 +6,107 @@
 using std::cout;
 using std::endl;
 
+int interpolation(double& result, Matrix& A, int& ni, int& nj, double& factori, double& factorj)
+{
+	if (ni >= A.size() || nj >= A[0].size())
+	{
+		cout << "ni >= A.size() || nj >= A[0].size()" << endl;
+		return 0;
+	}
+	double x00, x01, x10, x11;
+	if (ni == A.size() - 1)
+	{
+		if (nj == A[0].size() - 1)
+		{
+			x00 = A[ni][nj];
+			x01 = A[ni][nj];
+			x10 = A[ni][nj];
+			x11 = A[ni][nj];
+		}
+		else
+		{
+			x00 = A[ni][nj];
+			x01 = A[ni][nj + 1];
+			x10 = A[ni][nj];
+			x11 = A[ni][nj + 1];
+		}
+	}
+	else
+	{
+		if (nj == A[0].size() - 1)
+		{
+			x00 = A[ni][nj];
+			x01 = A[ni][nj];
+			x10 = A[ni + 1][nj];
+			x11 = A[ni + 1][nj];
+		}
+		else
+		{
+			x00 = A[ni][nj];
+			x01 = A[ni][nj + 1];
+			x10 = A[ni + 1][nj];
+			x11 = A[ni + 1][nj + 1];
+		}
+	}
+	result = factori * factorj * x00 + (1 - factori) * factorj * x10 + factori * (1 - factorj) * x01 + (1 - factori) * (1 - factorj) * x11;
+	return 0;
+}
+
+int findx(int& index, double& factor, Column& data, double& x)
+{
+	int length = data.size();
+	if (length <= 1)
+	{
+		cout << "Column is too small and cannot interpret" << endl;
+		return 0;
+	}
+
+	int begin = data[0];
+	int end = data[length - 1];
+	double delta = data[1] - data[0];
+
+	if (x < data[0])
+	{
+		index = 0;
+		factor = 1;
+		return 0;
+	}
+
+	if (x > data[length - 1])
+	{
+		index = length - 1;
+		factor = 1;
+		return 0;
+	}
+
+	index = floor((x - begin) / delta);
+	if (index < length - 1)
+	{
+		factor = (data[index + 1] - x) / delta;
+	}
+	else if (index == length - 1)
+	{
+		factor = 1.0;
+	}
+	return 0;
+}
+
+int getUniformA(Column& A, double& first, double& last, int n)
+{
+	if (n < 2)
+	{
+		cout << "the Size of A is too small" << endl;
+		return 0;
+	}
+	A.resize(n);
+	double delta = (last - first) / (n - 1);
+	for (int i = 0; i < n; ++i)
+	{
+		A[i] = first + i * delta;
+	}
+	return 0;
+}
+
 int getZeroMatrix(Matrix& result, int m, int n)
 {
 	result = Matrix(m, vector<double>(n, 0));

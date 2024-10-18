@@ -158,9 +158,23 @@ int Simulation::run(double& f, Column& gamma)
 // 然后，对功率重新排序，得到原本的功率
 int Simulation::run(Column& f_i, Column& gamma)
 {
+	Column f_iNew;
 	run(gamma);
-	wake.newTurbines.getPower(wake.newVel);
-	wake.newPower2Power();
-	f_i = wake.turbines->power_i;
+	wake.newTurbines.getPower(f_iNew, wake.newVel);
+	wake.restoreA(f_i, f_iNew);
+	return 0;
+}
+
+int Simulation::hypotheticalRun(double& fHypothetical)
+{
+	wake.newTurbines.getHypothesisPower(fHypothetical, wake.u);
+	return 0;
+}
+
+int Simulation::hypotheticalRun(Column& f_iHypothetical)
+{
+	Column f_iHypotheticalNew;
+	wake.newTurbines.getHypothesisPower(f_iHypotheticalNew, wake.u);
+	wake.restoreA(f_iHypothetical, f_iHypotheticalNew);
 	return 0;
 }

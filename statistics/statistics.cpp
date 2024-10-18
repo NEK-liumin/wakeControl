@@ -7,6 +7,26 @@
 #include "excel.h"
 #include <algorithm>
 
+int Statistics::getUThetaColumn()
+{
+	int nVel = 0, nTheta = 0;
+	nVel = floor((uMax - uMin) / run->deltaU) + 1;
+	nTheta = floor((thetaMax - thetaMin) / run->deltaTheta);
+	// 最小最大序列
+	thetaMax = run->thetaEnd;
+	getUniformA(u, uMin, uMax, nVel);
+	getUniformA(theta360, thetaMin, thetaMax, nTheta);
+	// 切入切出序列
+	double ufirst = run->yaw.simulation.turbines.uMin;
+	double ulast = run->yaw.simulation.turbines.uMax;
+	nVel = floor((ulast - ufirst) / run->deltaU) + 1;
+	getUniformA(uCut, ufirst, ulast, nVel);
+	// 偏航范围序列
+	uYaw = run->u;
+	thetaYaw = run->theta360;
+	return 0;
+}
+
 Statistics::Statistics()
 {
 
@@ -93,44 +113,20 @@ int Statistics::readFile(bool isDelBadVal)
 		auto uMaxTemp = std::max_element(windSpeed.begin(), windSpeed.end());
 		uMax = *uMaxTemp;
 	}
-
+	getUThetaColumn();
 	return 0;
 }
 
-int Statistics::windStatistics(bool isTranspose)
+int Statistics::windStatistics()
 {
-	std::filesystem::path output("output");
-	std::filesystem::path statistics("statistics");
-	std::filesystem::path absOutput;
-	absOutput = output / statistics;
-
-	if (!std::filesystem::exists(absOutput))
-	{
-		std::filesystem::create_directories(absOutput);
-	}
-
-	int nVel = 0, nTheta = 0;
-	nVel = (uMax - uMin) / run->deltaU;
-	nTheta = (thetaMax - thetaMin) / run->deltaTheta;
-
-	u.resize(nVel);
-	theta360.resize(nTheta);
-
+	int nVel = u.size();
+	int nTheta = theta360.size();
 	getZeroMatrix(probability, nVel, nTheta);
-
-	for (int i = 0; i < nVel; ++i)
-	{
-		u[i] = uMin + (i + 0.5) * run->deltaU;
-	}
-	for (int j = 0; j < nTheta; ++j)
-	{
-		theta360[j] = thetaMin + (j + 0.5) * run->deltaTheta;
-	}
 
 	for (int i = 0; i < date.size(); ++i)
 	{
-		int j = floor(windSpeed[i] / run->deltaU);
-		int k = floor(direction[i] / run->deltaTheta);
+		int j = floor(windSpeed[i] / run->deltaU - 0.5);
+		int k = floor(direction[i] / run->deltaTheta - 0.5);
 		if (j <= 0)j = 0;
 		if (j >= nVel - 1)j = nVel - 1;
 		if (k <= 0)k = 0;
@@ -145,17 +141,9 @@ int Statistics::windStatistics(bool isTranspose)
 		}
 	}
 
-	pWindSpeed.resize(nVel);
-	pWindTheta.resize(nTheta);
+	getZeroColumn(pWindSpeed, nVel);
+	getZeroColumn(pWindTheta, nTheta);
 
-	for (int i = 0; i < nVel; ++i)
-	{
-		pWindSpeed[i] = 0;
-	}
-	for (int i = 0; i < nTheta; ++i)
-	{
-		pWindTheta[i] = 0;
-	}
 	for (int i = 0; i < nVel; ++i)
 	{
 		for (int j = 0; j < nTheta; ++j)
@@ -164,7 +152,284 @@ int Statistics::windStatistics(bool isTranspose)
 			pWindTheta[j] += probability[i][j];
 		}
 	}
+	return 0;
+}
 
+int Statistics::powerStatistics()
+{
+	// 直接输出run.u, run.theta360, run.p, run.p0即可，无需统计
+	return 0;
+}
+
+int Statistics::power_iStatistics()
+{
+	// 直接输出run.u, run.theta360, run.p_i, run.p0_i即可，无需统计
+	return 0;
+}
+
+//int Statistics::windStaCutInOut(Matrix& prob)
+//{
+//	double uCutIn = run->yaw.simulation.turbines.uMin;
+//	double uCutOut = run->yaw.simulation.turbines.uMax;
+//	double deltaU = run->deltaU;
+//	double deltaTheta = run->deltaTheta;
+//	int nVel = floor((uCutOut - uCutIn) / deltaU) + 1;
+//	int nTheta = floor((thetaMax - thetaMin) / deltaTheta);
+//	// 计算风速风向概率
+//	// 和possibility不同，这里的概率是从切入速度开始，到切出速度为止
+//	// 这个概率只作为局部参数，统计年发电量用，不输出表格
+//	getZeroMatrix(prob, nVel, nTheta);
+//	for (int i = 0; i < date.size(); ++i)
+//	{
+//		double j = -1, k = -1;
+//		if (windSpeed[i]>=uCutIn && windSpeed[i]<=uCutOut)
+//		{
+//			j = (windSpeed[i] + 0.5 * deltaU - uCutIn) / deltaU;
+//			if (j <= 0)j = 0;
+//			if (j >= nVel - 1)j = nVel - 1;
+//		}
+//		if (direction[i] > thetaMax - 0.5 * deltaTheta)
+//		{
+//			direction[i] -= thetaMax;
+//		}
+//		k = (direction[i] + 0.5 * deltaTheta - thetaMin) / deltaTheta;
+//		if (k <= 0)k = 0;
+//		if (k >= nTheta - 1)k = nTheta - 1;
+//		if (j >= 0)prob[j][k] += 1;
+//	}
+//	getAlphaA(prob, 1.0 / date.size());
+//	return 0;
+//}
+
+int Statistics::powerStaCutInOut(Matrix& pow)
+{
+
+	return 0;
+}
+
+int Statistics::get_gWithoutWeak()
+{
+	gWithoutWeak = 0;
+	double gi;
+	if (pWindSpeed.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+	for (int i = 0; i < u.size(); ++i)
+	{
+		run->yaw.simulation.wake.turbines->getHypothesisPower(gi, u[i]);
+		gWithoutWeak += gi * pWindSpeed[i];
+	}
+	gWithoutWeak *= t;
+	return 0;
+}
+
+int Statistics::get_g0()
+{
+	g0 = 0;
+	double gi;
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	
+	if (probability.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+	
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+			gi = yaw.initialPower();
+			g0 += gi * probability[i][j];
+		}
+	}
+	g0 *= t;
+	return 0;
+}
+
+int Statistics::get_g()
+{
+	g = 0;
+	double gi;
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	if (probability.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			if (u[i] < uCut[0] || u[i] > uCut[uCut.size() - 1])
+			{
+				gi = 0;
+				g += gi * probability[i][j];
+			}
+			else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
+			{
+				yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+				gi = yaw.initialPower();
+				g += gi * probability[i][j];
+			}
+			else
+			{
+				int ni, nj;
+				double fi, fj;
+				findx(ni, fi, uYaw, u[i]);
+				findx(nj, fj, thetaYaw, theta360[j]);
+				interpolation(gi, run->P, ni, nj, fi, fj);
+				g += gi * probability[i][j];
+			}
+		}
+	}
+	return 0;
+}
+
+int Statistics::get_weakLoss0()
+{
+	weakLoss0 = (gWithoutWeak - g0) / gWithoutWeak;
+	return 0;
+}
+int Statistics::get_weakLoss()
+{
+	weakLoss = (gWithoutWeak - g) / gWithoutWeak;
+	return 0;
+}
+int Statistics::get_gIncrease()
+{
+	gIncrease = weakLoss - weakLoss0;
+	return 0;
+}
+int Statistics::get_gPerThetaWithoutWeak()
+{
+	int n = theta360.size();
+	getZeroColumn(gPerThetaWithoutWeak, n);
+	double gi;
+	if (probability.size() != u.size())
+	{
+		cout << "probability.size() != u.size()" << endl;
+		return 0;
+	}
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			run->yaw.simulation.wake.turbines->getHypothesisPower(gi, u[i]);
+			gPerThetaWithoutWeak[j] += gi * probability[i][j];
+		}
+	}
+	getAlphaA(gPerThetaWithoutWeak, t);
+	return 0;
+}
+int Statistics::get_g0PerTheta()
+{
+	int n = theta360.size();
+	getZeroColumn(g0PerTheta, n);
+	double gi;
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+
+	if (probability.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+			gi = yaw.initialPower();
+			g0PerTheta[j] += gi * probability[i][j];
+		}
+	}
+	getAlphaA(g0PerTheta, t);
+	return 0;
+}
+int Statistics::get_gPerTheta()
+{
+	int n = theta360.size();
+	getZeroColumn(gPerTheta, n);
+	double gi;
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	if (probability.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			if (u[i] < uCut[0] || u[i] > uCut[uCut.size() - 1])
+			{
+				gi = 0;
+				gPerTheta[j] += gi * probability[i][j];
+			}
+			else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
+			{
+				yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+				gi = yaw.initialPower();
+				gPerTheta[j] += gi * probability[i][j];
+			}
+			else
+			{
+				int ni, nj;
+				double fi, fj;
+				findx(ni, fi, uYaw, u[i]);
+				findx(nj, fj, thetaYaw, theta360[j]);
+				interpolation(gi, run->P, ni, nj, fi, fj);
+				gPerTheta[j] += gi * probability[i][j];
+			}
+		}
+	}
+	return 0;
+}
+
+int Statistics::writeFile(bool isTranspose)
+{
+	std::filesystem::path output("output");
+	std::filesystem::path statistics("statistics");
+	std::filesystem::path absOutput;
+	absOutput = output / statistics;
+
+	if (!std::filesystem::exists(absOutput))
+	{
+		std::filesystem::create_directories(absOutput);
+	}
 	string possibleName = (absOutput / "possible.csv").string();
 	string pUName = (absOutput / "pWindSpeed.csv").string();
 	string pThetaName = (absOutput / "pWindTheta.csv").string();
@@ -189,29 +454,11 @@ int Statistics::windStatistics(bool isTranspose)
 	writeExcel(pUName, varName, u, pWindSpeed, 10, 5);
 	varName = "Theta,probility";
 	writeExcel(pThetaName, varName, theta360, pWindTheta, 10, 5);
-	return 0;
-}
+	/////////////////////////////////////////////////////////////////////
 
-int Statistics::powerStatistics(bool isTranspose)
-{
-	std::filesystem::path output("output");
-	std::filesystem::path subOutput("statistics");
-	std::filesystem::path outputDir;
-	outputDir = output / subOutput;
-
-	if (!std::filesystem::exists(output))
-	{
-		std::filesystem::create_directory(output);
-	}
-
-	if (!std::filesystem::exists(outputDir))
-	{
-		std::filesystem::create_directory(outputDir);
-	}
-
-	std::string P0name = (outputDir / "P0.csv").string();
-	std::string Pname = (outputDir / "P.csv").string();
-	std::string deltaPname = (outputDir / "deltaP.csv").string();
+	std::string P0name = (absOutput / "P0.csv").string();
+	std::string Pname = (absOutput / "P.csv").string();
+	std::string deltaPname = (absOutput / "deltaP.csv").string();
 
 	std::ofstream P0file(P0name);
 	std::ofstream Pfile(Pname);
@@ -292,26 +539,10 @@ int Statistics::powerStatistics(bool isTranspose)
 		std::cerr << "Failed to create file: " << deltaPname << std::endl;
 	}
 	deltaPfile.close();
-	return 0;
-}
-
-int Statistics::power_iStatistics(bool isTranspose)
-{
-	std::filesystem::path output("output");
-	std::filesystem::path subOutput("statistics");
+	///////////////////////////////////////////////////////////////////////////////////////
 	std::filesystem::path subSubOutput("powerPerTurbine");
 	std::filesystem::path outputDir;
-	outputDir = output / subOutput / subSubOutput;
-
-	if (!std::filesystem::exists(output))
-	{
-		std::filesystem::create_directory(output);
-	}
-
-	if (!std::filesystem::exists(output / subOutput))
-	{
-		std::filesystem::create_directory(output / subOutput);
-	}
+	outputDir = absOutput / subSubOutput;
 
 	if (!std::filesystem::exists(outputDir))
 	{
@@ -335,7 +566,7 @@ int Statistics::power_iStatistics(bool isTranspose)
 				Matrix P0_iT, P_iT, deltaP_iT;
 
 				getAMinusB(deltaP_i, run->P_i[i], run->P0_i[i]);
-				
+
 				getAT(P0_iT, run->P0_i[i]);
 				getAT(P_iT, run->P_i[i]);
 				getAT(deltaP_iT, deltaP_i);
@@ -349,12 +580,11 @@ int Statistics::power_iStatistics(bool isTranspose)
 				string varName = "U \\ Theta";
 				Matrix deltaP_i;
 				getAMinusB(deltaP_i, run->P_i[i], run->P0_i[i]);
-				
+
 				writeExcel(P0_iName, varName, run->theta360, run->u, run->P0_i[i], 10, 5);
 				writeExcel(P_iName, varName, run->theta360, run->u, run->P_i[i], 10, 5);
 				writeExcel(deltaP_iName, varName, run->theta360, run->u, deltaP_i, 10, 5);
 			}
-
 		}
 		else
 		{
@@ -362,41 +592,5 @@ int Statistics::power_iStatistics(bool isTranspose)
 		}
 	}
 
-	return 0;
-}
-
-int Statistics::annualPowerGeneration()
-{
-	double uCutIn = run->yaw.simulation.turbines.uMin;
-	double uCutOut = run->yaw.simulation.turbines.uMax;
-	double deltaU = run->deltaU;
-	double deltaTheta = run->deltaTheta;
-	int nVel = floor((uCutOut - uCutIn) / deltaU) + 1;
-	int nTheta = floor((thetaMax - thetaMin) / deltaTheta);
-	// 计算风速风向概率
-	// 和possibility不同，这里的概率是从切入速度开始，到切出速度为止
-	// 这个概率只作为局部参数，统计年发电量用，不输出表格
-	Matrix probability2;
-	getZeroMatrix(probability2, nVel, nTheta);
-	for (int i = 0; i < date.size(); ++i)
-	{
-		double j = -1, k = -1;
-		if (windSpeed[i]>=uCutIn && windSpeed[i]<=uCutOut);
-		{
-			j = (windSpeed[i] + 0.5 * deltaU - uCutIn) / deltaU;
-			if (j <= 0)j = 0;
-			if (j >= nVel - 1)j = nVel - 1;
-		}
-		if (direction[i] > thetaMax - 0.5 * deltaTheta)
-		{
-			direction[i] -= thetaMax;
-		}
-		k = (direction[i] + 0.5 * deltaTheta - thetaMin) / deltaTheta;
-		if (k <= 0)k = 0;
-		if (k >= nTheta - 1)k = nTheta - 1;
-		if (j >= 0)probability2[j][k] += 1;
-	}
-	getAlphaA(probability2, 1.0 / date.size());
-	printA(probability2);
 	return 0;
 }

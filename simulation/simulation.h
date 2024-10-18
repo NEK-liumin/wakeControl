@@ -32,5 +32,9 @@ public:
 	//  只求尾流，不画图。且输入的gamma为弧度制，且逆时针为正方向
 	// 返回每台风机的发电功率，用于统计
 	int run(Column& f_i, Column& gamma);
+	// 假设没有尾流影响，计算总的发电功率
+	int hypotheticalRun(double& fHypothetical);
+	// 假设没有尾流影响，计算每台风机的发电功率
+	int hypotheticalRun(Column& f_iHypothetical);
 };
 #endif // !SIMULATION_H

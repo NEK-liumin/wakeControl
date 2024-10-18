@@ -44,10 +44,10 @@ Yaw::Yaw(double& wind, double& theta360, double& rho, Model& model, double& rand
 	getZeroColumn(ci, size_i);
 	getZeroMatrix(Ji, size_i, size_x);
 	getOneColumn(mu, size_i);
-	getZeroColumn(f0_i, size_x);
-	getZeroColumn(f_i, size_x);
+	//getZeroColumn(f0_i, size_x);
+	//getZeroColumn(f_i, size_x);
 	simulation.run(x);
-	simulation.run(f0_i, x);
+	//simulation.run(f0_i, x);
 	// cout << "inYaw" << endl;
 	//printA(simulation.wake.newVel);
 	//simulation.wake.newTurbines.getPower(f0, simulation.wake.newVel, rho);
@@ -98,12 +98,11 @@ int Yaw::reset(double& wind, double& theta360, double& rho, Model& model, double
 	getZeroColumn(ci, size_i);
 	getZeroMatrix(Ji, size_i, size_x);
 	getOneColumn(mu, size_i);
-	getZeroColumn(f0_i, size_x);
-	getZeroColumn(f_i, size_x);
+	// getZeroColumn(f0_i, size_x);
 	//simulation.run(x);
 	//simulation.wake.newTurbines.getPower(f0, simulation.wake.newVel);
 	simulation.run(f0, x);
-	simulation.run(f0_i, x);
+	// simulation.run(f0_i, x);
 	f0 /= -1.0;
 	for (int i = 0; i < size_x; ++i)
 	{
@@ -266,8 +265,26 @@ double Yaw::initialPower()
 	return -f0;
 }
 
-int Yaw::power_i()
+double Yaw::hypotheticalPower()
 {
-	simulation.run(f_i, x);
+
 	return 0;
 }
+
+Column Yaw::power_i()
+{
+	Column f_i;
+	getZeroColumn(f_i, size_x);
+	simulation.run(f_i, x);
+	return f_i;
+}
+
+Column Yaw::initialPower_i()
+{
+	Column f0_i, x0;
+	getZeroColumn(f0_i, size_x);
+	getZeroColumn(x0, size_x);
+	simulation.run(f0_i, x0);
+	return f0_i;
+}
+

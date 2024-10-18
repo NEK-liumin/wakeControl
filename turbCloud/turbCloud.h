@@ -20,7 +20,7 @@ public:
 
 	// 由于在同一个风场，假设不同种类风机的风速区间一致
 	// 风速被平均分成uNum-1份
-	double uMin, uMax; // 最小风速和最大风速
+	double uMin, uMax; // 最小风速和最大风速（即切入切出风速）
 	int uNum;
 	Column uWind;
 	// 不同风速下风机的功率系数(每种风机，每个风速下的功率系数不同，所以是二维)
@@ -28,7 +28,7 @@ public:
 	// 不同风速下风机的推力系数
 	Matrix Ct;
 	// 每台风机的输出功率，用于统计
-	Column power_i;
+	// Column power_i;
 
 	TurbCloud() 
 	{
@@ -52,7 +52,7 @@ public:
 		getZeroColumn(x0, turbNum);
 		getZeroColumn(y0, turbNum);
 		getZeroColumn(z0, turbNum);
-		getZeroColumn(power_i, turbNum);
+		// getZeroColumn(power_i, turbNum);
 		turbType.resize(turbNum);
 
 		getZeroColumn(uWind, uNum);
@@ -79,9 +79,13 @@ public:
 	// 在计算完成后才调用，用于校正偏航角：没功率的话就不偏航
 	bool isYaw(Column& vel, int& i);
 	// 计算每台风机的功率
-	int getPower(Column& vel);
+	int getPower(Column& power_i, Column& vel);
 	// 计算总功率
 	int getPower(double& power, Column& vel);
+	// 不考虑尾流，计算每台风机的功率
+	int getHypothesisPower(Column& power_i, double& vel);
+	// 不考虑尾流，计算风机的总功率
+	int getHypothesisPower(double& power, double& vel);
 	int turbPrint();
 };
 #endif // !TURBCLOUD_H

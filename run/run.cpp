@@ -160,12 +160,13 @@ int Run::getMatrix()
 					gamma360[i][j][k] = 0;
 				}
 			}
-
+			Column f0_i = yaw.initialPower_i();
+			Column f_i = yaw.power_i();
 			for (int k = 0; k < yaw.size_x; ++k)
 			{
-				P0_i[k][i][j] = yaw.f0_i[k];
-				P_i[k][i][j] = yaw.f_i[k];
-				deltaP_i[k][i][j] = yaw.f_i[k] - yaw.f0_i[k];
+				P0_i[k][i][j] = f0_i[k];
+				P_i[k][i][j] = f_i[k];
+				deltaP_i[k][i][j] = f_i[k] - f0_i[k];
 			}
 
 			P0[i][j] = yaw.initialPower();

@@ -13,6 +13,15 @@ const double SMALL = 1e-16;
 const double LARGE = 1e20;
 const double PI = 3.1415926;
 
+// 插值
+int interpolation(double& result, Matrix& A, int& ni, int& nj, double& factori, double& factorj);
+
+// 已知有序序列（均匀），已知x，求x在当前序列中的最近的左边值以及插值时需要的系数
+int findx(int& index, double& factor, Column& data, double& x);
+
+// 获得均匀分布的数列
+int getUniformA(Column& A, double& first, double& last, int n);
+
 int getZeroMatrix(Matrix& result, int m, int n);
 
 int getZeroColumn(Column& result, int m);
