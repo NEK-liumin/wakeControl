@@ -91,7 +91,7 @@ int findx(int& index, double& factor, Column& data, double& x)
 	return 0;
 }
 
-int getUniformA(Column& A, double& first, double& last, int n)
+int getUniformA(Column& A, double& first, double& delta, int n)
 {
 	if (n < 2)
 	{
@@ -99,7 +99,6 @@ int getUniformA(Column& A, double& first, double& last, int n)
 		return 0;
 	}
 	A.resize(n);
-	double delta = (last - first) / (n - 1);
 	for (int i = 0; i < n; ++i)
 	{
 		A[i] = first + i * delta;

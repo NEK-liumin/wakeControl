@@ -14,13 +14,13 @@ int Statistics::getUThetaColumn()
 	nTheta = floor((thetaMax - thetaMin) / run->deltaTheta);
 	// 最小最大序列
 	thetaMax = run->thetaEnd;
-	getUniformA(u, uMin, uMax, nVel);
-	getUniformA(theta360, thetaMin, thetaMax, nTheta);
+	getUniformA(u, uMin, run->deltaU, nVel);
+	getUniformA(theta360, thetaMin, run->deltaTheta, nTheta);
 	// 切入切出序列
 	double ufirst = run->yaw.simulation.turbines.uMin;
 	double ulast = run->yaw.simulation.turbines.uMax;
 	nVel = floor((ulast - ufirst) / run->deltaU) + 1;
-	getUniformA(uCut, ufirst, ulast, nVel);
+	getUniformA(uCut, ufirst, run->deltaU, nVel);
 	// 偏航范围序列
 	uYaw = run->u;
 	thetaYaw = run->theta360;
@@ -40,7 +40,7 @@ int Statistics::setStatistisc(Run& run)
 
 int Statistics::readFile(bool isDelBadVal)
 {
-
+	this->isDelBadVal = isDelBadVal;
 	std::ifstream timeseries("input/timeseries.txt");
 	if (!timeseries.is_open())
 	{
@@ -87,7 +87,7 @@ int Statistics::readFile(bool isDelBadVal)
 	}
 	else
 	{
-		int k = 0;
+		badValNum = 0;
 		std::ofstream badValue("input/badValue.log");
 		if (!badValue.is_open())
 		{
@@ -101,11 +101,11 @@ int Statistics::readFile(bool isDelBadVal)
 				badValue << date[i] << " " << time[i] << " "
 					<< std::fixed << std::setprecision(2) << windSpeed[i] << " "
 					<< std::fixed << std::setprecision(2) << direction[i] << std::endl;
-				k++;
+				badValNum++;
 			}
 		}
 		badValue.close();
-		if (k > 0)
+		if (badValNum > 0)
 		{
 			std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
 			return 0;
@@ -125,12 +125,12 @@ int Statistics::windStatistics()
 
 	for (int i = 0; i < date.size(); ++i)
 	{
-		int j = floor(windSpeed[i] / run->deltaU - 0.5);
-		int k = floor(direction[i] / run->deltaTheta - 0.5);
+		int j = floor(windSpeed[i] / run->deltaU + 0.5);
+		int k = floor(direction[i] / run->deltaTheta + 0.5);
 		if (j <= 0)j = 0;
 		if (j >= nVel - 1)j = nVel - 1;
 		if (k <= 0)k = 0;
-		if (k >= nTheta - 1)k = nTheta - 1;
+		if (k > nTheta - 1)k = 0;
 		probability[j][k]++;
 	}
 	for (int i = 0; i < nVel; ++i)
@@ -298,6 +298,7 @@ int Statistics::get_g()
 			}
 		}
 	}
+	g *= t;
 	return 0;
 }
 
@@ -416,9 +417,333 @@ int Statistics::get_gPerTheta()
 			}
 		}
 	}
+	getAlphaA(gPerTheta, t);
 	return 0;
 }
+int Statistics::get_gPerUWithoutWeak()
+{
+	int n = u.size();
+	getZeroColumn(gPerUWithoutWeak, n);
+	double gi;
+	if (probability.size() != u.size())
+	{
+		cout << "probability.size() != u.size()" << endl;
+		return 0;
+	}
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			run->yaw.simulation.wake.turbines->getHypothesisPower(gi, u[i]);
+			gPerUWithoutWeak[i] += gi * probability[i][j];
+		}
+	}
+	getAlphaA(gPerUWithoutWeak, t);
+	return 0;
+}
+int Statistics::get_g0PerU()
+{
+	int n = u.size();
+	getZeroColumn(g0PerU, n);
+	double gi;
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
 
+	if (probability.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+			gi = yaw.initialPower();
+			g0PerU[i] += gi * probability[i][j];
+		}
+	}
+	getAlphaA(g0PerU, t);
+	return 0;
+}
+int Statistics::get_gPerU()
+{
+	int n = u.size();
+	getZeroColumn(gPerU, n);
+	double gi;
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	if (probability.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			if (u[i] < uCut[0] || u[i] > uCut[uCut.size() - 1])
+			{
+				gi = 0;
+				gPerU[i] += gi * probability[i][j];
+			}
+			else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
+			{
+				yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+				gi = yaw.initialPower();
+				gPerU[i] += gi * probability[i][j];
+			}
+			else
+			{
+				int ni, nj;
+				double fi, fj;
+				findx(ni, fi, uYaw, u[i]);
+				findx(nj, fj, thetaYaw, theta360[j]);
+				interpolation(gi, run->P, ni, nj, fi, fj);
+				gPerU[i] += gi * probability[i][j];
+			}
+		}
+	}
+	getAlphaA(gPerU, t);
+	return 0;
+}
+int Statistics::get_weakLoss0PerU()
+{
+	getAMinusB(weakLoss0PerU, gPerUWithoutWeak, g0PerU);
+	for (int i = 0; i < weakLoss0PerU.size(); ++i)
+	{
+		weakLoss0PerU[i] = weakLoss0PerU[i] / gPerUWithoutWeak[i];
+	}
+	return 0;
+}
+int Statistics::get_weakLossPerU()
+{
+	getAMinusB(weakLossPerU, gPerUWithoutWeak, gPerU);
+	for (int i = 0; i < weakLoss0PerU.size(); ++i)
+	{
+		weakLossPerU[i] = weakLossPerU[i] / gPerUWithoutWeak[i];
+	}
+	return 0;
+}
+int Statistics::get_gIncreasePerU()
+{
+	getAMinusB(gIncreasePerU, weakLoss0PerU, weakLossPerU);
+	return 0;
+}
+int Statistics::get_gPerTurbWithoutWeak()
+{
+	int n = run->yaw.simulation.turbines.turbNum;
+	getZeroColumn(gPerTurbWithoutWeak, n);
+	Column gi;
+	if (probability.size() != u.size())
+	{
+		cout << "probability.size() != u.size()" << endl;
+		return 0;
+	}
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			run->yaw.simulation.wake.turbines->getHypothesisPower(gi, u[i]);
+			getAlphaA(gi, probability[i][j]);
+			getAPlusB(gPerTurbWithoutWeak, gi);
+		}
+	}
+	getAlphaA(gPerTurbWithoutWeak, t);
+	return 0;
+}
+int Statistics::get_g0PerTurb()
+{
+	int n = run->yaw.simulation.turbines.turbNum;
+	getZeroColumn(g0PerTurb, n);
+	Column gi;
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+
+	if (probability.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+			gi = yaw.initialPower_i();
+			getAlphaA(gi, probability[i][j]);
+			getAPlusB(g0PerTurb, gi);
+		}
+	}
+	getAlphaA(g0PerTurb, t);
+	return 0;
+}
+int Statistics::get_gPerTurb()
+{
+	int n = run->yaw.simulation.turbines.turbNum;
+	getZeroColumn(gPerTurb, n);
+	Column gi;
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	if (probability.size() != u.size())
+	{
+		cout << "pWindSpeed.size() != u.size()" << endl;
+		return 0;
+	}
+
+	if (probability[0].size() != theta360.size())
+	{
+		cout << "probability[0].size() != theta360.size()" << endl;
+		return 0;
+	}
+	for (int i = 0; i < u.size(); ++i)
+	{
+		for (int j = 0; j < theta360.size(); ++j)
+		{
+			if (u[i] < uCut[0] || u[i] > uCut[uCut.size() - 1])
+			{
+				getZeroColumn(gi, n);
+				getAlphaA(gi, probability[i][j]);
+				getAPlusB(gPerTurb, gi);
+			}
+			else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
+			{
+				yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+				gi = yaw.initialPower_i();
+				getAlphaA(gi, probability[i][j]);
+				getAPlusB(gPerTurb, gi);
+			}
+			else
+			{
+				int ni, nj;
+				double fi, fj;
+				findx(ni, fi, uYaw, u[i]);
+				findx(nj, fj, thetaYaw, theta360[j]);
+				for (int k = 0; k < n; ++k)
+				{
+					interpolation(gi[k], run->P_i[k], ni, nj, fi, fj);
+				}
+				getAlphaA(gi, probability[i][j]);
+				getAPlusB(gPerTurb, gi);
+			}
+		}
+	}
+	getAlphaA(gPerTurb, t);
+	return 0;
+}
+int Statistics::get_weakLoss0PerTurb()
+{
+	getAMinusB(weakLoss0PerTurb, gPerTurbWithoutWeak, g0PerTurb);
+	for (int i = 0; i < weakLoss0PerTurb.size(); ++i)
+	{
+		weakLoss0PerTurb[i] = weakLoss0PerTurb[i] / gPerTurbWithoutWeak[i];
+	}
+	return 0;
+}
+int Statistics::get_weakLossPerTurb()
+{
+	getAMinusB(weakLossPerTurb, gPerTurbWithoutWeak, gPerTurb);
+	for (int i = 0; i < weakLoss0PerTurb.size(); ++i)
+	{
+		weakLossPerTurb[i] = weakLossPerTurb[i] / gPerTurbWithoutWeak[i];
+	}
+	return 0;
+}
+int Statistics::get_gIncreasePerTurb()
+{
+	getAMinusB(gIncreasePerTurb, weakLoss0PerTurb, weakLossPerTurb);
+	return 0;
+}
+int Statistics::get_gTimeSeriseWithoutWeak()
+{
+	if (isDelBadVal || badValNum > 0)
+	{
+		std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
+		return 0;
+	}
+	int n = date.size();
+	getZeroColumn(gTimeSeriseWithoutWeak, n);
+
+	for (int i = 0; i < n; ++i)
+	{
+		run->yaw.simulation.wake.turbines->getHypothesisPower(gTimeSeriseWithoutWeak[i], windSpeed[i]);
+	}
+	return 0;
+}
+int Statistics::get_g0TimeSerise()
+{
+	if (isDelBadVal || badValNum > 0)
+	{
+		std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
+		return 0;
+	}
+	int n = date.size();
+	getZeroColumn(g0TimeSerise, n);
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	for (int i = 0; i < n; ++i)
+	{
+		yaw.reset(windSpeed[i], direction[i], run->rho, run->model, run->randomRange);
+		g0TimeSerise[i] = yaw.initialPower();
+	}
+	return 0;
+}
+int Statistics::get_gTimeSerise()
+{
+	if (isDelBadVal || badValNum > 0)
+	{
+		std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
+		return 0;
+	}
+	int n = date.size();
+	getZeroColumn(gTimeSerise, n);
+	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	for (int i = 0; i < n; ++i)
+	{
+		if (windSpeed[i] < uCut[0] || windSpeed[i] > uCut[uCut.size() - 1])
+		{
+			gTimeSerise[i] = 0;
+		}
+		else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
+		{
+			yaw.reset(windSpeed[i], direction[i], run->rho, run->model, run->randomRange);
+			gTimeSerise[i] = yaw.initialPower();
+		}
+		else
+		{
+			int ni, nj;
+			double fi, fj;
+			findx(ni, fi, uYaw, windSpeed[i]);
+			findx(nj, fj, thetaYaw, direction[i]);
+			interpolation(gTimeSerise[i], run->P, ni, nj, fi, fj);
+		}
+	}
+}
 int Statistics::writeFile(bool isTranspose)
 {
 	std::filesystem::path output("output");

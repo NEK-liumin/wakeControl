@@ -63,6 +63,8 @@ public:
 	double uMax = 0; // 在readFile()中被修正
 	double thetaMin = 0;
 	double thetaMax = 360;
+	bool isDelBadVal = true;
+	int badValNum = 0;
 
 	Run *run = nullptr;
 
@@ -102,6 +104,36 @@ public:
 	int get_g0PerTheta();
 	// 考虑尾流，偏航时每个风向的年发电量
 	int get_gPerTheta();
+	// 不考虑尾流的每个风速段的年发电量
+	int get_gPerUWithoutWeak();
+	// 考虑尾流，不考虑偏航时每个风速段的年发电量
+	int get_g0PerU();
+	// 考虑尾流，偏航时每个风速段的年发电量
+	int get_gPerU();
+	// 不偏航的每个风速段的尾流损失
+	int get_weakLoss0PerU();
+	// 偏航的每个风速段的尾流损失
+	int get_weakLossPerU();
+	// 偏航后的每个风速段的发电量增加（按百分比计算）
+	int get_gIncreasePerU();
+	// 不考虑尾流的每台风机的年发电量
+	int get_gPerTurbWithoutWeak();
+	// 考虑尾流，不偏航时每台风机的年发电量
+	int get_g0PerTurb();
+	// 考虑尾流，偏航时每台风机的年发电量
+	int get_gPerTurb();
+	// 不偏航的每台风机的尾流损失
+	int get_weakLoss0PerTurb();
+	// 偏航的每台风机的尾流损失
+	int get_weakLossPerTurb();
+	// 偏航后的每台风机的发电量增加（按百分比计算）
+	int get_gIncreasePerTurb();
+	// 不考虑尾流的小时发电量时间序列
+	int get_gTimeSeriseWithoutWeak();
+	// 考虑尾流，不偏航时的小时发电量时间序列
+	int get_g0TimeSerise();
+	// 考虑尾流，偏航时的小时发电量时间序列
+	int get_gTimeSerise();
 	// 输出所有数据
 	int writeFile(bool isTranspose);
 private:

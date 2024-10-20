@@ -157,18 +157,17 @@ int main()
 	// yawTest();
 	// getYawMatrix();
 
-	//Run run;
-	//run.getMatrix();
-	//run.outputMatrix(true);
-	//Statistics statistics;
-	//statistics.setStatistisc(run);
-	//statistics.readFile(true);
-	//statistics.powerStatistics();
-	//statistics.windStatistics();
-	//statistics.power_iStatistics();
-	//statistics.annualPowerGeneration();
+	Run run;
+	run.getMatrix();
+	run.outputMatrix(true);
+	Statistics statistics;
+	statistics.setStatistisc(run);
+	statistics.readFile(true);
+	statistics.powerStatistics();
+	statistics.windStatistics();
+	statistics.power_iStatistics();
 
-	//statistics.writeFile(true);
+	statistics.writeFile(true);
 
 
 	/*bool isDelBadVal = true;
