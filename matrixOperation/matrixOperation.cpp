@@ -931,6 +931,17 @@ int printA(Column A)
 	return 0;
 }
 
+int printA(Bool A)
+{
+	int m = A.size();
+	for (int i = 0; i < m; ++i)
+	{
+		cout << A[i] << endl;
+	}
+	cout << endl;
+	return 0;
+}
+
 const double g = 7;
 const double lanczos_coefficients[] = {
 	0.99999999999980993,

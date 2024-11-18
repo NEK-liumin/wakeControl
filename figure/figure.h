@@ -22,6 +22,7 @@ public:
 	Figure() {};
 
 	// Êä³öÔÆÍ¼
+	int getGamma(Column& gamma360, double& u, double& theta360);
 	int outputContour();
 };
 #endif // !FIGURE_H

@@ -29,36 +29,21 @@ int TurbCloud::init(int turbNum, int turbTypeNum, int uNum, double uMin, double 
 
 	getZeroMatrix(Cp, turbTypeNum, uNum);
 	getZeroMatrix(Ct, turbTypeNum, uNum);
-	return 0;
-}
-int TurbCloud::setPosi(int turbNum, Column& x0, Column& y0, Column& z0)
-{
-	if (x0.size() != turbNum || y0.size() != turbNum || z0.size() != turbNum)
+	isWork.resize(turbNum);
+	for (int i = 0; i < turbNum; ++i)
 	{
-		cout << "输入的风机数量与坐标数量不匹配" << endl;
-		return 0;
+		isWork[i] = '1';
 	}
-	if (x0.size() != y0.size() || x0.size() != z0.size())
-	{
-		cout << "xyz坐标的数量不一致" << endl;
-		return 0;
-	}
-	this->turbNum = turbNum;
-	this->x0 = x0;
-	this->y0 = y0;
-	this->z0 = z0;
 	return 0;
 }
 
-int TurbCloud::setCoef(Matrix& Cp, Matrix& Ct)
+int TurbCloud::getCp(double& cp_i, double& velo_i, int& num_i, int& type_i)
 {
-	this->Cp = Cp;
-	this->Ct = Ct;
-	return 0;
-}
-
-int TurbCloud::getCp(double& cp_i, double& velo_i, int& type_i)
-{
+	if (isWork[num_i] == '0')
+	{
+		cp_i = 0;
+		return 0;
+	}
 	if (velo_i < uWind[0])
 	{
 		cp_i = velo_i * Cp[type_i][0] / uWind[0];
@@ -96,29 +81,33 @@ int TurbCloud::getCp(double& cp_i, double& velo_i, int& type_i)
 	return 0;
 }
 
-int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
+int TurbCloud::getCt(double& ct_i, double& velo_i, int& num_i, int& type_i)
 {
+	if (isWork[num_i] == '0')
+	{
+		ct_i = 0;
+		return 0;
+	}
 	if (velo_i < uWind[0] || velo_i > uWind[uNum - 1])
 	{
 		ct_i = 0;
-		// cout << "风机无法在该风速下进行工作" << endl;
 		return 0;
 	}
 	if (velo_i == uWind[0])
 	{
 		ct_i = Ct[type_i][0];
-		if (ct_i >= 0.95)
+		if (ct_i >= 0.96)
 		{
-			ct_i = 0.95;
+			ct_i = 0.96;
 		}
 		return 0;
 	}
 	if (velo_i == uWind[uNum - 1])
 	{
 		ct_i = Ct[type_i][uNum - 1];
-		if (ct_i >= 0.95)
+		if (ct_i >= 0.96)
 		{
-			ct_i = 0.95;
+			ct_i = 0.96;
 		}
 		return 0;
 	}
@@ -138,20 +127,9 @@ int TurbCloud::getCt(double& ct_i, double& velo_i, int& type_i)
 	{
 		ct_i = 0;
 	}
-	if (ct_i >= 0.95)
+	if (ct_i >= 0.96)
 	{
-		ct_i = 0.95;
-	}
-	return 0;
-}
-int TurbCloud::getPower(double& power, Column& vel, double& rho)
-{
-	power = 0.0;
-	double cp_i;
-	for (int i = 0; i < turbNum; ++i)
-	{
-		getCp(cp_i, vel[i], turbType[i]);
-		power += 0.5 * cp_i * rho * (0.25 * PI * D[i] * D[i]) * pow(vel[i] * cos((*gamma)[i]), 3);
+		ct_i = 0.96;
 	}
 	return 0;
 }
@@ -167,7 +145,7 @@ bool TurbCloud::isYaw(Column& vel, int& i)
 	else
 	{
 		vel_axial = vel[i] * cos((*gamma)[i]);
-		getCp(pc_i, vel_axial, turbType[i]);
+		getCp(pc_i, vel_axial, i, turbType[i]);
 	}
 
 
@@ -193,7 +171,7 @@ int TurbCloud::getPower(double& power, Column& vel)
 		else
 		{
 			vel_axial = vel[i] * cos((*gamma)[i]);
-			getCp(pc_i, vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+			getCp(pc_i, vel_axial, i, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
 			power += pc_i; // 单位是kw
 		}
 		// 为避免功率不连续，不采用上述策略
@@ -222,7 +200,7 @@ int TurbCloud::getPower(Column& power_i, Column& vel)
 		else
 		{
 			vel_axial = vel[i] * cos((*gamma)[i]);
-			getCp(power_i[i], vel_axial, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+			getCp(power_i[i], vel_axial, i, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
 		}
 		// 为避免功率不连续，不采用上述策略
 		//vel_axial = vel[i] * cos((*gamma)[i]);
@@ -248,7 +226,7 @@ int TurbCloud::getHypothesisPower(Column& power_i, double& vel)
 		}
 		else
 		{
-			getCp(power_i[i], vel, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+			getCp(power_i[i], vel, i, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
 		}
 		// 为避免功率不连续，不采用上述策略
 		//vel_axial = vel[i] * cos((*gamma)[i]);
@@ -275,7 +253,7 @@ int TurbCloud::getHypothesisPower(double& power, double& vel)
 		}
 		else
 		{
-			getCp(pc_i, vel, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
+			getCp(pc_i, vel, i, turbType[i]); // 只是名字是getcp而已，实际上得到的是功率
 			power += pc_i; // 单位是kw
 		}
 		// 为避免功率不连续，不采用上述策略

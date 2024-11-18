@@ -90,12 +90,6 @@ int Wake::getNewCloud()
 	}
 	sort(index.begin(), index.end(), compare);
 
-	/*cout << "in getNewCloud" << endl;
-	for (int i = 0; i < turbines->turbNum; ++i)
-	{
-		cout << index[i].first << "  " << index[i].second << endl;
-	}*/
-
 	Column temp1 = turbines->x0;
 
 	for (int i = 0; i < turbines->turbNum; ++i)
@@ -115,7 +109,7 @@ int Wake::getNewCloud()
 	newTurbines.z0 = temp1;
 	for (int i = 0; i < turbines->turbNum; ++i)
 	{
-		temp1[i] = newTurbines.D[index[i].second];
+		temp1[i] = turbines->D[index[i].second];
 	}
 	newTurbines.D = temp1;
 	//不需要对偏航角度排序
@@ -126,9 +120,15 @@ int Wake::getNewCloud()
 	vector<int>temp2 = turbines->turbType;
 	for (int i = 0; i < turbines->turbNum; ++i)
 	{
-		temp2[i] = newTurbines.turbType[index[i].second];
+		temp2[i] = turbines->turbType[index[i].second];
 	}
 	newTurbines.turbType = temp2;
+	Bool temp3 = turbines->isWork;
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		temp3[i] = turbines->isWork[index[i].second];
+	}
+	newTurbines.isWork = temp3;
 	return 0;
 }
 
@@ -137,11 +137,17 @@ int Wake::getWake(Model& model)
 	model.getWake(newVel, newTurbines, u);
 	return 0;
 }
-int Wake::getWake(double& meshVel, double& x, double& y, double& z, Model& model)
+int Wake::getWake(Column& newGamma, Model& model)
 {
-	getWake(model);
+	model.getWake(newVel, newTurbines, newGamma, u);
+	return 0;
+}
+int Wake::getWake(double& meshVel, double& x, double& y, double& z, Column& newGamma, Model& model)
+{
+	getWake(newGamma, model);
 	xyz_transformation(x, y, z);
-	model.getWake(meshVel, newVel, newTurbines, u, x1, y1, z1);
+	// x1, y1, z1是xyz点转换后的坐标
+	model.getWake(meshVel, newVel, newTurbines, newGamma, u, x1, y1, z1);
 	return 0;
 }
 // 恢复Vel的排序
@@ -156,53 +162,29 @@ int Wake::restoreVel()
 	return 0;
 }
 // 获取排列后风机的偏航角
-int Wake::gamma2NewGamma()
+int Wake::gamma2NewGamma(Column& newGamma, Column& gamma)
 {
-	if (turbines->gamma == nullptr || newTurbines.gamma == nullptr)
-	{
-		cout << "gamma is not defined!!!" << endl;
-		return 0;
-	}
-	Column temp = *turbines->gamma;
-
-	for (int i = 0; i < turbines->turbNum; ++i)
-	{
-		temp[i] = (*turbines->gamma)[index[i].second];
-	}
-	*newTurbines.gamma = temp;
+	sortA(newGamma, gamma);
 	return 0;
 }
-int Wake::newGamma2Gamma()
+Column Wake::newGamma2Gamma()
 {
+	Column gamma;
 	//cout << "in newGamma2Gamma" << endl;
-	if (turbines->gamma == nullptr || newTurbines.gamma == nullptr)
+	if (newTurbines.gamma == nullptr)
 	{
-		cout << "gamma is not defined!!!" << endl;
-		return 0;
+		cout << "newGamma is not defined!!!" << endl;
+		return gamma;
 	}
-	*(turbines->gamma) = *newTurbines.gamma;
+	gamma = *newTurbines.gamma;
 	for (int i = 0; i < turbines->turbNum; ++i)
 	{
 		int j = index[i].second;
 		//cout << "i=" << i << "j=" << j << endl;
-		(*turbines->gamma)[j] = (*newTurbines.gamma)[i];
+		gamma[j] = (*newTurbines.gamma)[i];
 	}
-	
-	//printA(*newTurbines.gamma);
-	//printA(*turbines->gamma);
-	return 0;
+	return gamma;
 }
-
-//int Wake::newPower2Power()
-//{
-//	turbines->power_i.resize(turbines->turbNum);
-//	for (int i = 0; i < turbines->turbNum; ++i)
-//	{
-//		int j = index[i].second;
-//		turbines->power_i[j] = newTurbines.power_i[i];
-//	}
-//	return 0;
-//}
 
 int Wake::restoreA(Column& result, Column& A)
 {
@@ -216,6 +198,36 @@ int Wake::restoreA(Column& result, Column& A)
 	{
 		int j = index[i].second;
 		result[j] = A[i];
+	}
+	return 0;
+}
+int Wake::sortA(Column& result, Column& A)
+{
+	if (A.size() != turbines->turbNum)
+	{
+		cout << "Column can not be sorted because size of A is not equal to turbine number" << endl;
+		return 0;
+	}
+	result.resize(turbines->turbNum);
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		int j = index[i].second;
+		result[i] = A[j];
+	}
+	return 0;
+}
+int Wake::sortA(Bool& result, Bool& A)
+{
+	if (A.size() != turbines->turbNum)
+	{
+		cout << "Column can not be sorted because size of A is not equal to turbine number" << endl;
+		return 0;
+	}
+	result.resize(turbines->turbNum);
+	for (int i = 0; i < turbines->turbNum; ++i)
+	{
+		int j = index[i].second;
+		result[i] = A[j];
 	}
 	return 0;
 }

@@ -3,32 +3,36 @@
 const double PiOutOf180 = 0.01745329251994329576923690768489;
 Simulation::Simulation()
 {
+	double wind = 0, theta360 = 0;
 	model = nullptr;
-}
-
-Simulation::Simulation(double& wind, double& theta360, Model& model)
-	:turbines(1, 1, 10, 0, 20)
-{
 	double theta;
 
 	input.setTurb(turbines);
 	input.readFile();
-	
 	theta = (270 - theta360) / 180.0 * PI; // 为了匹配输入文件的风向
 	wake.setWake(turbines, wind, theta);
-	this->model = &model;
 }
-int Simulation::setAll(double& wind, double& theta360, Model& model)
+
+int Simulation::reset(double& wind, double& theta360, Bool& isWork, Model& model)
 {
 	double theta;
-	turbines.init(1, 1, 10, 0, 20);
-	input.setTurb(turbines);
-	input.readFile();
-
+	Bool newIsWork;
+	sortColumn(newIsWork, isWork);
 	theta = (270 - theta360) / 180.0 * PI; // 为了匹配输入文件的风向
-	//if (wind - turbines.uMin <= 1e-2) wind = turbines.uMin + 1e-2;//如果环境风太小，计算尾流容易出问题。
 	wake.setWake(turbines, wind, theta);
+	turbines.isWork = isWork;
+	this->wake.newTurbines.isWork = newIsWork;
 	this->model = &model;
+	return 0;
+}
+int Simulation::sortColumn(Column& result, Column& A)
+{
+	wake.sortA(result, A);
+	return 0;
+}
+int Simulation::sortColumn(Bool& result, Bool& A)
+{
+	wake.sortA(result, A);
 	return 0;
 }
 int Simulation::run(Column& gamma)
@@ -47,8 +51,8 @@ int Simulation::run(Column& gamma)
 	// 后续的功率计算也在已经排列后的wake.newTurbines基础上计算
 	return 0;
 }
-// 因为涉及到排序前后的风机的偏航角的问题，所以，下面函数中指针的处理必须小心
-int Simulation::run(Column& gamma, bool isPlot)
+
+int Simulation::run(Column& gamma, bool isPlot, string& fileName, string& titleName)
 {
 	if (gamma.size() != turbines.turbNum)
 	{
@@ -57,96 +61,33 @@ int Simulation::run(Column& gamma, bool isPlot)
 		cout << "The number of input yaw angle: " << gamma.size() << endl;
 		return 0;
 	}
-	// 由于浅拷贝，
-	// 以下指针和wake.turbines->gamma指向同一个位置
-	// 所以只删除一次
-	delete wake.newTurbines.gamma;
-	wake.turbines->gamma = &gamma;
-	wake.newTurbines.gamma = new Column(gamma);
-
-	// 在尾流模型中，偏航角的正方向和尾流偏转角的正方向相同
+	Column m_gamma, m_newGamma;
+	m_gamma = gamma;
+	m_newGamma = gamma;
 	for (int i = 0; i < turbines.turbNum; ++i)
 	{
-		gamma[i] *= PiOutOf180;
+		m_gamma[i] = gamma[i] * PiOutOf180;
 	}
-	wake.gamma2NewGamma();
-	wake.getWake(*model);
-	wake.restoreVel();
+	wake.gamma2NewGamma(m_newGamma, m_gamma);
+	wake.getWake(m_newGamma, *model);
+	wake.restoreVel(); // 这句没用（应该）
+
 	if (isPlot)
 	{
-		cout << "The tecplot file is generating..." << endl;
 		Contour contour = Contour(wake, true);
 		contour.set_xy();
-		contour.get_vel(*model);
-		std::string fileName = "tecplot2D.dat";
+		contour.get_vel(m_newGamma, *model);
 		vector<std::string> varName;
 		varName.resize(1);
 		varName[0] = "velocity";
-		Tecplot2D tecplot2D = Tecplot2D(fileName, varName, 1);
-		tecplot2D.var[0] = &contour.vel;
-		tecplot2D.set_xy(contour.x, contour.y);
-		tecplot2D.output();
-		cout << "Done!" << endl;
-	}
-	return 0;
-}
-
-// 因为涉及到排序前后的风机的偏航角的问题，所以，下面函数中指针的处理必须小心
-int Simulation::run(Column& gamma, bool isPlot, string& fileName)
-{
-	if (gamma.size() != turbines.turbNum)
-	{
-		cout << "The number of input yaw angle does not match the number of wind turbines" << endl;
-		cout << "The number of wind turbines: " << turbines.turbNum << endl;
-		cout << "The number of input yaw angle: " << gamma.size() << endl;
-		return 0;
-	}
-	// 由于浅拷贝，（拷贝过程在构造Weak类型的变量时完成）
-	// 以下指针和wake.turbines->gamma指向同一个位置
-	// 所以只删除一次
-	if (wake.newTurbines.gamma != nullptr)
-	{
-		delete wake.newTurbines.gamma;
-		wake.newTurbines.gamma = nullptr;
-		wake.turbines->gamma = nullptr;
-	}
-	
-	wake.turbines->gamma = new Column(gamma);
-
-	wake.newTurbines.gamma = new Column(gamma);
-
-	// 在尾流模型中，偏航角的正方向和尾流偏转角的正方向相同
-
-	for (int i = 0; i < turbines.turbNum; ++i)
-	{
-		(*wake.turbines->gamma)[i] = gamma[i] * PiOutOf180;
-	}
-	wake.gamma2NewGamma();
-	wake.getWake(*model);
-	wake.restoreVel();
-	// printA(wake.vel);
-	if (isPlot)
-	{
-		// cout << "The tecplot file is generating..." << endl;
-		Contour contour = Contour(wake, true);
-		contour.set_xy();
-		contour.get_vel(*model);
-		vector<std::string> varName;
-		varName.resize(1);
-		varName[0] = "velocity";
-		Tecplot2D tecplot2D = Tecplot2D(fileName, varName, 1);
+		Tecplot2D tecplot2D = Tecplot2D(fileName, varName, titleName, 1);
 		tecplot2D.var[0] = &contour.vel;
 		tecplot2D.set_xy(contour.x, contour.y);
 		tecplot2D.output();
 		// cout << "Done!" << endl;
 	}
-	delete wake.newTurbines.gamma; // 防止内存泄露
-	wake.newTurbines.gamma = nullptr;
-	delete wake.turbines->gamma;
-	wake.turbines->gamma = nullptr;
 	return 0;
 }
-
 
 int Simulation::run(double& f, Column& gamma)
 {
@@ -176,5 +117,12 @@ int Simulation::hypotheticalRun(Column& f_iHypothetical)
 	Column f_iHypotheticalNew;
 	wake.newTurbines.getHypothesisPower(f_iHypotheticalNew, wake.u);
 	wake.restoreA(f_iHypothetical, f_iHypotheticalNew);
+	return 0;
+}
+
+int Simulation::plot(double& wind, double& theta360, Bool& isWork, Model& model, Column& gamma360, string& fileName, string& titleName)
+{
+	reset(wind, theta360, isWork, model);
+	run(gamma360, true, fileName, titleName);
 	return 0;
 }

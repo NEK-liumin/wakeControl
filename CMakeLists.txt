@@ -40,6 +40,7 @@ include_directories(${PROJECT_SOURCE_DIR}/run)
 include_directories(${PROJECT_SOURCE_DIR}/figure)
 include_directories(${PROJECT_SOURCE_DIR}/statistics)
 include_directories(${PROJECT_SOURCE_DIR}/excel)
+include_directories(${PROJECT_SOURCE_DIR}/wakeControlOnline)
 
 #子目录
 add_subdirectory(matrixOperation)
@@ -58,6 +59,8 @@ add_subdirectory(run)
 add_subdirectory(figure)
 add_subdirectory(statistics)
 add_subdirectory(excel)
+add_subdirectory(wakeControlOnline)
+add_subdirectory(mainOnline)
 
 #link_directories(${LIBPATH})
 #link_libraries(excel)

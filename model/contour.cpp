@@ -20,7 +20,7 @@ Contour::Contour(Wake& wake, bool is2D)
 int Contour::set_xy()
 {
 	int Cspread = 5; // 网格向外扩大factor个风机直径的大小
-	int meshSize = 5; // 代表了网格尺度，一个风机直径长度内的网格数量
+	int meshSize = 10; // 代表了网格尺度，一个风机直径长度内的网格数量
 	double delta;
 	double xmin, xmax, ymin, ymax;
 	auto xmin_it = std::min_element((*wake).turbines->x0.begin(), (*wake).turbines->x0.end());
@@ -79,7 +79,7 @@ int Contour::set_xy()
 	return 0;
 }
 // 获取每个网格点的速度
-int Contour::get_vel(Model& model)
+int Contour::get_vel(Column& newGamma, Model& model)
 {
 	vel.resize(nI);
 	for (int i = 0; i < nI; ++i)
@@ -90,7 +90,7 @@ int Contour::get_vel(Model& model)
 			vel[i][j].resize(nK);
 			for (int k = 0; k < nK; ++k)
 			{
-				wake->getWake(vel[i][j][k], x[i][j][k], y[i][j][k], z[i][j][k], model);
+				wake->getWake(vel[i][j][k], x[i][j][k], y[i][j][k], z[i][j][k], newGamma, model);
 			}
 		}
 	}

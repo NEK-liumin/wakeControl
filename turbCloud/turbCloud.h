@@ -1,12 +1,13 @@
 ﻿#ifndef TURBCLOUD_H
 #define TURBCLOUD_H
 #include "matrixOperation.h"
-
+#include <string>
 class TurbCloud
 {
 public:
 	int turbNum; // 风机数量
 	int turbTypeNum; // 风机种类数
+	vector<std::string> turbName;
 	// 风机叶轮直径
 	Column D;
 	// 风机原坐标
@@ -27,8 +28,8 @@ public:
 	Matrix Cp;
 	// 不同风速下风机的推力系数
 	Matrix Ct;
-	// 每台风机的输出功率，用于统计
-	// Column power_i;
+	// 每台风机是否正常运行。正常取'1'，否则取'0'
+	Bool isWork;
 
 	TurbCloud() 
 	{
@@ -48,6 +49,11 @@ public:
 		uMax(uMax),
 		gamma(nullptr)
 	{
+		turbName.resize(turbNum);
+		for (int i = 0; i < turbNum; ++i)
+		{
+			turbName[i] = "windTurbine_"+std::to_string(i);
+		}
 		getZeroColumn(D, turbNum);
 		getZeroColumn(x0, turbNum);
 		getZeroColumn(y0, turbNum);
@@ -64,18 +70,17 @@ public:
 
 		getZeroMatrix(Cp, turbTypeNum, uNum);
 		getZeroMatrix(Ct, turbTypeNum, uNum);
+		isWork.resize(turbNum);
+		for (int i = 0; i < turbNum; ++i)
+		{
+			isWork[i] = '1';
+		}
 	}
 	int init(int turbNum, int turbTypeNum, int uNum, double uMin, double uMax);
-	int setD(Column& D);
-	int setD(double& D);
 
-	int setPosi(int turbNum, Column& x0, Column& y0, Column& z0);
+	int getCp(double& cp_i, double& velo, int& num_i, int& type_i);
+	int getCt(double& ct_i, double& velo, int& num_i, int& type_i);
 
-	int setCoef(Matrix& Cp, Matrix& Ct);
-	int getCp(double& cp_i, double& velo, int& type_i);
-	int getCt(double& ct_i, double& velo, int& type_i);
-	// 以下函数被废弃
-	int getPower(double& power, Column& vel, double& rho);
 	// 在计算完成后才调用，用于校正偏航角：没功率的话就不偏航
 	bool isYaw(Column& vel, int& i);
 	// 计算每台风机的功率

@@ -12,7 +12,7 @@ int writeExcel(string& fileName, string& varName, Column& titleTop, Column& titl
 
 // 输出两列
 int writeExcel(string& fileName, string& varName, Column& titleLeft, Column& content, int width, int precision);
-
+int writeExcel(string& fileName, string& varName, vector<string>& titleLeft, Column& content, int width, int precision);
 // 输出两行
 int writeExcel(string& fileName, Column& titleTop, string& varName, Column& content, int width, int precision);
 #endif // !EXCEL_H

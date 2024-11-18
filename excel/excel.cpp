@@ -103,6 +103,41 @@ int writeExcel(string& fileName, string& varName, Column& titleLeft, Column& con
 	return 0;
 }
 
+int writeExcel(string& fileName, string& varName, vector<string>& titleLeft, Column& content, int width, int precision)
+{
+	std::ofstream file(fileName);
+	int nLine = titleLeft.size();
+	if (nLine != content.size())
+	{
+		std::cout << "The number of entered variables does not match!" << std::endl;
+		return 1;
+	}
+
+	string topName, bottomName;
+	if (!splitString(varName, topName, bottomName))
+	{
+		std::cout << "varName must contain two names separated by commas!" << endl;
+		return 1;
+	}
+
+	if (file.is_open())
+	{
+		file << varName << std::endl;
+		for (int i = 0; i < nLine; ++i)
+		{
+			file << titleLeft[i] << ",";
+			file << std::setw(width) << std::setprecision(precision) << std::fixed << content[i] << std::endl;
+		}
+	}
+	else
+	{
+		std::cerr << "Failed to create file: " << fileName << std::endl;
+		return 1;
+	}
+	file.close();
+	return 0;
+}
+
 int writeExcel(string& fileName, Column& titleTop, string& varName, Column& content, int width, int precision)
 {
 	std::ofstream file(fileName);

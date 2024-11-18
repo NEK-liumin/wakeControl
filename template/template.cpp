@@ -1,4 +1,4 @@
-﻿#include "template.h"
+#include "template.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -43,6 +43,7 @@ int generateTemplate(TurbCloud& turbines)
 	double I = 0.12;
 	double rho = 1.205;
 	double tol = 1e-5;
+	double maxGamma = 30; // 最大偏航角
 
 	ofstream outFile(turbPath);
 
@@ -61,11 +62,11 @@ int generateTemplate(TurbCloud& turbines)
 	outFile << turbines.uMin << endl;
 	outFile << "Max Wind Speed" << endl;
 	outFile << turbines.uMax << endl;
-	outFile << "x,y,z,D,type" << endl;
+	outFile << "name,x,y,z,D,type" << endl;
 
 	for (int i = 0; i < turbines.turbNum; i++)
 	{
-		outFile << turbines.x0[i] << " , " << turbines.y0[i] << " , " << turbines.z0[i] << " , " << turbines.D[i] << " , " << turbines.turbType[i] << endl;
+		outFile << turbines.turbName[i] << "," << turbines.x0[i] << " , " << turbines.y0[i] << " , " << turbines.z0[i] << " , " << turbines.D[i] << " , " << turbines.turbType[i] << endl;
 	}
 	outFile << "Pc and Ct" << endl;
 
@@ -99,6 +100,7 @@ int generateTemplate(TurbCloud& turbines)
 	parameterFile << I << ",I,Turbulence Intensity" << endl;
 	parameterFile << rho << ",rho,Air Density" << endl;
 	parameterFile << tol << ",tol,Optimal Tolerance" << endl;
+	parameterFile << maxGamma << ", maxGamma, maximum yaw angle" << endl;
 	parameterFile.close();
 	return 0;
 }

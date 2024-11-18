@@ -17,6 +17,21 @@
       "vendor": { "microsoft.com/VisualStudioRemoteSettings/CMake/2.0": { "remoteSourceRootDir": "$env{HOME}/.vs/$ms{projectDirName}" } }
     },
     {
+      "name": "linux-release",
+      "displayName": "Linux Release",
+      "description": "面向适用于 Linux 的 Windows 子系统(WSL)或远程 Linux 系统的发布版本。",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "vendor": { "microsoft.com/VisualStudioRemoteSettings/CMake/2.0": { "remoteSourceRootDir": "$env{HOME}/.vs/$ms{projectDirName}" } }
+    },
+    {
       "name": "macos-debug",
       "displayName": "macOS Debug",
       "description": "以远程 macOS 系统为目标。",

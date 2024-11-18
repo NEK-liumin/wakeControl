@@ -176,7 +176,8 @@ public:
 		{
 			double Ct;
 			int k = turbs.turbType[i];
-			turbs.getCt(Ct, vel[i], k);
+			turbs.getCt(Ct, vel[i], i, k);
+			Ct *= cos((*turbs.gamma)[i]);
 			for (int j = i + 1; j < turbs.turbNum; ++j)
 			{
 				getVel(wake[j], turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], (*turbs.gamma)[i], vel[i], uWind, turbs.x0[j], turbs.y0[j], turbs.z0[j]);
@@ -190,7 +191,34 @@ public:
 		}
 		return 0;
 	}
-	int getWake(double& meshVel, Column& turbVel, TurbCloud& turbs, double& uWind, double& x, double& y, double& z)
+	int getWake(Column& vel, TurbCloud& turbs, Column& gamma, double& uWind)
+	{
+		Column wake(turbs.turbNum, 0);
+		Column sumWake(turbs.turbNum, 0);
+		for (int i = 0; i < turbs.turbNum; ++i)
+		{
+			vel[i] = uWind;
+		}
+		for (int i = 0; i < turbs.turbNum; ++i)
+		{
+			double Ct;
+			int k = turbs.turbType[i];
+			turbs.getCt(Ct, vel[i], i, k);
+			Ct *= cos(gamma[i]);
+			for (int j = i + 1; j < turbs.turbNum; ++j)
+			{
+				getVel(wake[j], turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], gamma[i], vel[i], uWind, turbs.x0[j], turbs.y0[j], turbs.z0[j]);
+				//cout << "in Gauss3.getWake" << endl;
+				//cout << wake[j] << endl;
+				sumWake[j] += (1 - wake[j] / uWind) * (1 - wake[j] / uWind);
+			}
+
+			//cout << sumWake[i] << endl;
+			vel[i] = (1 - sqrt(sumWake[i])) * uWind;
+		}
+		return 0;
+	}
+	int getWake(double& meshVel, Column& turbVel, TurbCloud& turbs, Column& gamma, double& uWind, double& x, double& y, double& z)
 	{
 		double wake = 0;
 		double sumWake = 0;
@@ -201,8 +229,9 @@ public:
 			{
 				double Ct;
 				int k = turbs.turbType[i];
-				turbs.getCt(Ct, turbVel[i], k);
-				getVel(wake, turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], (*turbs.gamma)[i], turbVel[i], uWind, x, y, z);
+				turbs.getCt(Ct, turbVel[i], i, k);
+				Ct *= cos(gamma[i]);
+				getVel(wake, turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], gamma[i], turbVel[i], uWind, x, y, z);
 				sumWake += (1 - wake / uWind) * (1 - wake / uWind);
 			}
 		}
@@ -210,6 +239,5 @@ public:
 		return 0;
 	}
 };
-
 
 #endif // !GAUSS_H

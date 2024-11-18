@@ -2,6 +2,8 @@
 #define RUN_H
 
 #include "Blondel.h"
+#include "Blondel2.h"
+#include "Gauss3.h"
 #include "usr.h"
 #include "matrixOperation.h"
 
@@ -12,6 +14,7 @@ public:
 	// 偏航矩阵
 	vector<vector<vector<double>>> gamma360;
 	vector<double> u, theta360;
+	Column uFull, thetaFull;
 	// 每个风速和风向下，风场偏航前后的总发电功率，以及偏航后总发电功率的增加量
 	Matrix P0, P, deltaP;
 	// 每个风速和风向下，每台风机偏航前后的发电功率，以及偏航后发电功率的增加量
@@ -30,14 +33,22 @@ public:
 	double rho = 1.225;
 	// 默认的优化容差
 	double tol = 1e-5;
+	// 默认的最大偏航角
+	double maxGamma = 30;
 	// 默认的尾流模型
-	Blondel model = Blondel(ky, kz, I);
+	Blondel2 model = Blondel2(ky, kz, I);
+	// Gauss3 model = Gauss3(ky, kz, I);
 	// 默认的初始随机范围（-randomRange,randomRange）
-	double randomRange = 5.0 / 180.0 * PI;
+	double randomRange = 1.0;
 	// 当得到偏航角绝对值小于smallGamma，取0
-	double smallGamma = 2;
+	double smallGamma = 0;
+	// 
+	Bool m_isWork;
 	// 默认的优化问题
-	Yaw yaw = Yaw(uBegin, thetaBegin, rho, model, randomRange);
+	Yaw yaw = Yaw(uBegin, thetaBegin, m_isWork, rho, model, maxGamma, randomRange);
+	// 以下用于矩阵输出
+	double uIn = 0;
+	double uOut = yaw.simulation.turbines.uMax;
 
 	Run();
 	Run(double& uBegin, double& uEnd, double& deltaU, double& deltaTheta);
@@ -53,11 +64,7 @@ public:
 	// 输出绝对偏航矩阵，并标注风速和风向
 	int outputAbsMatrix(bool isTranspose);
 
-	// 输出转置后的偏航矩阵，并标注风速和方向
-	int outputMatrixT();
-
-	// 输出转置后的绝对偏航矩阵，并标注风速和风向
-	int outputAbsMatrixT();
+	int extendMatrix(Matrix& result, Matrix& source, Column& resulti, Column& resultj, Column& sourcei, Column& sourcej);
 };
 
 #endif // !MAINLOOP_H

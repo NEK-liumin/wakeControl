@@ -1,4 +1,4 @@
-#include "statistics.h"
+﻿#include "statistics.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -6,22 +6,31 @@
 #include <filesystem>
 #include "excel.h"
 #include <algorithm>
+#include <locale>
+#include <codecvt>
+
+int progress(int& count, int n)
+{
+	count++;
+	cout << "\rProgress: " << std::setw(4) << count << "/" << n << "(" << std::setw(6) << std::setprecision(3) << count * 1.0 / n * 100 << "%)";
+	return 0;
+}
 
 int Statistics::getUThetaColumn()
 {
 	int nVel = 0, nTheta = 0;
 	nVel = floor((uMax - uMin) / run->deltaU) + 1;
 	nTheta = floor((thetaMax - thetaMin) / run->deltaTheta);
-	// ��С�������
+	// 最小最大序列
 	thetaMax = run->thetaEnd;
 	getUniformA(u, uMin, run->deltaU, nVel);
 	getUniformA(theta360, thetaMin, run->deltaTheta, nTheta);
-	// �����г�����
+	// 切入切出序列
 	double ufirst = run->yaw.simulation.turbines.uMin;
 	double ulast = run->yaw.simulation.turbines.uMax;
 	nVel = floor((ulast - ufirst) / run->deltaU) + 1;
 	getUniformA(uCut, ufirst, run->deltaU, nVel);
-	// ƫ����Χ����
+	// 偏航范围序列
 	uYaw = run->u;
 	thetaYaw = run->theta360;
 	return 0;
@@ -29,13 +38,53 @@ int Statistics::getUThetaColumn()
 
 Statistics::Statistics()
 {
-
+	output = "output";
+	statistics = "statistics";
+	absOutput = output / statistics;
+	if (!std::filesystem::exists(output))
+	{
+		std::filesystem::create_directories(output);
+	}
+	if (!std::filesystem::exists(absOutput))
+	{
+		std::filesystem::create_directories(absOutput);
+	}
 }
 
-int Statistics::setStatistisc(Run& run)
+int Statistics::setStatistics(Run& run)
 {
 	this->run = &run;
+	isWork.resize(run.yaw.size_x);
+	for (int i = 0; i < run.yaw.size_x; ++i)isWork[i] = '1';
+	output = "output";
+	statistics = "statistics";
+	absOutput = output / statistics;
+	if (!std::filesystem::exists(output))
+	{
+		std::filesystem::create_directories(output);
+	}
+	if (!std::filesystem::exists(absOutput))
+	{
+		std::filesystem::create_directories(absOutput);
+	}
 	return 0;
+}
+Statistics::Statistics(Run& run)
+{
+	this->run = &run;
+	isWork.resize(run.yaw.size_x);
+	for (int i = 0; i < run.yaw.size_x; ++i)isWork[i] = '1';
+	output = "output";
+	statistics = "statistics";
+	absOutput = output / statistics;
+	if (!std::filesystem::exists(output))
+	{
+		std::filesystem::create_directories(output);
+	}
+	if (!std::filesystem::exists(absOutput))
+	{
+		std::filesystem::create_directories(absOutput);
+	}
 }
 
 int Statistics::readFile(bool isDelBadVal)
@@ -51,8 +100,8 @@ int Statistics::readFile(bool isDelBadVal)
 	while (std::getline(timeseries, line))
 	{
 		std::stringstream ss(line);
-		std::string date0, time0; // ��ʱ�������������
-		double u, theta; // ��ʱ��������ŷ��ٷ���
+		std::string date0, time0; // 临时变量，存放日期
+		double u, theta; // 临时变量，存放风速风向
 
 		ss >> date0 >> time0 >> u >> theta;
 
@@ -63,13 +112,36 @@ int Statistics::readFile(bool isDelBadVal)
 	}
 	timeseries.close();
 
+	badValNum = 0;
+	std::ofstream badValue("input/badValue.log");
+	if (!badValue.is_open())
+	{
+		std::cerr << "Error creating badValue.log" << std::endl;
+		return 1;
+	}
+	for (size_t i = 0; i < windSpeed.size(); ++i)
+	{
+		if (windSpeed[i] <= 0 || windSpeed[i] > 60 || direction[i] < 0 || direction[i] > 360)
+		{
+			badValue << date[i] << " " << time[i] << " "
+				<< std::fixed << std::setprecision(2) << windSpeed[i] << " "
+				<< std::fixed << std::setprecision(2) << direction[i] << std::endl;
+			badValNum++;
+		}
+	}
+	badValue.close();
+	if (badValNum > 0)
+	{
+		std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
+	}
+
 	if (isDelBadVal)
 	{
 		vector<size_t> indicesToRemove;
 
 		for (size_t i = 0; i < windSpeed.size(); ++i)
 		{
-			if (windSpeed[i] <= 0 || windSpeed[i] > 60 || direction[i] < 0 || direction[i] > 360)
+			if (windSpeed[i] <= 0 || windSpeed[i] > 80 || direction[i] < 0 || direction[i] > 360)
 			{
 				indicesToRemove.push_back(i);
 			}
@@ -82,37 +154,11 @@ int Statistics::readFile(bool isDelBadVal)
 			windSpeed.erase(windSpeed.begin() + index);
 			direction.erase(direction.begin() + index);
 		}
-		auto uMaxTemp = std::max_element(windSpeed.begin(), windSpeed.end());
-		uMax = *uMaxTemp;
 	}
-	else
-	{
-		badValNum = 0;
-		std::ofstream badValue("input/badValue.log");
-		if (!badValue.is_open())
-		{
-			std::cerr << "Error creating badValue.log" << std::endl;
-			return 1;
-		}
-		for (size_t i = 0; i < windSpeed.size(); ++i)
-		{
-			if (windSpeed[i] <= 0 || windSpeed[i]> 60 || direction[i] < 0 || direction[i] > 360)
-			{
-				badValue << date[i] << " " << time[i] << " "
-					<< std::fixed << std::setprecision(2) << windSpeed[i] << " "
-					<< std::fixed << std::setprecision(2) << direction[i] << std::endl;
-				badValNum++;
-			}
-		}
-		badValue.close();
-		if (badValNum > 0)
-		{
-			std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
-			return 0;
-		}
-		auto uMaxTemp = std::max_element(windSpeed.begin(), windSpeed.end());
-		uMax = *uMaxTemp;
-	}
+	
+	auto uMaxTemp = std::max_element(windSpeed.begin(), windSpeed.end());
+	uMax = *uMaxTemp;
+	
 	getUThetaColumn();
 	return 0;
 }
@@ -154,59 +200,6 @@ int Statistics::windStatistics()
 	}
 	return 0;
 }
-
-int Statistics::powerStatistics()
-{
-	// ֱ�����run.u, run.theta360, run.p, run.p0���ɣ�����ͳ��
-	return 0;
-}
-
-int Statistics::power_iStatistics()
-{
-	// ֱ�����run.u, run.theta360, run.p_i, run.p0_i���ɣ�����ͳ��
-	return 0;
-}
-
-//int Statistics::windStaCutInOut(Matrix& prob)
-//{
-//	double uCutIn = run->yaw.simulation.turbines.uMin;
-//	double uCutOut = run->yaw.simulation.turbines.uMax;
-//	double deltaU = run->deltaU;
-//	double deltaTheta = run->deltaTheta;
-//	int nVel = floor((uCutOut - uCutIn) / deltaU) + 1;
-//	int nTheta = floor((thetaMax - thetaMin) / deltaTheta);
-//	// ������ٷ������
-//	// ��possibility��ͬ������ĸ����Ǵ������ٶȿ�ʼ�����г��ٶ�Ϊֹ
-//	// �������ֻ��Ϊ�ֲ�������ͳ���귢�����ã����������
-//	getZeroMatrix(prob, nVel, nTheta);
-//	for (int i = 0; i < date.size(); ++i)
-//	{
-//		double j = -1, k = -1;
-//		if (windSpeed[i]>=uCutIn && windSpeed[i]<=uCutOut)
-//		{
-//			j = (windSpeed[i] + 0.5 * deltaU - uCutIn) / deltaU;
-//			if (j <= 0)j = 0;
-//			if (j >= nVel - 1)j = nVel - 1;
-//		}
-//		if (direction[i] > thetaMax - 0.5 * deltaTheta)
-//		{
-//			direction[i] -= thetaMax;
-//		}
-//		k = (direction[i] + 0.5 * deltaTheta - thetaMin) / deltaTheta;
-//		if (k <= 0)k = 0;
-//		if (k >= nTheta - 1)k = nTheta - 1;
-//		if (j >= 0)prob[j][k] += 1;
-//	}
-//	getAlphaA(prob, 1.0 / date.size());
-//	return 0;
-//}
-
-int Statistics::powerStaCutInOut(Matrix& pow)
-{
-
-	return 0;
-}
-
 int Statistics::get_gWithoutWeak()
 {
 	gWithoutWeak = 0;
@@ -224,12 +217,11 @@ int Statistics::get_gWithoutWeak()
 	gWithoutWeak *= t;
 	return 0;
 }
-
 int Statistics::get_g0()
 {
 	g0 = 0;
 	double gi;
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 	
 	if (probability.size() != u.size())
 	{
@@ -247,7 +239,7 @@ int Statistics::get_g0()
 	{
 		for (int j = 0; j < theta360.size(); ++j)
 		{
-			yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+			yaw.reset(u[i], theta360[j], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 			gi = yaw.initialPower();
 			g0 += gi * probability[i][j];
 		}
@@ -255,12 +247,11 @@ int Statistics::get_g0()
 	g0 *= t;
 	return 0;
 }
-
 int Statistics::get_g()
 {
 	g = 0;
 	double gi;
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 	if (probability.size() != u.size())
 	{
 		cout << "pWindSpeed.size() != u.size()" << endl;
@@ -283,7 +274,7 @@ int Statistics::get_g()
 			}
 			else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
 			{
-				yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+				yaw.reset(u[i], theta360[j], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 				gi = yaw.initialPower();
 				g += gi * probability[i][j];
 			}
@@ -301,20 +292,31 @@ int Statistics::get_g()
 	g *= t;
 	return 0;
 }
-
 int Statistics::get_weakLoss0()
 {
-	weakLoss0 = (gWithoutWeak - g0) / gWithoutWeak;
+	if (gWithoutWeak > 0)
+	{
+		weakLoss0 = (gWithoutWeak - g0) / gWithoutWeak;
+	}
+	else
+		weakLoss0 = 0;
 	return 0;
 }
 int Statistics::get_weakLoss()
 {
-	weakLoss = (gWithoutWeak - g) / gWithoutWeak;
+	if (gWithoutWeak > 0)
+	{
+		weakLoss = (gWithoutWeak - g) / gWithoutWeak;
+	}
+	else
+	{
+		weakLoss = 0;
+	}
 	return 0;
 }
 int Statistics::get_gIncrease()
 {
-	gIncrease = weakLoss - weakLoss0;
+	gIncrease = (g - g0) / g0;
 	return 0;
 }
 int Statistics::get_gPerThetaWithoutWeak()
@@ -348,7 +350,7 @@ int Statistics::get_g0PerTheta()
 	int n = theta360.size();
 	getZeroColumn(g0PerTheta, n);
 	double gi;
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 
 	if (probability.size() != u.size())
 	{
@@ -366,7 +368,7 @@ int Statistics::get_g0PerTheta()
 	{
 		for (int j = 0; j < theta360.size(); ++j)
 		{
-			yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+			yaw.reset(u[i], theta360[j], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 			gi = yaw.initialPower();
 			g0PerTheta[j] += gi * probability[i][j];
 		}
@@ -379,7 +381,7 @@ int Statistics::get_gPerTheta()
 	int n = theta360.size();
 	getZeroColumn(gPerTheta, n);
 	double gi;
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 	if (probability.size() != u.size())
 	{
 		cout << "pWindSpeed.size() != u.size()" << endl;
@@ -402,7 +404,7 @@ int Statistics::get_gPerTheta()
 			}
 			else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
 			{
-				yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+				yaw.reset(u[i], theta360[j], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 				gi = yaw.initialPower();
 				gPerTheta[j] += gi * probability[i][j];
 			}
@@ -451,7 +453,7 @@ int Statistics::get_g0PerU()
 	int n = u.size();
 	getZeroColumn(g0PerU, n);
 	double gi;
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 
 	if (probability.size() != u.size())
 	{
@@ -469,7 +471,7 @@ int Statistics::get_g0PerU()
 	{
 		for (int j = 0; j < theta360.size(); ++j)
 		{
-			yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+			yaw.reset(u[i], theta360[j], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 			gi = yaw.initialPower();
 			g0PerU[i] += gi * probability[i][j];
 		}
@@ -482,7 +484,7 @@ int Statistics::get_gPerU()
 	int n = u.size();
 	getZeroColumn(gPerU, n);
 	double gi;
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 	if (probability.size() != u.size())
 	{
 		cout << "pWindSpeed.size() != u.size()" << endl;
@@ -505,7 +507,7 @@ int Statistics::get_gPerU()
 			}
 			else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
 			{
-				yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+				yaw.reset(u[i], theta360[j], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 				gi = yaw.initialPower();
 				gPerU[i] += gi * probability[i][j];
 			}
@@ -528,7 +530,14 @@ int Statistics::get_weakLoss0PerU()
 	getAMinusB(weakLoss0PerU, gPerUWithoutWeak, g0PerU);
 	for (int i = 0; i < weakLoss0PerU.size(); ++i)
 	{
-		weakLoss0PerU[i] = weakLoss0PerU[i] / gPerUWithoutWeak[i];
+		if (gPerUWithoutWeak[i] > 0)
+		{
+			weakLoss0PerU[i] = weakLoss0PerU[i] / gPerUWithoutWeak[i];
+		}
+		else
+		{
+			weakLoss0PerU[i] = 0;
+		}
 	}
 	return 0;
 }
@@ -537,7 +546,14 @@ int Statistics::get_weakLossPerU()
 	getAMinusB(weakLossPerU, gPerUWithoutWeak, gPerU);
 	for (int i = 0; i < weakLoss0PerU.size(); ++i)
 	{
-		weakLossPerU[i] = weakLossPerU[i] / gPerUWithoutWeak[i];
+		if (gPerUWithoutWeak[i] > 0)
+		{
+			weakLossPerU[i] = weakLossPerU[i] / gPerUWithoutWeak[i];
+		}
+		else
+		{
+			weakLossPerU[i] = 0;
+		}
 	}
 	return 0;
 }
@@ -578,7 +594,7 @@ int Statistics::get_g0PerTurb()
 	int n = run->yaw.simulation.turbines.turbNum;
 	getZeroColumn(g0PerTurb, n);
 	Column gi;
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 
 	if (probability.size() != u.size())
 	{
@@ -596,7 +612,7 @@ int Statistics::get_g0PerTurb()
 	{
 		for (int j = 0; j < theta360.size(); ++j)
 		{
-			yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+			yaw.reset(u[i], theta360[j], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 			gi = yaw.initialPower_i();
 			getAlphaA(gi, probability[i][j]);
 			getAPlusB(g0PerTurb, gi);
@@ -610,7 +626,7 @@ int Statistics::get_gPerTurb()
 	int n = run->yaw.simulation.turbines.turbNum;
 	getZeroColumn(gPerTurb, n);
 	Column gi;
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 	if (probability.size() != u.size())
 	{
 		cout << "pWindSpeed.size() != u.size()" << endl;
@@ -634,7 +650,7 @@ int Statistics::get_gPerTurb()
 			}
 			else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
 			{
-				yaw.reset(u[i], theta360[j], run->rho, run->model, run->randomRange);
+				yaw.reset(u[i], theta360[j], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 				gi = yaw.initialPower_i();
 				getAlphaA(gi, probability[i][j]);
 				getAPlusB(gPerTurb, gi);
@@ -662,7 +678,14 @@ int Statistics::get_weakLoss0PerTurb()
 	getAMinusB(weakLoss0PerTurb, gPerTurbWithoutWeak, g0PerTurb);
 	for (int i = 0; i < weakLoss0PerTurb.size(); ++i)
 	{
-		weakLoss0PerTurb[i] = weakLoss0PerTurb[i] / gPerTurbWithoutWeak[i];
+		if (gPerTurbWithoutWeak[i] > 0)
+		{
+			weakLoss0PerTurb[i] = weakLoss0PerTurb[i] / gPerTurbWithoutWeak[i];
+		}
+		else
+		{
+			weakLoss0PerTurb[i] = 0;
+		}
 	}
 	return 0;
 }
@@ -671,7 +694,14 @@ int Statistics::get_weakLossPerTurb()
 	getAMinusB(weakLossPerTurb, gPerTurbWithoutWeak, gPerTurb);
 	for (int i = 0; i < weakLoss0PerTurb.size(); ++i)
 	{
-		weakLossPerTurb[i] = weakLossPerTurb[i] / gPerTurbWithoutWeak[i];
+		if (gPerTurbWithoutWeak[i] > 0)
+		{
+			weakLossPerTurb[i] = weakLossPerTurb[i] / gPerTurbWithoutWeak[i];
+		}
+		else
+		{
+			weakLossPerTurb[i] = 0;
+		}
 	}
 	return 0;
 }
@@ -682,10 +712,9 @@ int Statistics::get_gIncreasePerTurb()
 }
 int Statistics::get_gTimeSeriseWithoutWeak()
 {
-	if (isDelBadVal || badValNum > 0)
+	if (isDelBadVal && badValNum > 0)
 	{
 		std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
-		return 0;
 	}
 	int n = date.size();
 	getZeroColumn(gTimeSeriseWithoutWeak, n);
@@ -698,40 +727,39 @@ int Statistics::get_gTimeSeriseWithoutWeak()
 }
 int Statistics::get_g0TimeSerise()
 {
-	if (isDelBadVal || badValNum > 0)
+	if (isDelBadVal && badValNum > 0)
 	{
 		std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
-		return 0;
 	}
 	int n = date.size();
 	getZeroColumn(g0TimeSerise, n);
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 	for (int i = 0; i < n; ++i)
 	{
-		yaw.reset(windSpeed[i], direction[i], run->rho, run->model, run->randomRange);
+		yaw.reset(windSpeed[i], direction[i], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 		g0TimeSerise[i] = yaw.initialPower();
 	}
 	return 0;
 }
 int Statistics::get_gTimeSerise()
 {
-	if (isDelBadVal || badValNum > 0)
+	if (isDelBadVal && badValNum > 0)
 	{
 		std::cout << "Data in the timeseries.txt file is faulty. Check the badValue.log" << std::endl;
-		return 0;
 	}
 	int n = date.size();
 	getZeroColumn(gTimeSerise, n);
-	Yaw yaw(run->uBegin, run->thetaBegin, run->rho, run->model, run->randomRange);
+	Yaw yaw(run->uBegin, run->thetaBegin, isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 	for (int i = 0; i < n; ++i)
 	{
 		if (windSpeed[i] < uCut[0] || windSpeed[i] > uCut[uCut.size() - 1])
 		{
 			gTimeSerise[i] = 0;
 		}
-		else if (u[i] < uYaw[0] || u[i]>uYaw[uYaw.size() - 1])
+		
+		else if (windSpeed[i] < uYaw[0] || windSpeed[i]>uYaw[uYaw.size() - 1])
 		{
-			yaw.reset(windSpeed[i], direction[i], run->rho, run->model, run->randomRange);
+			yaw.reset(windSpeed[i], direction[i], isWork, run->rho, run->model, run->maxGamma, run->randomRange);
 			gTimeSerise[i] = yaw.initialPower();
 		}
 		else
@@ -743,25 +771,256 @@ int Statistics::get_gTimeSerise()
 			interpolation(gTimeSerise[i], run->P, ni, nj, fi, fj);
 		}
 	}
+	return 0;
 }
-int Statistics::writeFile(bool isTranspose)
+
+int Statistics::get_all()
 {
-	std::filesystem::path output("output");
-	std::filesystem::path statistics("statistics");
-	std::filesystem::path absOutput;
-	absOutput = output / statistics;
+	int nLoop = 25;
+	int count = 0;
+	cout << "Statistics are being taken..." << endl;
+	windStatistics();progress(count, nLoop);
+	get_gWithoutWeak(); progress(count, nLoop);
+	get_g0(); progress(count, nLoop);
+	get_g(); progress(count, nLoop);
+	get_weakLoss0(); progress(count, nLoop);
+	get_weakLoss(); progress(count, nLoop);
+	get_gIncrease(); progress(count, nLoop);
+	get_gPerThetaWithoutWeak(); progress(count, nLoop);
+	get_g0PerTheta(); progress(count, nLoop);
+	get_gPerTheta(); progress(count, nLoop);
+	get_gPerUWithoutWeak(); progress(count, nLoop);
+	get_g0PerU(); progress(count, nLoop);
+	get_gPerU(); progress(count, nLoop);
+	get_weakLoss0PerU(); progress(count, nLoop);
+	get_weakLossPerU(); progress(count, nLoop);
+	get_gIncreasePerU(); progress(count, nLoop);
+	get_gPerTurbWithoutWeak(); progress(count, nLoop);
+	get_g0PerTurb(); progress(count, nLoop);
+	get_gPerTurb(); progress(count, nLoop);
+	get_weakLoss0PerTurb(); progress(count, nLoop);
+	get_weakLossPerTurb(); progress(count, nLoop);
+	get_gIncreasePerTurb(); progress(count, nLoop);
+	get_gTimeSeriseWithoutWeak(); progress(count, nLoop);
+	get_g0TimeSerise(); progress(count, nLoop);
+	get_gTimeSerise(); progress(count, nLoop);
+	cout << endl;
+	
+	return 0;
+}
 
-	if (!std::filesystem::exists(absOutput))
+int Statistics::writeColumn(Column& x, Column& y, string& titlex, string& titley, string& fileName)
+{
+	int nx = x.size();
+	int ny = y.size();
+	if (nx != ny)
 	{
-		std::filesystem::create_directories(absOutput);
+		cout << "nx != ny" << endl;
+		return 0;
 	}
-	string possibleName = (absOutput / "possible.csv").string();
-	string pUName = (absOutput / "pWindSpeed.csv").string();
-	string pThetaName = (absOutput / "pWindTheta.csv").string();
+	string varName = titlex + "," + titley;
 
-	std::ofstream possible(possibleName);
+	writeExcel(fileName, varName, x, y, 10, 5);
+	
+	return 0;
+}
+int Statistics::writeColumn(vector<string>& x, Column& y, string& titlex, string& titley, string& fileName)
+{
+	int nx = x.size();
+	int ny = y.size();
+	if (nx != ny)
+	{
+		cout << "nx != ny" << endl;
+		return 0;
+	}
+	string varName = titlex + "," + titley;
+	writeExcel(fileName, varName, x, y, 10, 5);
+	return 0;
+}
+int Statistics::writeSector_x(Column& x, string& title, string& fileName)
+{
+	string titleLeft = "Theta";
+	writeColumn(theta360, x, titleLeft, title, fileName);
+	return 0;
+}
+int Statistics::writeSegment_x(Column& x, string& title, string& fileName)
+{
+	string titleLeft = "U";
+	writeColumn(u, x, titleLeft, title, fileName);
+	return 0;
+}
+int Statistics::writeTurbine_x(Column& x, string& title, string& fileName)
+{
+	string titleLeft = "name";
+	writeColumn(run->yaw.simulation.turbines.turbName, x, titleLeft, title, fileName);
+	return 0;
+}
+int Statistics::writeTime_x(Column& x, string& title, string& fileName)
+{
+	string titleLeft = "Date";
+	vector<string>date_all;
+	int n = date.size();
+	date_all.resize(n);
+	for (int i = 0; i < n; ++i)
+	{
+		date_all[i] = date[i] + " " + time[i];
+	}
+	writeColumn(date_all, x, titleLeft, title, fileName);
+	return 0;
+}
+
+int Statistics::writeSingleStatistics()
+{
+	string name = (absOutput / "年发电量.csv").string();
+	std::ofstream file(name);
+	if (file.is_open())
+	{
+		file << gWithoutWeak << ", Annual output without wake" << endl;
+		file << g0 << ", Annual output with wake but without yawing" << endl;
+		file << g << ", Annual output with wake and yawing" << endl;
+		file << weakLoss0 << ", Annual wake loss without yawing" << endl;
+		file << weakLoss << ", Annual wake loss with yawing" << endl;
+		file << gIncrease << ", Annual increased output with yawing" << endl;
+	}
+	file.close();
+	return 0;
+}
+int Statistics::write_gPerThetaWithoutWeak()
+{
+	string name = (absOutput / "不同风向的年发电量（不考虑尾流）.csv").string();
+	string title = "Annual output";
+	writeSector_x(gPerThetaWithoutWeak, title, name);
+	return 0;
+}
+int Statistics::write_g0PerTheta()
+{
+	string name = (absOutput / "不同风向的年发电量（考虑尾流但不偏航）.csv").string();
+	string title = "Annual output";
+	writeSector_x(g0PerTheta, title, name);
+	return 0;
+}
+int Statistics::write_gPerTheta()
+{
+	string name = (absOutput / "不同风向的年发电量（考虑尾流且偏航）.csv").string();
+	string title = "Annual output";
+	writeSector_x(gPerTheta, title, name);
+	return 0;
+}
+int Statistics::write_gPerUWithoutWeak()
+{
+	string name = (absOutput / "不同风速的年发电量（不考虑尾流）.csv").string();
+	string title = "Annual output";
+	writeSegment_x(gPerUWithoutWeak, title, name);
+	return 0;
+}
+int Statistics::write_g0PerU()
+{
+	string name = (absOutput / "不同风速的年发电量（考虑尾流但不偏航）.csv").string();
+	string title = "Annual output";
+	writeSegment_x(g0PerU, title, name);
+	return 0;
+}
+int Statistics::write_gPerU()
+{
+	string name = (absOutput / "不同风速的年发电量（偏航后）.csv").string();
+	string title = "Annual output";
+	writeSegment_x(gPerU, title, name);
+	return 0;
+}
+int Statistics::write_weakLoss0PerU()
+{
+	string name = (absOutput / "不同风速的尾流损失（不偏航）.csv").string();
+	string title = "Weak loss";
+	writeSegment_x(weakLoss0PerU, title, name);
+	return 0;
+}
+int Statistics::write_weakLossPerU()
+{
+	string name = (absOutput / "不同风速的尾流损失（偏航）.csv").string();
+	string title = "Weak loss";
+	writeSegment_x(weakLossPerU, title, name);
+	return 0;
+}
+int Statistics::write_gIncreasePerU()
+{
+	string name = (absOutput / "不同风速偏航后尾流损失降低.csv").string();
+	string title = "Output Increase";
+	writeSegment_x(gIncreasePerU, title, name);
+	return 0;
+}
+int Statistics::write_gPerTurbWithoutWeak()
+{
+	string name = (absOutput / "不同风机年发电量（不考虑尾流）.csv").string();
+	string title = "Annual output";
+	writeTurbine_x(gPerTurbWithoutWeak, title, name);
+	return 0;
+}
+int Statistics::write_g0PerTurb()
+{
+	string name = (absOutput / "不同风机年发电量（考虑尾流但不偏航）.csv").string();
+	string title = "Annual output";
+	writeTurbine_x(g0PerTurb, title, name);
+	return 0;
+}
+int Statistics::write_gPerTurb()
+{
+	string name = (absOutput / "不同风机年发电量（偏航后）.csv").string();
+	string title = "Annual output";
+	writeTurbine_x(gPerTurb, title, name);
+	return 0;
+}
+int Statistics::write_weakLoss0PerTurb()
+{
+	string name = (absOutput / "不同风机尾流损失（不偏航）.csv").string();
+	string title = "Weak loss";
+	writeTurbine_x(weakLoss0PerTurb, title, name);
+	return 0;
+}
+int Statistics::write_weakLossPerTurb()
+{
+	string name = (absOutput / "不同风机尾流损失（偏航）.csv").string();
+	string title = "Weak loss";
+	writeTurbine_x(weakLossPerTurb, title, name);
+	return 0;
+}
+int Statistics::write_gIncreasePerTurb()
+{
+	string name = (absOutput / "不同风机偏航后尾流损失降低.csv").string();
+	string title = "output Increase";
+	writeTurbine_x(gIncreasePerTurb, title, name);
+	return 0;
+}
+int Statistics::write_gTimeSeriseWithoutWeak()
+{
+	string name = (absOutput / "时序总功率（不考虑尾流）.csv").string();
+	string title = "Power Generation";
+	writeTime_x(gTimeSeriseWithoutWeak, title, name);
+	return 0;
+}
+int Statistics::write_g0TimeSerise()
+{
+	string name = (absOutput / "时序总功率（考虑尾流但不偏航）.csv").string();
+	string title = "Power Generation";
+	writeTime_x(g0TimeSerise, title, name);
+	return 0;
+}
+int Statistics::write_gTimeSerise()
+{
+	string name = (absOutput / "时序总功率（偏航后）.csv").string();
+	string title = "Power Generation";
+	writeTime_x(gTimeSerise, title, name);
+	return 0;
+}
+
+int Statistics::write_all(bool isTranspose)
+{
+	string possibleName = (absOutput / "风速风向概率矩阵.csv").string();
+	string pUName = (absOutput / "风速概率曲线.csv").string();
+	string pThetaName = (absOutput / "风向概率曲线.csv").string();
+
+	/*std::ofstream possible(possibleName);
 	std::ofstream pU(pUName);
-	std::ofstream pTheta(pThetaName);
+	std::ofstream pTheta(pThetaName);*/
 
 	if (isTranspose)
 	{
@@ -777,95 +1036,40 @@ int Statistics::writeFile(bool isTranspose)
 	}
 	string varName = "U, probability";
 	writeExcel(pUName, varName, u, pWindSpeed, 10, 5);
-	varName = "Theta,probility";
+	varName = "Theta,probability";
 	writeExcel(pThetaName, varName, theta360, pWindTheta, 10, 5);
 	/////////////////////////////////////////////////////////////////////
 
-	std::string P0name = (absOutput / "P0.csv").string();
-	std::string Pname = (absOutput / "P.csv").string();
-	std::string deltaPname = (absOutput / "deltaP.csv").string();
-
-	std::ofstream P0file(P0name);
-	std::ofstream Pfile(Pname);
-	std::ofstream deltaPfile(deltaPname);
+	std::string P0name = (absOutput / "不同风速风向风场发电功率（不偏航）.csv").string();
+	std::string Pname = (absOutput / "不同风速风向风场发电功率（偏航）.csv").string();
+	std::string deltaPname = (absOutput / "不同风速风向偏航后风场发电功率增加.csv").string();
 
 	if (isTranspose)
 	{
-		if (P0file.is_open())
-		{
-			string varName = "Theta \\ U";
-			Matrix P0T;
-			getAT(P0T, run->P0);
-			writeExcel(P0name, varName, run->u, run->theta360, P0T, 6, 2);
-		}
-		else
-		{
-			std::cerr << "Failed to create file: " << P0name << std::endl;
-		}
-		P0file.close();
+		varName = "Theta \\ U";
+		Matrix P0T;
+		getAT(P0T, run->P0);
+		writeExcel(P0name, varName, run->u, run->theta360, P0T, 6, 2);
 
-		if (Pfile.is_open())
-		{
-			string varName = "Theta \\ U";
-			Matrix PT;
-			getAT(PT, run->P);
-			writeExcel(Pname, varName, run->u, run->theta360, PT, 6, 2);
-		}
-		else
-		{
-			std::cerr << "Failed to create file: " << Pname << std::endl;
-		}
-		Pfile.close();
+		Matrix PT;
+		getAT(PT, run->P);
+		writeExcel(Pname, varName, run->u, run->theta360, PT, 6, 2);
 
-		if (deltaPfile.is_open())
-		{
-			string varName = "Theta \\ U";
-			Matrix deltaPT;
-			getAT(deltaPT, run->deltaP);
-			writeExcel(deltaPname, varName, run->u, run->theta360, deltaPT, 6, 2);
-		}
-		else
-		{
-			std::cerr << "Failed to create file: " << deltaPname << std::endl;
-		}
-		deltaPfile.close();
-		return 0;
+		Matrix deltaPT;
+		getAT(deltaPT, run->deltaP);
+		writeExcel(deltaPname, varName, run->u, run->theta360, deltaPT, 6, 2);
 	}
-	// �����ת�ã�����
-	if (P0file.is_open())
+	// 如果不转置，以下
+	else
 	{
-		string varName = "U \\ Theta";
+		varName = "U \\ Theta";
 		writeExcel(P0name, varName, run->theta360, run->u, run->P0, 6, 2);
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << P0name << std::endl;
-	}
-	P0file.close();
-
-	if (Pfile.is_open())
-	{
-		string varName = "U \\ Theta";
 		writeExcel(Pname, varName, run->theta360, run->u, run->P, 6, 2);
-	}
-	else
-	{
-		std::cerr << "Failed to create file: " << Pname << std::endl;
-	}
-	Pfile.close();
-
-	if (deltaPfile.is_open())
-	{
-		string varName = "U \\ Theta";
 		writeExcel(deltaPname, varName, run->theta360, run->u, run->deltaP, 6, 2);
 	}
-	else
-	{
-		std::cerr << "Failed to create file: " << deltaPname << std::endl;
-	}
-	deltaPfile.close();
+
 	///////////////////////////////////////////////////////////////////////////////////////
-	std::filesystem::path subSubOutput("powerPerTurbine");
+	std::filesystem::path subSubOutput("不同风机发电功率");
 	std::filesystem::path outputDir;
 	outputDir = absOutput / subSubOutput;
 
@@ -876,17 +1080,17 @@ int Statistics::writeFile(bool isTranspose)
 
 	for (int i = 0; i < run->yaw.size_x; ++i)
 	{
-		std::string P0_iName = (outputDir / ("P0_" + std::to_string(i + 1) + ".csv")).string();
+		std::string P0_iName = (outputDir / ("不偏航_" + run->yaw.simulation.turbines.turbName[i] + ".csv")).string();
 		std::ofstream P0file(P0_iName);
-		std::string P_iName = (outputDir / ("P_" + std::to_string(i + 1) + ".csv")).string();
+		std::string P_iName = (outputDir / ("偏航_" + run->yaw.simulation.turbines.turbName[i] + ".csv")).string();
 		std::ofstream Pfile(P_iName);
-		std::string deltaP_iName = (outputDir / ("deltaP_" + std::to_string(i + 1) + ".csv")).string();
+		std::string deltaP_iName = (outputDir / ("偏航后功率变化_" + run->yaw.simulation.turbines.turbName[i] + ".csv")).string();
 		std::ofstream deltaPfile(deltaP_iName);
 		if (P0file.is_open() && Pfile.is_open() && deltaPfile.is_open())
 		{
 			if (isTranspose)
 			{
-				string varName = "Theta \\ U";
+				varName = "Theta \\ U";
 				Matrix deltaP_i;
 				Matrix P0_iT, P_iT, deltaP_iT;
 
@@ -902,7 +1106,7 @@ int Statistics::writeFile(bool isTranspose)
 			}
 			else
 			{
-				string varName = "U \\ Theta";
+				varName = "U \\ Theta";
 				Matrix deltaP_i;
 				getAMinusB(deltaP_i, run->P_i[i], run->P0_i[i]);
 
@@ -917,5 +1121,25 @@ int Statistics::writeFile(bool isTranspose)
 		}
 	}
 
+	writeSingleStatistics();
+	write_gPerThetaWithoutWeak();
+	write_g0PerTheta();
+	write_gPerTheta();
+	write_gPerUWithoutWeak();
+	write_g0PerU();
+	write_gPerU();
+	write_weakLoss0PerU();
+	write_weakLossPerU();
+	write_gIncreasePerU();
+	write_gPerTurbWithoutWeak();
+	write_g0PerTurb();
+	write_gPerTurb();
+	write_weakLoss0PerTurb();
+	write_weakLossPerTurb();
+	write_gIncreasePerTurb();
+	write_gTimeSeriseWithoutWeak();
+	write_g0TimeSerise();
+	write_gTimeSerise();
+	cout << "Done!" << endl;
 	return 0;
 }

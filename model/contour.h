@@ -16,7 +16,7 @@ public:
 	vector<vector<vector<double>>> vel;
 	Contour(Wake& wake, bool is2D);
 	int set_xy();
-	int get_vel(Model& model);
+	int get_vel(Column& newGamma, Model& model);
 	int output2D();
 	int set_xyz();
 	int output_xy();

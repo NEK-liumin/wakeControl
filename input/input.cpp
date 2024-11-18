@@ -42,19 +42,21 @@ int Input::readFile()
     {
         turbines->uWind[i] = turbines->uMin + (turbines->uMax - turbines->uMin) / (turbines->uNum - 1) * i;
     }
-
+    turbines->turbName.resize(turbines->turbNum);
     turbines->x0.resize(turbines->turbNum);
     turbines->y0.resize(turbines->turbNum);
     turbines->z0.resize(turbines->turbNum);
     turbines->D.resize(turbines->turbNum);
     turbines->turbType.resize(turbines->turbNum);
 
-    if (turbines->gamma == nullptr)
+    // 输入完成后，turbines->gamma仍然为空指针。
+    // 因为turbines->gamma会在计算过程中指向外部变量
+    /*if (turbines->gamma == nullptr)
     {
         turbines->gamma = new Column();
-    }
+    }*/
     // turbines->gamma = new Column();
-    (*turbines->gamma).resize(turbines->turbNum);
+    //(*turbines->gamma).resize(turbines->turbNum);
 
     // 读取每个风机的位置、叶轮直径、风机种类
     std::getline(file, line);
@@ -64,6 +66,9 @@ int Input::readFile()
         std::stringstream ss(line);
         std::string value;
         
+        std::getline(ss, value, ',');
+        turbines->turbName[i] = value;
+
         std::getline(ss, value, ',');
         turbines->x0[i] = std::stod(value);
 
@@ -108,6 +113,11 @@ int Input::readFile()
             std::getline(ss, value);
             turbines->Ct[i][j] = std::stod(value);
         }
+    }
+    turbines->isWork.resize(turbines->turbNum);
+    for (int i = 0; i < turbines->turbNum; ++i)
+    {
+        turbines->isWork[i] = '1';
     }
 	return 0;
 }

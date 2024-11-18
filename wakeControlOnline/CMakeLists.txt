@@ -3,16 +3,13 @@
 #
 cmake_minimum_required (VERSION 3.10)
 
-# 如果支持，请为 MSVC 编译器启用热重载。
+link_libraries(tecplot)
 
-project ("run")
+project ("wakeControlOnline")
 aux_source_directory(./ SRC)
-
-link_libraries(solver)
-link_libraries(usr)
 
 # 将源代码添加到此项目的可执行文件。
 set(LIBRARY_OUTPUT_PATH ${LIBPATH})
-add_library(run STATIC ${SRC})
+add_library(wakeControlOnline STATIC ${SRC})
 
 # TODO: 如有需要，请添加测试并安装目标。

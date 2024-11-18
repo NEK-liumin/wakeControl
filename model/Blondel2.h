@@ -1,5 +1,5 @@
-#ifndef BLONDEL_H
-#define BLONDEL_H
+#ifndef BLONDEL2_H
+#define BLONDEL2_H
 #include "model.h"
 #include <math.h>
 #include <iostream>
@@ -10,7 +10,7 @@ using std::endl;
 
 // Blondel F, Cathelain M.An alternative form of the super - Gaussian
 // wind turbine wake model[J].Wind Energy Science Discussions, 2020, 2020: 1 - 16.
-class Blondel :public Model
+class Blondel2 :public Model
 {
 private:
 	/*double as = 0.28;
@@ -28,7 +28,7 @@ private:
 	const double bf = -0.68;
 	const double cf = 2.41;
 public:
-	Blondel(double& ky, double& kz, double& I)
+	Blondel2(double& ky, double& kz, double& I)
 	{
 		this->ky = ky;
 		this->kz = kz;
@@ -58,7 +58,7 @@ public:
 	// 仅用于尾流大小计算
 	int get_sigmaBar(double& sigmaBar, double& beta, double& D, double& x, double& xTurb)
 	{
-		sigmaBar = (as * I + bs) * (x - xTurb) / D + cs * sqrt(beta);
+		sigmaBar = (as * I + bs) * abs(x - xTurb) / D + cs * sqrt(beta);
 		return 0;
 	}
 	int get_beta(double& beta, double& Ct)
@@ -81,7 +81,7 @@ public:
 
 	int get_n(double& n, double& x, double& xTurb, double& D)
 	{
-		n = af * exp(bf * (x - xTurb) / D) + cf;
+		n = af * exp(bf * abs(x - xTurb) / D) + cf;
 		return 0;
 	}
 
@@ -140,7 +140,8 @@ public:
 	}
 	int get_delta(double& delta, double& xTurb, double& x, double& theta0)
 	{
-		delta = (x - xTurb) * theta0;
+		if (x <= xTurb)delta = 0;
+		else delta = (x - xTurb) * theta0;
 		return 0;
 	}
 	int get_delta(double& delta, double& delta0, double& gamma, double& ky, double& kz, double& sigmay, double& sigmaz, double& ct, double& D, double& theta0)
@@ -173,7 +174,7 @@ public:
 		get_x0(x0, D, gamma, Ct, I);
 
 		// 当前位置位于风机上游，不受该风机影响
-		if (x < xTurb)
+		if ((x - xTurb) < tan(-gamma) * (y - yTurb))
 		{
 			deltaU = 0.0;
 			return 0;
@@ -273,7 +274,7 @@ public:
 		meshVel = uWind;
 		for (int i = 0; i < turbs.turbNum; ++i)
 		{
-			if (x > turbs.x0[i])
+			if ((x - turbs.x0[i]) > tan(-gamma[i]) * (y - turbs.y0[i]))
 			{
 				double Ct;
 				int k = turbs.turbType[i];

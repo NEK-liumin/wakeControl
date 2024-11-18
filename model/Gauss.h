@@ -153,7 +153,7 @@ public:
 		{
 			double Ct;
 			int k = turbs.turbType[i];
-			turbs.getCt(Ct, vel[i], k);
+			turbs.getCt(Ct, vel[i], i, k);
 			for (int j = i + 1; j < turbs.turbNum; ++j)
 			{
 				getVel(wake[j], turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], (*turbs.gamma)[i], vel[i], uWind, turbs.x0[j], turbs.y0[j], turbs.z0[j]);
@@ -174,7 +174,7 @@ public:
 			{
 				double Ct;
 				int k = turbs.turbType[i];
-				turbs.getCt(Ct, turbVel[i], k);
+				turbs.getCt(Ct, turbVel[i], i, k);
 				getVel(wake, turbs.D[i], Ct, turbs.x0[i], turbs.y0[i], turbs.z0[i], (*turbs.gamma)[i], turbVel[i], uWind, x, y, z);
 				sumWake += (1 - wake / uWind) * (1 - wake / uWind);
 			}

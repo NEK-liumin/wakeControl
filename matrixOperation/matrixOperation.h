@@ -8,6 +8,8 @@
 using std::vector;
 using Matrix = vector<vector<double>>;
 using Column = vector<double>;
+// 输入字符类型的vector来表示bool类型，0表示false，1表示true
+using Bool = std::vector<char>;
 
 const double SMALL = 1e-16;
 const double LARGE = 1e20;
@@ -20,7 +22,7 @@ int interpolation(double& result, Matrix& A, int& ni, int& nj, double& factori, 
 int findx(int& index, double& factor, Column& data, double& x);
 
 // 获得均匀分布的数列
-int getUniformA(Column& A, double& first, double& last, int n);
+int getUniformA(Column& A, double& first, double& delta, int n);
 
 int getZeroMatrix(Matrix& result, int m, int n);
 
@@ -105,6 +107,8 @@ bool LDL_decomposition(Matrix& L, Matrix& D, Matrix& A);
 int printA(Matrix A);
 
 int printA(Column A);
+
+int printA(Bool A);
 
 // 计算gamma函数
 // Gamma(z) = (z-1)!

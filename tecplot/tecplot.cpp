@@ -1,6 +1,7 @@
 #include "tecplot.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include "matrixOperation.h"
 using std::vector;
@@ -30,12 +31,15 @@ static int writeLoop2D(ofstream& outFile, vector<Matrix>& v)
 	return 0;
 }
 
-Tecplot2D::Tecplot2D(string& fileName, vector<string>& variName, int variNum)
+Tecplot2D::Tecplot2D(string& fileName, vector<string>& variName, string& titleName, int variNum)
 {
 	this->fileName = fileName;
 	this->variName = variName;
+	this->titleName = titleName;
 	this->variNum = variNum;
 	this->var.resize(variNum);
+	x = nullptr;
+	y = nullptr;
 }
 
 int Tecplot2D::set_xy(vector<Matrix>& x, vector<Matrix>& y)
@@ -57,7 +61,7 @@ int Tecplot2D::output()
 	int nJ = (*x)[0].size();
 	ofstream outFile(fileName);
 
-	if (!outFile)
+	if (!outFile.is_open())
 	{
 		std::cerr << "Cannot Open File " << fileName << "!" << std::endl;
 		return 1;
@@ -65,9 +69,10 @@ int Tecplot2D::output()
 	if (variNum == 0)
 	{
 		outFile << "VARIABLES=\"x\", \"y\"" << endl;
-		outFile << "ZONE I=" << nI << ",J=" << nJ << " F=BLOCK" << endl;
+		outFile << "ZONE T = \"" << titleName << "\"," << " I = " << nI << ", J = " << nJ << " F = BLOCK" << endl;
 		writeLoop2D(outFile, *x);
 		writeLoop2D(outFile, *y);
+		outFile.close();
 		return 0;
 	}
 	else
@@ -75,16 +80,36 @@ int Tecplot2D::output()
 		outFile << "VARIABLES=\"x\", \"y\"" << endl;
 		for (int i = 0; i < variNum; ++i)
 		{
-			outFile << "," << variName[i] << endl;
+			outFile << ", \"" << variName[i] << "\"" << endl;
 		}
-		outFile << "ZONE I=" << nI << ",J=" << nJ << " F=BLOCK" << endl;
+		outFile << "ZONE T = \"" << titleName << "\"," << " I = " << nI << ", J = " << nJ << " F = BLOCK" << endl;
 		writeLoop2D(outFile, *x);
 		writeLoop2D(outFile, *y);
 		for (int i = 0; i < variNum; ++i)
 		{
 			writeLoop2D(outFile, *(var[i]));
 		}
+		outFile.close();
 		return 0;
 	}
+	return 0;
+}
+
+int getTitle(string& fileName, string& titleName, double& u, double& theta360, int p)
+{
+	std::ostringstream oss;
+	oss << std::fixed << std::setprecision(p) << u << "_" << std::fixed << std::setprecision(p) << theta360;
+	titleName = oss.str();
+	oss << ".dat";
+	fileName = oss.str();
+	return 0;
+}
+int getTitle(string& fileName, string& titleName, double& u, double& theta360, string& date, int p)
+{
+	std::ostringstream oss;
+	oss << std::fixed << std::setprecision(p) << u << "_" << std::fixed << std::setprecision(p) << theta360;
+	titleName = oss.str();
+	oss << "_" << date << ".dat";
+	fileName = oss.str();
 	return 0;
 }
